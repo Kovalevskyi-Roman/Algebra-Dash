@@ -13,9 +13,10 @@ class Window:
 
     @classmethod
     def update_events(cls) -> None:
-        cls.events = tuple(pygame.event.get())
-        if pygame.QUIT in cls.events:
-            cls.running = False
+        cls.events = tuple([e for e in pygame.event.get()])
+        for e in cls.events:
+            if e.type == pygame.QUIT:
+                cls.running = False
 
     def fill(self, color) -> None:
         self.surface.fill(color)

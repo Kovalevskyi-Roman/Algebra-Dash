@@ -1,6 +1,8 @@
+from window import Window
+
 
 def main() -> None:
-    pass
+    window: Window = Window()
 
 if __name__ == '__main__':
     main()

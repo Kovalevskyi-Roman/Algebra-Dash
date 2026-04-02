@@ -9,6 +9,9 @@ class Player:
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.move_speed: float = 4
         self.jump_height: float = -5
+        self.collision: dict[str, bool] = {
+            "top": False, "left": False, "bottom": False, "right": False
+        }
 
     def update(self) -> None:
         keys = pygame.key.get_pressed()
@@ -20,7 +23,10 @@ class Player:
         else:
             self.velocity.x = 0
 
-        self.rect.topleft += self.velocity
+        if self.collision["bottom"] and keys[pygame.K_SPACE]:
+            self.velocity.y = self.jump_height
+        else:
+            self.velocity.y += 0.1
 
-    def draw(self, surface: pygame.Surface) -> None:
-        pygame.draw.rect(surface, "#ffffff", self.rect)
+    def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+        pygame.draw.rect(surface, "#ffffff", [self.rect.topleft- camera_offset, self.rect.size])

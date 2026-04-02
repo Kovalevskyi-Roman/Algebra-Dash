@@ -7,7 +7,7 @@ from .tile import Tile
 
 class TileManager:
     TILE: str = "tile"
-    __TILE_DATA: dict[str, dict[str, ...]] = {}
+    TILE_DATA: dict[str, dict[str, ...]] = {}
 
     @classmethod
     def __load_tile_texture(cls, texture_name: str) -> pygame.Surface | None:
@@ -33,7 +33,7 @@ class TileManager:
             content: list[dict[str, ...]] = json.load(file)
 
             for tile in content:
-                cls.__TILE_DATA.setdefault(
+                cls.TILE_DATA.setdefault(
                     tile.get("id"),
                     {
                         "texture": cls.__load_tile_texture(tile.get("texture", "")),
@@ -52,9 +52,9 @@ class TileManager:
                 return None
 
     @classmethod
-    def draw_tile(cls, tile: Tile, surface: pygame.Surface) -> None:
-        tile_texture = cls.__TILE_DATA.get(tile.id).get("texture")
+    def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+        tile_texture = cls.TILE_DATA.get(tile.id).get("texture")
         if tile_texture is None:
             return
 
-        surface.blit(tile_texture, tile.rect.topleft)
+        surface.blit(tile_texture, tile.rect.topleft - camera_offset)

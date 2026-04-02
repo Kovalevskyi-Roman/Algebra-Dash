@@ -1,0 +1,8 @@
+[
+    {
+        "id": "tile",
+        "texture": "tile.png",
+        "is_solid": true,
+        "hit_box": null
+    }
+]

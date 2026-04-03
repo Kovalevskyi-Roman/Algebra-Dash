@@ -6,16 +6,23 @@ from .tile import Tile
 
 
 class TileManager:
-    TILE: str = "tile"
-    TILE_DATA: dict[str, dict[str, ...]] = {}
+    TILE_DATA: dict[str, dict[str, ...]] = {
+        Tile.FOLLOW_TILE: {
+            "is_solid": True,
+            "hit_box": (0, 0, TILE_SIZE, TILE_SIZE)
+        }
+    }
 
     @classmethod
-    def __load_tile_texture(cls, texture_name: str) -> pygame.Surface | None:
+    def __load_tile_texture(cls, texture_name: str, texture_size: pygame.typing.SequenceLike[int] | None) -> pygame.Surface | None:
         if not texture_name:
             return None
 
         texture: pygame.Surface = pygame.image.load("../resources/textures/tiles/" + texture_name).convert_alpha()
-        texture = pygame.transform.scale_by(texture, TILE_SIZE / texture.get_width())
+        if texture_size is None:
+            texture = pygame.transform.scale_by(texture, TILE_SIZE / texture.get_width())
+        else:
+            texture = pygame.transform.scale(texture, texture_size)
 
         return texture
 
@@ -36,7 +43,7 @@ class TileManager:
                 cls.TILE_DATA.setdefault(
                     tile.get("id"),
                     {
-                        "texture": cls.__load_tile_texture(tile.get("texture", "")),
+                        "texture": cls.__load_tile_texture(tile.get("texture", ""), tile.get("texture_size", None)),
                         "is_solid": tile.get("is_solid", False),
                         "hit_box": cls.__load_tile_hit_box(tile)
                     }
@@ -45,15 +52,15 @@ class TileManager:
     @classmethod
     def create_tile(cls, tile_id: str, position: pygame.typing.SequenceLike[int], *args, **kwargs) -> Tile | None:
         match tile_id:
-            case cls.TILE:
-                return Tile(cls.TILE, position, *args, **kwargs)
+            case Tile.TILE:
+                return Tile(Tile.TILE, position, *args, **kwargs)
 
             case _:
-                return None
+                return Tile(tile_id, position, *args, **kwargs)
 
     @classmethod
     def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
-        tile_texture = cls.TILE_DATA.get(tile.id).get("texture")
+        tile_texture: pygame.Surface | None = cls.TILE_DATA.get(tile.id, {}).get("texture", None)
         if tile_texture is None:
             return
 

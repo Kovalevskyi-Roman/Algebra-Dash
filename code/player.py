@@ -1,11 +1,11 @@
 import pygame
 
-from common import TILE_SIZE
+from tile import Tile
 
 
 class Player:
     def __init__(self) -> None:
-        self.rect: pygame.FRect = pygame.FRect(0, 0, TILE_SIZE, TILE_SIZE)
+        self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.move_speed: float = 4
         self.jump_height: float = -5

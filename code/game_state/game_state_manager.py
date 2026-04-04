@@ -3,19 +3,24 @@ import pygame
 from .game_state import GameState
 from .menu_state import MenuState
 from .play_state import PlayState
-from .level_selection_state import LevelSelectionState
+from .original_levels_state import OriginalLevelsState
+from .editor import EditorState, CustomLevelsState
 
 
 class GameStateManager:
     MENU_STATE: type[GameState] = MenuState
     PLAY_STATE: type[GameState] = PlayState
-    LEVEL_SELECTION_STATE: type[GameState] = LevelSelectionState
+    ORIGINAL_LEVELS_STATE: type[GameState] = OriginalLevelsState
+    EDITOR_STATE: type[GameState] = EditorState
+    CUSTOM_LEVELS_STATE: type[GameState] = CustomLevelsState
 
     def __init__(self) -> None:
         self.game_states: dict[type[GameState], GameState] = {
             self.MENU_STATE: MenuState(self),
             self.PLAY_STATE: PlayState(self),
-            self.LEVEL_SELECTION_STATE: LevelSelectionState(self)
+            self.ORIGINAL_LEVELS_STATE: OriginalLevelsState(self),
+            self.EDITOR_STATE: EditorState(self),
+            self.CUSTOM_LEVELS_STATE: CustomLevelsState(self)
         }
 
         self.current_state_type: type[GameState] = self.MENU_STATE
@@ -32,8 +37,8 @@ class GameStateManager:
         if self.__current_state is not None:
             self.__current_state.on_state_enter()
 
-    def update_state(self) -> None:
+    def update(self) -> None:
         self.__current_state.update()
 
-    def draw_state(self, surface: pygame.Surface) -> None:
+    def draw(self, surface: pygame.Surface) -> None:
         self.__current_state.draw(surface)

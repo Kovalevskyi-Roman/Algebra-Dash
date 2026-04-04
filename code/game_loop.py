@@ -11,11 +11,11 @@ class GameLoop:
 
     def __update(self) -> None:
         self.__window.tick()
-        self.__game_state_manager.update_state()
+        self.__game_state_manager.update()
 
     def __draw(self) -> None:
         self.__window.fill((0, 0, 0))
-        self.__game_state_manager.draw_state(self.__window.surface)
+        self.__game_state_manager.draw(self.__window.surface)
         self.__window.update()
 
     def run(self) -> None:

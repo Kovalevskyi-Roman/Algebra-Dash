@@ -3,7 +3,7 @@ import pygame
 
 class GameState:
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
-        self.__game_state_manager = game_state_manager
+        self._game_state_manager = game_state_manager
 
     def update(self, *args, **kwargs) -> None:
         ...

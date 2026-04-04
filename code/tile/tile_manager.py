@@ -1,7 +1,6 @@
 import json
 import pygame
 
-from common import TILE_SIZE
 from .tile import Tile
 
 
@@ -9,7 +8,7 @@ class TileManager:
     TILE_DATA: dict[str, dict[str, ...]] = {
         Tile.FOLLOW_TILE: {
             "is_solid": True,
-            "hit_box": (0, 0, TILE_SIZE, TILE_SIZE)
+            "hit_box": (0, 0, Tile.SIZE, Tile.SIZE)
         }
     }
 
@@ -20,7 +19,7 @@ class TileManager:
 
         texture: pygame.Surface = pygame.image.load("../resources/textures/tiles/" + texture_name).convert_alpha()
         if texture_size is None:
-            texture = pygame.transform.scale_by(texture, TILE_SIZE / texture.get_width())
+            texture = pygame.transform.scale_by(texture, Tile.SIZE / texture.get_width())
         else:
             texture = pygame.transform.scale(texture, texture_size)
 
@@ -32,7 +31,7 @@ class TileManager:
         if hit_box is None:
             hit_box = [0, 0, 1, 1]
 
-        return tuple(map(lambda x: int(x * TILE_SIZE), hit_box))
+        return tuple(map(lambda x: int(x * Tile.SIZE), hit_box))
 
     @classmethod
     def load_tile_data(cls) -> None:

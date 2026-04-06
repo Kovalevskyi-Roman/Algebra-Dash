@@ -14,5 +14,5 @@ class Tile:
         if self.id == self.FOLLOW_TILE:
             self.rect.x = kwargs.get("player").rect.x
 
-    def on_player_collide(self, player, *args, **kwargs) -> None:
+    def on_player_collide(self, *args, **kwargs) -> None:
         ...

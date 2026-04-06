@@ -58,6 +58,17 @@ class TileManager:
                 return Tile(tile_id, position, *args, **kwargs)
 
     @classmethod
+    def from_json(cls, json_tile: dict[str, ...]) -> Tile:
+        return cls.create_tile(json_tile.get("id"), json_tile.get("position"))
+
+    @classmethod
+    def to_json(cls, tile: Tile) -> dict:
+        return {
+            "id": tile.id,
+            "position": [tile.rect.x, tile.rect.y]
+        }
+
+    @classmethod
     def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         tile_texture: pygame.Surface | None = cls.TILE_DATA.get(tile.id, {}).get("texture", None)
         if tile_texture is None:

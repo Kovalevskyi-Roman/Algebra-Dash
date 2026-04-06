@@ -6,14 +6,14 @@ from tile import Tile, TileManager
 
 
 class Collider:
-    def __init__(self, player: Player, tiles: list[Tile]) -> None:
+    def __init__(self, player: Player, level: "Level") -> None:
         self.player = player
-        self.tiles = tiles
+        self.level = level
 
     def __get_collided_tiles(self, camera_offset: pygame.Vector2) -> tuple[Tile, ...]:
         collided_tiles: list[Tile] = list()
 
-        for tile in self.tiles:
+        for tile in self.level.tiles:
             # checks if tile is on screen
             if tile.rect.right - camera_offset.x < 0 or tile.rect.left - camera_offset.x > Window.SIZE[0] or \
                     tile.rect.bottom - camera_offset.y < 0 or tile.rect.top - camera_offset.y > Window.SIZE[1]:
@@ -39,7 +39,7 @@ class Collider:
                 self.player.rect.left = tile.rect.right
                 self.player.collision["left"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
-            tile.on_player_collide(self.player)
+            tile.on_player_collide(player=self.player, level=self.level)
             self.player.velocity.x = 0
 
         self.player.rect.y += self.player.velocity.y
@@ -52,5 +52,5 @@ class Collider:
                 self.player.rect.top = tile.rect.bottom
                 self.player.collision["top"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
-            tile.on_player_collide(self.player)
+            tile.on_player_collide(player=self.player, level=self.level)
             self.player.velocity.y = 0

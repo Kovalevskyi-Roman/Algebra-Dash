@@ -26,9 +26,9 @@ class Button:
         offset = pygame.Vector2(offset)
 
         if offset.x == -1:
-            offset.x = self.rect.centerx - render.get_width() / 2
+            offset.x = self.rect.width / 2 - render.get_width() / 2
         if offset.y == -1:
-            offset.y = self.rect.centery - render.get_height() / 2
+            offset.y = self.rect.height / 2 - render.get_height() / 2
 
         surface.blit(render, self.rect.topleft + offset)
 

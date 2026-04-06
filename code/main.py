@@ -5,14 +5,16 @@ from game_loop import GameLoop
 from tile import TileManager
 from game_state import GameStateManager
 from ui import UIConfig
+from level import Level
 
 def main() -> None:
     pygame.init()
 
     window: Window = Window()
+    UIConfig.init()
     TileManager.load_tile_data()
     game_state_manager: GameStateManager = GameStateManager()
-    UIConfig.init()
+    Level.load_levels()
     game_loop: GameLoop = GameLoop(window, game_state_manager)
     game_loop.run()
 

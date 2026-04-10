@@ -42,6 +42,19 @@ class Level:
         except FileNotFoundError:
             print(f"File 'level_data.json' not found.'")
 
+    @classmethod
+    def get_tiles(cls, path: str) -> list[Tile]:
+        try:
+            with open(path + "/tiles.json", "r") as tiles_file:
+                tiles: list[Tile] = list()
+                for json_tile in json.load(tiles_file):
+                    tiles.append(TileManager.from_json(json_tile))
+
+            return tiles
+
+        except FileNotFoundError:
+            return list()
+
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
         self.name = ""
@@ -55,32 +68,26 @@ class Level:
         except FileNotFoundError:
             print(f"Could not find file '{path}/level_data.json'.")
 
-        try:
-            with open(path + "/tiles.json", "r") as tiles_file:
-                json_tiles: list[dict[str, ...]] = json.load(tiles_file)
-                for json_tile in json_tiles:
-                    self.tiles.append(TileManager.from_json(json_tile))
-
-        except FileNotFoundError:
-            pass
-
+        self.tiles.extend(self.get_tiles(path))
         self.tiles.append(Tile(Tile.FOLLOW_TILE, [0, 32]))
 
         self.__player = player
         self.collider = Collider(self.__player, self)
 
-    def save_tiles(self, path: str) -> None:
+    @classmethod
+    def save_tiles(cls, path: str, tiles: list[Tile]) -> None:
         with open(path + "/tiles.json", "w") as tiles_file:
             json_tiles: list[dict[str, ...]] = list()
-            for tile in self.tiles:
+            for tile in tiles:
                 json_tiles.append(TileManager.to_json(tile))
 
             json.dump(json_tiles, tiles_file, indent=2)
 
-    def save_data(self, path: str) -> None:
+    @classmethod
+    def save_data(cls, path: str, level_name: str) -> None:
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
-                "name": self.name,
+                "name": level_name,
             }
             json.dump(content, level_data_file, indent=4)
 

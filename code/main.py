@@ -13,8 +13,8 @@ def main() -> None:
     window: Window = Window()
     UIConfig.init()
     TileManager.load_tile_data()
-    game_state_manager: GameStateManager = GameStateManager()
     Level.load_levels()
+    game_state_manager: GameStateManager = GameStateManager()
     game_loop: GameLoop = GameLoop(window, game_state_manager)
     game_loop.run()
 

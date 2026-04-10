@@ -29,4 +29,4 @@ class Player:
             self.velocity.y += 0.1
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
-        pygame.draw.rect(surface, "#ffffff", [self.rect.topleft- camera_offset, self.rect.size])
+        pygame.draw.rect(surface, "#ffffff", [self.rect.topleft - camera_offset, self.rect.size])

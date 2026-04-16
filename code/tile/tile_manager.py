@@ -49,7 +49,7 @@ class TileManager:
                 )
 
     @classmethod
-    def create_tile(cls, tile_id: str, position: pygame.typing.SequenceLike[int], *args, **kwargs) -> Tile | None:
+    def create_tile(cls, tile_id: str, position: pygame.typing.SequenceLike[int] | pygame.Vector2, *args, **kwargs) -> Tile | None:
         match tile_id:
             case Tile.TILE:
                 return Tile(Tile.TILE, position, *args, **kwargs)

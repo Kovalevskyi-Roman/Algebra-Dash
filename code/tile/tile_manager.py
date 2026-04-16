@@ -69,14 +69,16 @@ class TileManager:
         }
 
     @classmethod
-    def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+    def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> bool:
+        """return True if the tile was drawn"""
         tile_texture: pygame.Surface | None = cls.TILE_DATA.get(tile.id, {}).get("texture", None)
         tile_pos: pygame.Vector2 = pygame.Vector2(tile.rect.topleft - camera_offset)
         if tile_texture is None:
-            return
+            return False
 
         if tile_pos.x + tile.rect.width < 0 or tile_pos.x > surface.get_width() or \
                 tile_pos.y + tile.rect.height < 0 or tile_pos.y > surface.get_height():
-            return
+            return False
 
         surface.blit(tile_texture, tile_pos)
+        return True

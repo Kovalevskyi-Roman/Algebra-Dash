@@ -1,0 +1,50 @@
+
+# TODO
+- [x] Window
+- [x] Game loop
+- [x] Camera
+- [x] Tile manager
+- [ ] Game state
+    - [x] Game state manager
+    - [x] Menu state
+    - [ ] Settings state
+    - [x] Original levels state
+    - [x] Play state
+    - [ ] Player color shop state
+    - [ ] Editor
+        - [x] Custom levels state
+        - [ ] Editor state
+- [ ] UI
+    - [x] Config
+    - [x] Button
+    - [ ] Input
+    - [ ] Slider
+- [ ] Level saving
+    - [ ] Tiles compression
+- [ ] Level loading
+    - [ ] Tiles decompression
+- [ ] Tile
+    - [x] Tile
+    - [ ] Spikes
+    - [ ] Orbs
+    - [ ] Portals
+- [ ] Triggers
+    - [ ] Tile groups
+    - [ ] Start pos
+    - [ ] Move trigger
+    - [ ] Color trigger
+    - [ ] Follow trigger
+    - [ ] Toggle trigger
+    - [ ] SFX trigger
+- [ ] Player game modes
+    - [ ] Cube
+    - [ ] Ship
+    - [ ] Ball
+    - [ ] Wave
+    - [ ] Robot
+    - [ ] Spider
+- [ ] Player dual mode
+- [ ] Music and sounds
+    - [ ] Menu music
+    - [ ] Level music
+    - [ ] SFX

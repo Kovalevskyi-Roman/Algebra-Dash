@@ -135,10 +135,10 @@ class EditorState(GameState):
             # creates selection rectangle
             self.__selection_rect = pygame.Rect(
                 self.__mouse_pressed_pos,
-                [mouse_pos.x - self.__mouse_pressed_pos.x + self.__camera_offset.x + 1,
-                 mouse_pos.y - self.__mouse_pressed_pos.y + self.__camera_offset.y + 1]
-                # +1 is if mouse was not moving but tile must be selected
-                # (if self.__mouse_pressed_pos - mouse_pos = 0, width and height equals 0 => rect don't collide, so adding 1 fixes it)
+                [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x + 1,
+                 mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y + 1]
+                # +self.__camera_offset needed because: (mouse_pos + camera) - (mouse_pressed_pos + camera) => mouse_pos - mouse_pressed_pos
+                # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fixes it)
             )
             if self.__selection_rect.width < 0:
                 self.__selection_rect.width = abs(self.__selection_rect.width)
@@ -150,7 +150,7 @@ class EditorState(GameState):
             for tile in self.__tiles:
                 if self.__selection_rect.colliderect(tile.rect):
                     self.__selected_tiles.add(tile)
-                elif tile in self.__selected_tiles:
+                elif tile in self.__selected_tiles and not keys_pressed[pygame.K_LCTRL]:
                     self.__selected_tiles.remove(tile)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
@@ -165,8 +165,7 @@ class EditorState(GameState):
             [-self.__camera_offset.x, 0], [-self.__camera_offset.x, surface.get_height()]
         )
         for tile in self.__tiles:
-            TileManager.draw_tile(tile, surface, self.__camera_offset)
-            if tile in self.__selected_tiles:
+            if TileManager.draw_tile(tile, surface, self.__camera_offset) and tile in self.__selected_tiles:
                 selection_surface = pygame.Surface(tile.rect.size, flags=pygame.SRCALPHA)
                 selection_surface.fill((0, 255, 0, 127))
                 surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset)

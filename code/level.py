@@ -37,7 +37,7 @@ class Level:
                     continue
 
                 with open(f"{str(obj)}/level_data.json", "r") as file:
-                    cls.levels.setdefault(str(obj), json.load(file))
+                    cls.levels.setdefault(str(obj), json.load(file))  # path, data
 
         except FileNotFoundError:
             print(f"File 'level_data.json' not found.'")
@@ -75,13 +75,69 @@ class Level:
         self.collider = Collider(self.__player, self)
 
     @classmethod
-    def save_tiles(cls, path: str, tiles: list[Tile]) -> None:
-        with open(path + "/tiles.json", "w") as tiles_file:
-            json_tiles: list[dict[str, ...]] = list()
-            for tile in tiles:
-                json_tiles.append(TileManager.to_json(tile))
+    def __sort_tiles(cls, tiles: list[Tile]) -> list[Tile]:
+        tile_groups: dict[int, list[Tile]] = dict()
+        for tile in tiles:
+            if tile_groups.get(tile.rect.y, None) is None:
+                tile_groups.setdefault(tile.rect.y, list())
+            tile_groups.get(tile.rect.y).append(tile)
+        sorted_tiles: list[Tile] = list()
+        for tile_group in tile_groups.values():
+            sorted_tiles.extend(sorted(tile_group, key=lambda t: t.rect.x))
 
-            json.dump(json_tiles, tiles_file, indent=2)
+        return sorted_tiles
+
+    @classmethod
+    def __compress_tiles(cls, sorted_tiles: list[Tile]) -> list[dict[str, int | dict[str, ...]]]:
+        if not sorted_tiles:
+            return list()
+
+        if len(sorted_tiles) == 1:
+            return [{"count": 1, "tile": TileManager.to_json(sorted_tiles[0])}]
+
+        compressed_tiles: list[dict[str, int | dict[str, ...]]] = list()
+        count = 1
+        first_tile: Tile | None = None
+        last_tile: Tile | None = None
+        for i in range(len(sorted_tiles) - 1):
+            tile = sorted_tiles[i]
+            next_tile = sorted_tiles[i + 1]
+
+            if i + 1 == len(sorted_tiles) - 1:
+                last_tile = next_tile
+
+            # if tile in a row has next neighbor
+            if tile.rect.y == next_tile.rect.y and tile.rect.x + Tile.SIZE == next_tile.rect.x and \
+                    tile.id == next_tile.id:
+                count += 1
+                if first_tile is None:
+                    first_tile = tile
+                continue
+
+            # if tile has no neighbors
+            if first_tile is None:
+                compressed_tiles.append({"count": count, "tile": TileManager.to_json(tile)})
+                continue
+
+            # if tile last in a row
+            compressed_tiles.append({"count": count, "tile": TileManager.to_json(first_tile)})
+            count = 1
+            first_tile = None
+
+        if first_tile is not None:
+            compressed_tiles.append({"count": count, "tile": TileManager.to_json(first_tile)})
+        else:
+            compressed_tiles.append({"count": 1, "tile": TileManager.to_json(last_tile)})
+
+        return compressed_tiles
+
+    @classmethod
+    def save_tiles(cls, path: str, tiles: list[Tile]) -> None:
+        sorted_tiles = cls.__sort_tiles(tiles)
+        compressed_tiles = cls.__compress_tiles(sorted_tiles)
+
+        with open(f"{path}/tiles.json", "w") as file:
+            json.dump(compressed_tiles, file)
 
     @classmethod
     def save_data(cls, path: str, level_name: str) -> None:

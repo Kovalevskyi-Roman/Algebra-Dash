@@ -1,4 +1,6 @@
 import json
+from argparse import ArgumentError
+
 import pygame
 
 from .tile import Tile
@@ -59,10 +61,16 @@ class TileManager:
 
     @classmethod
     def from_json(cls, json_tile: dict[str, ...]) -> Tile:
+        if json_tile is None:
+            raise ValueError("Could not create Tile from JSON because JSON is None.")
+
         return cls.create_tile(json_tile.get("id"), json_tile.get("position"))
 
     @classmethod
     def to_json(cls, tile: Tile) -> dict:
+        if tile is None:
+            raise ValueError("Could not convert tile to JSON because tile is None.")
+
         return {
             "id": tile.id,
             "position": [tile.rect.x, tile.rect.y]

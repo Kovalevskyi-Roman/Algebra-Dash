@@ -3,6 +3,7 @@
 - [x] Window
 - [x] Game loop
 - [x] Camera
+- [x] Collider
 - [x] Tile manager
 - [ ] Game state
     - [x] Game state manager
@@ -20,7 +21,7 @@
     - [ ] Input
     - [ ] Slider
 - [ ] Level saving
-    - [ ] Tiles compression
+    - [x] Tiles compression
 - [ ] Level loading
     - [ ] Tiles decompression
 - [ ] Tile

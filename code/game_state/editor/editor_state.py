@@ -65,7 +65,6 @@ class EditorState(GameState):
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
-        self.__tiles.append(TileManager.create_tile(Tile.TILE, [0, 0]))
 
     def on_state_exit(self, *args, **kwargs) -> None:
         self.__tiles.clear()
@@ -91,6 +90,15 @@ class EditorState(GameState):
                 self.__cursor_mode = CursorMode.BUILD
             elif self.__cursor_mode == CursorMode.BUILD:
                 self.__cursor_mode = CursorMode.SELECT
+
+        if keys_just_pressed[pygame.K_ESCAPE]:
+            Level.save_tiles(self.level_path, self.__tiles)
+
+        if keys_just_pressed[pygame.K_BACKSPACE]:
+            for tile in self.__selected_tiles:
+                self.__tiles.remove(tile)
+
+            self.__selected_tiles.clear()
 
         if not mouse_pressed[0]:
             self.__mouse_pressed_pos = None

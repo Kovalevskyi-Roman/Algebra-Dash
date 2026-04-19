@@ -23,7 +23,7 @@
 - [ ] Level saving
     - [x] Tiles compression
 - [ ] Level loading
-    - [ ] Tiles decompression
+    - [x] Tiles decompression
 - [ ] Tile
     - [x] Tile
     - [ ] Spikes

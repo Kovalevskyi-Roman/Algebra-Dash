@@ -34,7 +34,19 @@ class EditorState(GameState):
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
         self.__hammer_icon = pygame.transform.flip(self.__hammer_icon, True, False)
 
+    def on_state_enter(self, *args, **kwargs) -> None:
+        self.__tiles = Level.get_tiles(self.level_path)
         self.__update_tile_panel_surface()
+
+    def on_state_exit(self, *args, **kwargs) -> None:
+        Level.save_tiles(self.level_path, self.__tiles)
+        self.__tiles.clear()
+        self.level_path = ""
+        self.__cursor_mode = CursorMode.SELECT
+        self.__placeable_tile = ""
+        self.__selected_tiles.clear()
+        self.__mouse_pressed_pos = None
+        self.__selection_rect = None
 
     def __update_tile_panel_surface(self) -> None:
         self.__tile_panel_surface.fill((178, 178, 178))
@@ -63,13 +75,6 @@ class EditorState(GameState):
                 x = self.__tile_icon_padding
                 y += self.__tile_icon_size[1] + self.__tile_icon_padding
 
-    def on_state_enter(self, *args, **kwargs) -> None:
-        self.__tiles = Level.get_tiles(self.level_path)
-
-    def on_state_exit(self, *args, **kwargs) -> None:
-        self.__tiles.clear()
-        self.level_path = ""
-
     def update(self, *args, **kwargs) -> None:
         keys_pressed = pygame.key.get_pressed()
         keys_just_pressed = pygame.key.get_just_pressed()
@@ -92,7 +97,7 @@ class EditorState(GameState):
                 self.__cursor_mode = CursorMode.SELECT
 
         if keys_just_pressed[pygame.K_ESCAPE]:
-            Level.save_tiles(self.level_path, self.__tiles)
+            self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
 
         if keys_just_pressed[pygame.K_BACKSPACE]:
             for tile in self.__selected_tiles:
@@ -148,6 +153,7 @@ class EditorState(GameState):
                 # +self.__camera_offset needed because: (mouse_pos + camera) - (mouse_pressed_pos + camera) => mouse_pos - mouse_pressed_pos
                 # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fixes it)
             )
+            # flips rectangle
             if self.__selection_rect.width < 0:
                 self.__selection_rect.width = abs(self.__selection_rect.width)
                 self.__selection_rect.x -= self.__selection_rect.width
@@ -172,18 +178,22 @@ class EditorState(GameState):
             surface, "#00ff00",
             [-self.__camera_offset.x, 0], [-self.__camera_offset.x, surface.get_height()]
         )
+        # tiles
         for tile in self.__tiles:
             if TileManager.draw_tile(tile, surface, self.__camera_offset) and tile in self.__selected_tiles:
                 selection_surface = pygame.Surface(tile.rect.size, flags=pygame.SRCALPHA)
                 selection_surface.fill((0, 255, 0, 127))
                 surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset)
 
+        # hammer icon
         if self.__cursor_mode == CursorMode.BUILD:
             surface.blit(self.__hammer_icon, pygame.Vector2(pygame.mouse.get_pos()) - pygame.Vector2(12, -6))
 
+        # selection rect
         if self.__selection_rect is not None:
             selection_surface = pygame.Surface(self.__selection_rect.size, flags=pygame.SRCALPHA)
             selection_surface.fill((0, 255, 0, 127))
             surface.blit(selection_surface, self.__selection_rect.topleft - self.__camera_offset)
 
+        # tile panel
         surface.blit(self.__tile_panel_surface, (0, Window.SIZE[1] - self.__tile_panel_surface.get_height()))

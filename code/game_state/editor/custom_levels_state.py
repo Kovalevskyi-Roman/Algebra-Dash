@@ -35,10 +35,12 @@ class CustomLevelsState(GameState):
         level_surfaces: list[pygame.Surface] = list()
         for i, level in enumerate(self.__levels):
             surface = pygame.Surface(self.__level_surface_size)
+
             if self.__selected_level == i:
                 surface.fill("#d0d0d0")
             else:
                 surface.fill("#676767")
+
             level_name = UIConfig.fonts.get("tahoma_20").render(level[1].get("level_name"), True, "#000000")
             surface.blit(level_name, [6, self.__level_surface_size.y / 2 - level_name.height / 2])
 
@@ -58,15 +60,15 @@ class CustomLevelsState(GameState):
         if self.__edit_btn.is_pressed() and self.__selected_level != -1:
             editor_state = self._game_state_manager.game_states.get(self._game_state_manager.EDITOR_STATE, None)
             if editor_state is None:
-                print()
-                return
+                raise RuntimeError("Could not find editor state.")
 
             editor_state.level_path = self.__levels[self.__selected_level][0]
             self._game_state_manager.change_state(self._game_state_manager.EDITOR_STATE)
 
-        if not mouse_press[0]:  # IF MOUSE NOT PRESSED CODE BELLOW WILL NOT WORK!
+        if not mouse_press[0]:
             return
 
+        # if any of level buttons pressed
         for i, level in enumerate(self.__levels):
             y = i * (self.__level_surface_size.y + self.__level_surfaces_padding) + self.__scroll
             if y > Window.SIZE[1]:

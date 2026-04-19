@@ -43,15 +43,28 @@ class Level:
             print(f"File 'level_data.json' not found.'")
 
     @classmethod
+    def __decompress_tiles(cls, compressed_tiles: list[dict[str, int | dict[str, ...]]]) -> list[Tile]:
+        tiles: list[Tile] = list()
+        for compressed_tile_row in compressed_tiles:
+            tile_row: list[Tile] = list()
+            compressed_row_position = compressed_tile_row.get("tile").get("position")
+            for i in range(compressed_tile_row.get("count")):
+                tile_row.append(TileManager.create_tile(
+                    compressed_tile_row.get("tile").get("id"),
+                    [compressed_row_position[0] + Tile.SIZE * i, compressed_row_position[1]]
+                ))
+
+            tiles.extend(tile_row)
+
+        return tiles
+
+    @classmethod
     def get_tiles(cls, path: str) -> list[Tile]:
         try:
             with open(path + "/tiles.json", "r") as tiles_file:
-                tiles: list[Tile] = list()
-                for json_tile in json.load(tiles_file):
-                    tiles.append(TileManager.from_json(json_tile))
+                compressed_tiles: list[dict[str, int | dict[str, ...]]] = json.load(tiles_file)
 
-            return tiles
-
+            return cls.__decompress_tiles(compressed_tiles)
         except FileNotFoundError:
             return list()
 
@@ -69,18 +82,21 @@ class Level:
             print(f"Could not find file '{path}/level_data.json'.")
 
         self.tiles.extend(self.get_tiles(path))
-        self.tiles.append(Tile(Tile.FOLLOW_TILE, [0, 32]))
+        self.tiles.append(Tile(Tile.FOLLOW_TILE, [0, 32]))  # floor tile
 
         self.__player = player
         self.collider = Collider(self.__player, self)
 
     @classmethod
     def __sort_tiles(cls, tiles: list[Tile]) -> list[Tile]:
+        # group tiles by Y coordinate
         tile_groups: dict[int, list[Tile]] = dict()
         for tile in tiles:
             if tile_groups.get(tile.rect.y, None) is None:
                 tile_groups.setdefault(tile.rect.y, list())
             tile_groups.get(tile.rect.y).append(tile)
+
+        # sorts tiles by X coordinate
         sorted_tiles: list[Tile] = list()
         for tile_group in tile_groups.values():
             sorted_tiles.extend(sorted(tile_group, key=lambda t: t.rect.x))
@@ -96,9 +112,9 @@ class Level:
             return [{"count": 1, "tile": TileManager.to_json(sorted_tiles[0])}]
 
         compressed_tiles: list[dict[str, int | dict[str, ...]]] = list()
-        count = 1
-        first_tile: Tile | None = None
-        last_tile: Tile | None = None
+        count = 1  # how many tiles in a row
+        first_tile: Tile | None = None  # first tile in a row
+        last_tile: Tile | None = None  # last tile in level
         for i in range(len(sorted_tiles) - 1):
             tile = sorted_tiles[i]
             next_tile = sorted_tiles[i + 1]
@@ -124,6 +140,7 @@ class Level:
             count = 1
             first_tile = None
 
+        # if level ends with tiles in a row
         if first_tile is not None:
             compressed_tiles.append({"count": count, "tile": TileManager.to_json(first_tile)})
         else:
@@ -148,7 +165,7 @@ class Level:
             json.dump(content, level_data_file, indent=4)
 
     @classmethod
-    def get_path_from_name(cls, level_name: str) -> str:
+    def get_path_from_level_name(cls, level_name: str) -> str:
         path = pathlib.Path("../resources/data/levels")
         for obj in path.iterdir():
             if not obj.is_dir():

@@ -1,1 +1,1 @@
-[]
+[{"count": 2, "tile": {"id": "tile", "position": [0, 0]}}, {"count": 2, "tile": {"id": "tile", "position": [96, 0]}}, {"count": 1, "tile": {"id": "tile", "position": [64, -32]}}, {"count": 2, "tile": {"id": "tile", "position": [0, -64]}}, {"count": 2, "tile": {"id": "tile", "position": [96, -64]}}]

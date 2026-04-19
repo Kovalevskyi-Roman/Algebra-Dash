@@ -1,6 +1,4 @@
 import json
-from argparse import ArgumentError
-
 import pygame
 
 from .tile import Tile

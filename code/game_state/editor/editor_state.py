@@ -29,6 +29,7 @@ class EditorState(GameState):
         self.__tile_icon_padding: int = 8
         self.__placeable_tile: str = ""
         self.__selected_tiles: set = set()
+        self.__draw_hitboxes: bool = False
 
         # https://icons8.com/icon/DwTO-Bs0fTYD/hammer icon by https://icons8.com Icons8
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
@@ -47,6 +48,7 @@ class EditorState(GameState):
         self.__selected_tiles.clear()
         self.__mouse_pressed_pos = None
         self.__selection_rect = None
+        self.__draw_hitboxes = False
 
     def __update_tile_panel_surface(self) -> None:
         self.__tile_panel_surface.fill((178, 178, 178))
@@ -80,6 +82,10 @@ class EditorState(GameState):
         keys_just_pressed = pygame.key.get_just_pressed()
         mouse_pressed = pygame.mouse.get_pressed()
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+
+        if keys_just_pressed[pygame.K_ESCAPE]:
+            self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
+
         # camera movement
         if keys_pressed[pygame.K_d]:
             self.__camera_offset.x += 8
@@ -96,10 +102,24 @@ class EditorState(GameState):
             elif self.__cursor_mode == CursorMode.BUILD:
                 self.__cursor_mode = CursorMode.SELECT
 
-        if keys_just_pressed[pygame.K_ESCAPE]:
-            self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
+        elif keys_just_pressed[pygame.K_h]:
+            self.__draw_hitboxes = not self.__draw_hitboxes
 
-        if keys_just_pressed[pygame.K_BACKSPACE]:
+        elif keys_just_pressed[pygame.K_EQUALS]:
+            for tile in self.__selected_tiles:
+                tile.scale_to_factor(tile.scale + 0.1)
+        elif keys_just_pressed[pygame.K_MINUS]:
+            for tile in self.__selected_tiles:
+                tile.scale_to_factor(tile.scale - 0.1)
+
+        elif keys_just_pressed[pygame.K_x]:
+            for tile in self.__selected_tiles:
+                tile.flip_by(not tile.flip_x, tile.flip_y)
+        elif keys_just_pressed[pygame.K_y]:
+            for tile in self.__selected_tiles:
+                tile.flip_by(tile.flip_x, not tile.flip_y)
+
+        elif keys_just_pressed[pygame.K_BACKSPACE]:
             for tile in self.__selected_tiles:
                 self.__tiles.remove(tile)
 
@@ -168,6 +188,7 @@ class EditorState(GameState):
                     self.__selected_tiles.remove(tile)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
+        surface.fill("#171727")
         # X axis line
         pygame.draw.line(
             surface, "#0000ff",
@@ -180,10 +201,14 @@ class EditorState(GameState):
         )
         # tiles
         for tile in self.__tiles:
-            if TileManager.draw_tile(tile, surface, self.__camera_offset) and tile in self.__selected_tiles:
-                selection_surface = pygame.Surface(tile.rect.size, flags=pygame.SRCALPHA)
-                selection_surface.fill((0, 255, 0, 127))
-                surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset)
+            if TileManager.draw_tile(tile, surface, self.__camera_offset):
+                if self.__draw_hitboxes:
+                    TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)
+
+                if tile in self.__selected_tiles:
+                    selection_surface = pygame.Surface(tile.rect.size, flags=pygame.SRCALPHA)
+                    selection_surface.fill((0, 255, 0, 127))
+                    surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset)
 
         # hammer icon
         if self.__cursor_mode == CursorMode.BUILD:

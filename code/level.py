@@ -20,12 +20,14 @@ class Level:
             is level original    (boolean)
             max progress         (int)
             death count          (int)
+            bg color             (string)
     """
     def __init__(self) -> None:
         self.name: str = ""
         self.tiles: list[Tile] = list()
         self.collider: Collider | None = None
         self.__player: Player | None = None
+        self.bg_color: str = ""
 
     @classmethod
     def load_levels(cls) -> None:
@@ -49,10 +51,10 @@ class Level:
             tile_row: list[Tile] = list()
             compressed_row_position = compressed_tile_row.get("tile").get("position")
             for i in range(compressed_tile_row.get("count")):
-                tile_row.append(TileManager.create_tile(
-                    compressed_tile_row.get("tile").get("id"),
-                    [compressed_row_position[0] + Tile.SIZE * i, compressed_row_position[1]]
-                ))
+                tile_row.append(
+                    TileManager.from_json(compressed_tile_row.get("tile"))
+                )
+                compressed_tile_row.get("tile").get("position")[0] += Tile.SIZE
 
             tiles.extend(tile_row)
 
@@ -73,16 +75,18 @@ class Level:
         self.name = ""
         self.collider = None
         self.__player = None
+        self.bg_color = ""
         try:
             with open(path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
                 self.name = content.get("name")
+                self.bg_color = content.get("bg_color", "#1c10c7")
 
         except FileNotFoundError:
             print(f"Could not find file '{path}/level_data.json'.")
 
         self.tiles.extend(self.get_tiles(path))
-        self.tiles.append(Tile(Tile.FOLLOW_TILE, [0, 32]))  # floor tile
+        self.tiles.append(TileManager.create_tile(Tile.FOLLOW_TILE, [0, 32]))  # floor tile
 
         self.__player = player
         self.collider = Collider(self.__player, self)
@@ -90,7 +94,7 @@ class Level:
     @classmethod
     def __sort_tiles(cls, tiles: list[Tile]) -> list[Tile]:
         # group tiles by Y coordinate
-        tile_groups: dict[int, list[Tile]] = dict()
+        tile_groups: dict[float, list[Tile]] = dict()
         for tile in tiles:
             if tile_groups.get(tile.rect.y, None) is None:
                 tile_groups.setdefault(tile.rect.y, list())
@@ -124,7 +128,8 @@ class Level:
 
             # if tile in a row has next neighbor
             if tile.rect.y == next_tile.rect.y and tile.rect.x + Tile.SIZE == next_tile.rect.x and \
-                    tile.id == next_tile.id:
+                    tile.id == next_tile.id and tile.flip_x == next_tile.flip_x and tile.flip_y == next_tile.flip_y and \
+                    tile.scale == next_tile.scale:
                 count += 1
                 if first_tile is None:
                     first_tile = tile
@@ -157,10 +162,11 @@ class Level:
             json.dump(compressed_tiles, file)
 
     @classmethod
-    def save_data(cls, path: str, level_name: str) -> None:
+    def save_data(cls, path: str, level_name: str, bg_color: str) -> None:
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
                 "name": level_name,
+                "bg_color": bg_color
             }
             json.dump(content, level_data_file, indent=4)
 
@@ -183,10 +189,14 @@ class Level:
 
     def update(self, camera_offset: pygame.Vector2) -> None:
         for tile in self.tiles:
-            tile.update(player=self.__player)
+            tile.update(player=self.__player, level=self)
 
         self.collider.update_collision(camera_offset)
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         for tile in self.tiles:
             TileManager.draw_tile(tile, surface, camera_offset)
+
+        # draw ground
+        if -camera_offset.y + Tile.SIZE < surface.height:
+            pygame.draw.rect(surface, "#000000", [[0, -camera_offset.y + Tile.SIZE], surface.size])

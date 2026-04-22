@@ -49,6 +49,11 @@ class CustomLevelsState(GameState):
         self.__level_surfaces = tuple(level_surfaces)
 
     def update(self, *args, **kwargs) -> None:
+
+        if pygame.key.get_just_released()[pygame.K_ESCAPE]:
+            self._game_state_manager.change_state(self._game_state_manager.MENU_STATE)
+            return
+
         mouse_press = pygame.mouse.get_just_pressed()
         mouse_pos = pygame.mouse.get_pos()
         mouse_scroll = tuple(filter(lambda e: e.type == pygame.MOUSEWHEEL, Window.events))

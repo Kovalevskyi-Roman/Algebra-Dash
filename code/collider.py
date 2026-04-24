@@ -10,7 +10,7 @@ class Collider:
         self.player = player
         self.level = level
 
-    def __get_collided_tiles(self, camera_offset: pygame.Vector2) -> tuple[Tile, ...]:
+    def __get_collided_tiles(self, camera_offset: pygame.Vector2, player_rect: pygame.FRect) -> tuple[Tile, ...]:
         collided_tiles: list[Tile] = list()
 
         for tile in self.level.tiles:
@@ -24,42 +24,49 @@ class Collider:
                 tile.hitbox.width, tile.hitbox.height
             )
 
-            if self.player.rect.colliderect(tile_hitbox_rect):
+            if player_rect.colliderect(tile_hitbox_rect):
                 collided_tiles.append(tile)
 
         return tuple(collided_tiles)
 
     def update_collision(self, camera_offset: pygame.Vector2) -> None:
+        game_mode_hitbox: pygame.Rect = self.player.game_modes.get(self.player.current_game_mode).hitbox
+        player_rect = pygame.FRect(pygame.Vector2(self.player.rect.topleft) + game_mode_hitbox.topleft, game_mode_hitbox.size)
         self.player.collision = {
             "top": False, "left": False, "bottom": False, "right": False
         }
 
-        self.player.rect.x += self.player.velocity.x
-        for tile in self.__get_collided_tiles(camera_offset):
+        # checks collision on X axis
+        player_rect.x += self.player.velocity.x
+        for tile in self.__get_collided_tiles(camera_offset, player_rect):
             if TileManager.TILE_DATA.get(tile.id).get("is_solid"):
                 if self.player.velocity.x > 0:
-                    self.player.rect.right = tile.rect.left
+                    player_rect.right = tile.rect.left
                     self.player.collision["right"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
                 elif self.player.velocity.x < 0:
-                    self.player.rect.left = tile.rect.right
+                    player_rect.left = tile.rect.right
                     self.player.collision["left"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
             tile.on_player_collide(player=self.player, level=self.level)
-            if TileManager.TILE_DATA.get(tile.id).get("is_solid"):
+            if TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False):
                 self.player.velocity.x = 0
 
-        self.player.rect.y += self.player.velocity.y
-        for tile in self.__get_collided_tiles(camera_offset):
+        # checks collision on Y axis
+        player_rect.y += self.player.velocity.y
+        for tile in self.__get_collided_tiles(camera_offset, player_rect):
             if TileManager.TILE_DATA.get(tile.id).get("is_solid"):
                 if self.player.velocity.y > 0:
-                    self.player.rect.bottom = tile.rect.top
+                    player_rect.bottom = tile.rect.top
                     self.player.collision["bottom"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
                 elif self.player.velocity.y < 0:
-                    self.player.rect.top = tile.rect.bottom
+                    player_rect.top = tile.rect.bottom
                     self.player.collision["top"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
             tile.on_player_collide(player=self.player, level=self.level)
-            if TileManager.TILE_DATA.get(tile.id).get("is_solid"):
+            if TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False):
                 self.player.velocity.y = 0
+
+        # updates player position
+        self.player.rect.topleft = pygame.Vector2(player_rect.topleft) - game_mode_hitbox.topleft

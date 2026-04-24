@@ -26,7 +26,7 @@
     - [x] Tiles decompression
 - [ ] Tile
     - [x] Tile
-    - [ ] Spikes
+    - [x] Spikes
     - [ ] Orbs
     - [ ] Portals
 - [ ] Triggers

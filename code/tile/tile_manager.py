@@ -115,7 +115,7 @@ class TileManager:
                 hitbox_rect.bottom < 0 or hitbox_rect.y > surface.get_height():
             return
 
-        pygame.draw.rect(surface, "#ff0000", hitbox_rect)
+        pygame.draw.rect(surface, "#ff0000", hitbox_rect, width=1)
 
     @classmethod
     def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> bool:

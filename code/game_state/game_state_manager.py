@@ -3,6 +3,7 @@ import pygame
 from .game_state import GameState
 from .menu_state import MenuState
 from .play_state import PlayState
+from .settings_state import SettingsState
 from .original_levels_state import OriginalLevelsState
 from .editor import EditorState, CustomLevelsState
 
@@ -10,6 +11,7 @@ from .editor import EditorState, CustomLevelsState
 class GameStateManager:
     MENU_STATE: type[GameState] = MenuState
     PLAY_STATE: type[GameState] = PlayState
+    SETTINGS_STATE: type[GameState] = SettingsState
     ORIGINAL_LEVELS_STATE: type[GameState] = OriginalLevelsState
     EDITOR_STATE: type[GameState] = EditorState
     CUSTOM_LEVELS_STATE: type[GameState] = CustomLevelsState
@@ -18,6 +20,7 @@ class GameStateManager:
         self.game_states: dict[type[GameState], GameState] = {
             self.MENU_STATE: MenuState(self),
             self.PLAY_STATE: PlayState(self),
+            self.SETTINGS_STATE: SettingsState(self),
             self.ORIGINAL_LEVELS_STATE: OriginalLevelsState(self),
             self.EDITOR_STATE: EditorState(self),
             self.CUSTOM_LEVELS_STATE: CustomLevelsState(self)

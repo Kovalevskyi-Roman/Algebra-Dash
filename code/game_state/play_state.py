@@ -16,8 +16,6 @@ class PlayState(GameState):
         self.__level: Level | None = None
         self.level_path: str = ""
 
-        self.__draw_hitboxes: bool = True
-
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__player = Player()
         self.__camera = Camera(self.__player)
@@ -47,6 +45,8 @@ class PlayState(GameState):
         self.__player.draw(surface, self.__camera.offset)
         self.__level.draw(surface, self.__camera.offset)
 
-        if self.__draw_hitboxes:
+        if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).show_hitboxes:
             for tile in self.__level.tiles:
                 TileManager.draw_tile_hitbox(tile, surface, self.__camera.offset)
+
+            self.__player.draw_hitbox(surface, self.__camera.offset)

@@ -14,5 +14,4 @@ class ShipMode(GameMode):
     def update(self):
         self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier
         if pygame.key.get_pressed()[pygame.K_SPACE]:
-            self._player.velocity.y += self.jump_height
-
+            self._player.velocity.y += self.jump_height * self._player.gravity_multiplier

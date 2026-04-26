@@ -3,6 +3,7 @@ import pygame
 
 from .tile import Tile
 from .spike import Spike
+from .orb import YellowOrb, BlueOrb
 
 
 class TileManager:
@@ -68,7 +69,13 @@ class TileManager:
                 tile = Tile(Tile.TILE, position, size, hitbox, *args, **kwargs)
 
             case Tile.SPIKE:
-                tile = Spike(Tile.SPIKE, position, size, hitbox, *args, **kwargs)
+                tile = Spike(position, size, hitbox, *args, **kwargs)
+
+            case Tile.YELLOW_ORB:
+                tile = YellowOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.BLUE_ORB:
+                tile = BlueOrb(position, size, hitbox, *args, **kwargs)
 
             case _:
                 tile = Tile(tile_id, position, size, hitbox, *args, **kwargs)

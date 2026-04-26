@@ -10,7 +10,11 @@ class CubeMode(GameMode):
         self.jump_height: float = -9
 
     def update(self):
-        if self._player.collision["bottom"] and pygame.key.get_pressed()[pygame.K_SPACE]:
-            self._player.velocity.y = self.jump_height
+        bottom = self._player.collision["bottom"]
+        if self._player.gravity_multiplier < 0:
+            bottom = self._player.collision["top"]
+
+        if bottom and pygame.key.get_pressed()[pygame.K_SPACE]:
+            self._player.velocity.y += self.jump_height * self._player.gravity_multiplier
         else:
             self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier

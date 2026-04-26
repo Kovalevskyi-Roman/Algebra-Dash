@@ -23,7 +23,7 @@ class Player:
             self.CUBE_MODE: CubeMode(self, "../resources/textures/game_modes/cube_mode.png"),
             self.SHIP_MODE: ShipMode(self, "../resources/textures/game_modes/ship_mode.png")
         }
-        self.current_game_mode: type[GameMode] = self.SHIP_MODE
+        self.current_game_mode: type[GameMode] = self.CUBE_MODE
 
     def update(self) -> None:
         keys = pygame.key.get_pressed()

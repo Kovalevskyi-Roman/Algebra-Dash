@@ -22,4 +22,11 @@ class GameMode:
         ...
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
+        if self._player.gravity_multiplier < 0:
+            surface.blit(
+                pygame.transform.flip(self.texture, False, True),
+                self._player.rect.topleft - camera_offset + self.hitbox.topleft
+            )
+            return
+
         surface.blit(self.texture, self._player.rect.topleft - camera_offset)

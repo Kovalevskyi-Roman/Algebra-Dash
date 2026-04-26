@@ -6,6 +6,8 @@ class Tile:
     TILE: str = "tile"
     FOLLOW_TILE: str = "follow_tile"
     SPIKE: str = "spike"
+    YELLOW_ORB: str = "yellow_orb"
+    BLUE_ORB: str = "blue_orb"
 
     def __init__(self, id_: str, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:

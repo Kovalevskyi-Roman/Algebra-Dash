@@ -50,7 +50,7 @@ class CustomLevelsState(GameState):
 
     def update(self, *args, **kwargs) -> None:
 
-        if pygame.key.get_just_released()[pygame.K_ESCAPE]:
+        if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
             self._game_state_manager.change_state(self._game_state_manager.MENU_STATE)
             return
 

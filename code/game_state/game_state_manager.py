@@ -27,6 +27,7 @@ class GameStateManager:
         }
 
         self.current_state_type: type[GameState] = self.MENU_STATE
+        self.previous_state_type: type[GameState] = self.MENU_STATE
         self.__current_state: GameState | None = None
 
         self.change_state(self.MENU_STATE)
@@ -35,10 +36,15 @@ class GameStateManager:
         if self.__current_state is not None:
             self.__current_state.on_state_exit()
 
+        self.previous_state_type = self.current_state_type
         self.current_state_type = new_state
+
         self.__current_state = self.game_states.get(self.current_state_type, None)
         if self.__current_state is not None:
             self.__current_state.on_state_enter()
+
+    def change_state_to_previous(self) -> None:
+        self.change_state(self.previous_state_type)
 
     def update(self) -> None:
         self.__current_state.update()

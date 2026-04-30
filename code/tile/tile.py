@@ -8,6 +8,14 @@ class Tile:
     SPIKE: str = "spike"
     YELLOW_ORB: str = "yellow_orb"
     BLUE_ORB: str = "blue_orb"
+    BLUE_PORTAL: str = "blue_portal"
+    YELLOW_PORTAL: str = "yellow_portal"
+    CUBE_PORTAL: str = "cube_portal"
+    SHIP_PORTAL: str = "ship_portal"
+    X1_SPEED_BUSTER: str = "x1_speed_buster"
+    X2_SPEED_BUSTER: str = "x2_speed_buster"
+    X3_SPEED_BUSTER: str = "x3_speed_buster"
+    X4_SPEED_BUSTER: str = "x4_speed_buster"
 
     def __init__(self, id_: str, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:

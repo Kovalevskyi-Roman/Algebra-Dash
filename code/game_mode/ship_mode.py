@@ -9,7 +9,7 @@ class ShipMode(GameMode):
     def __init__(self, player: "Player", texture_path: str, texture_size: tuple[int, int] | None = None) -> None:
         super().__init__(player, texture_path, texture_size)
         self.hitbox = pygame.Rect(2, 10, Tile.SIZE - 2, Tile.SIZE - 10)
-        self.jump_height: float = -SettingsState.GRAVITY * 1.5
+        self.jump_height: float = -SettingsState.GRAVITY * 1.8
 
     def update(self):
         self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier

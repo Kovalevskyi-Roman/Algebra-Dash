@@ -26,9 +26,25 @@
     - [x] Tiles decompression
 - [ ] Tile
     - [x] Tile
-    - [x] Spikes
+    - [x] Spike
     - [ ] Orbs
+        - [x] Yellow orb
+        - [x] Blue orb
+        - [ ] Pink orb
+        - [ ] Red orb
+        - [ ] Black orb
+        - [ ] Green orb
     - [ ] Portals
+        - [x] Yellow portal
+        - [x] Blue portal
+        - [x] Cube portal
+        - [x] Ship portal
+        - [ ] Ball portal
+        - [ ] Wave portal
+        - [ ] Ufo portal
+        - [ ] Robot portal
+        - [ ] Spider portal
+    - [x] Speed busters
 - [ ] Triggers
     - [ ] Tile groups
     - [ ] Start pos
@@ -38,10 +54,11 @@
     - [ ] Toggle trigger
     - [ ] SFX trigger
 - [ ] Player game modes
-    - [ ] Cube
-    - [ ] Ship
+    - [x] Cube
+    - [x] Ship
     - [ ] Ball
     - [ ] Wave
+    - [ ] Ufo
     - [ ] Robot
     - [ ] Spider
 - [ ] Player dual mode

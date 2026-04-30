@@ -11,8 +11,7 @@ class Player:
     def __init__(self) -> None:
         self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
-        self.move_speed: float = 4
-        self.jump_height: float = -9
+        self.move_speed: float = 3
         self.collision: dict[str, bool] = {
             "top": False, "left": False, "bottom": False, "right": False
         }
@@ -36,6 +35,9 @@ class Player:
             self.velocity.x = 0
 
         self.game_modes.get(self.current_game_mode).update()
+
+        if self.collision["right"]:
+            self.alive = False
 
     def draw_hitbox(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         game_mode_hitbox = self.game_modes.get(self.current_game_mode).hitbox

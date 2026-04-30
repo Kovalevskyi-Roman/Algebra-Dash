@@ -4,6 +4,8 @@ import pygame
 from .tile import Tile
 from .spike import Spike
 from .orb import YellowOrb, BlueOrb
+from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal
+from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster
 
 
 class TileManager:
@@ -76,6 +78,30 @@ class TileManager:
 
             case Tile.BLUE_ORB:
                 tile = BlueOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.BLUE_PORTAL:
+                tile = BluePortal(position, size, hitbox, *args, **kwargs)
+
+            case Tile.YELLOW_PORTAL:
+                tile = YellowPortal(position, size, hitbox, *args, **kwargs)
+
+            case Tile.CUBE_PORTAL:
+                tile = CubePortal(position, size, hitbox, *args, **kwargs)
+
+            case Tile.SHIP_PORTAL:
+                tile = ShipPortal(position, size, hitbox, *args, **kwargs)
+
+            case Tile.X1_SPEED_BUSTER:
+                tile = X1SpeedBuster(position, size, hitbox, *args, **kwargs)
+
+            case Tile.X2_SPEED_BUSTER:
+                tile = X2SpeedBuster(position, size, hitbox, *args, **kwargs)
+
+            case Tile.X3_SPEED_BUSTER:
+                tile = X3SpeedBuster(position, size, hitbox, *args, **kwargs)
+
+            case Tile.X4_SPEED_BUSTER:
+                tile = X4SpeedBuster(position, size, hitbox, *args, **kwargs)
 
             case _:
                 tile = Tile(tile_id, position, size, hitbox, *args, **kwargs)

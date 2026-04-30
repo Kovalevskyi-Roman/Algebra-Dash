@@ -6,7 +6,7 @@
     {
         "id": "spike",
         "texture": "spike.png",
-        "hitbox": [0.29, 0.27, 0.42, 0.52]
+        "hitbox": [0.29, 0.3, 0.42, 0.48]
     },
     {
         "id": "yellow_orb",
@@ -18,6 +18,62 @@
         "id": "blue_orb",
         "texture": "blue_orb.png",
         "hitbox": [0.15, 0.15, 0.7, 0.7],
+        "is_solid": false
+    },
+    {
+        "id": "blue_portal",
+        "texture": "blue_portal.png",
+        "size": [1, 2],
+        "hitbox": [0.3, 0.05, 0.3, 0.9],
+        "is_solid": false
+    },
+    {
+        "id": "yellow_portal",
+        "texture": "yellow_portal.png",
+        "size": [1, 2],
+        "hitbox": [0.3, 0.05, 0.3, 0.9],
+        "is_solid": false
+    },
+    {
+        "id": "cube_portal",
+        "texture": "cube_portal.png",
+        "size": [1, 2],
+        "hitbox": [0.3, 0.05, 0.35, 0.9],
+        "is_solid": false
+    },
+    {
+        "id": "ship_portal",
+        "texture": "ship_portal.png",
+        "size": [1, 2],
+        "hitbox": [0.3, 0.05, 0.35, 0.9],
+        "is_solid": false
+    },
+    {
+        "id": "x1_speed_buster",
+        "texture": "x1_speed_buster.png",
+        "size": [2, 2],
+        "hitbox": [0.35, 0.3, 0.25, 0.4],
+        "is_solid": false
+    },
+    {
+        "id": "x2_speed_buster",
+        "texture": "x2_speed_buster.png",
+        "size": [2, 2],
+        "hitbox": [0.4, 0.2, 0.2, 0.6],
+        "is_solid": false
+    },
+    {
+        "id": "x3_speed_buster",
+        "texture": "x3_speed_buster.png",
+        "size": [2, 2],
+        "hitbox": [0.2, 0.2, 0.52, 0.6],
+        "is_solid": false
+    },
+    {
+        "id": "x4_speed_buster",
+        "texture": "x4_speed_buster.png",
+        "size": [2, 2],
+        "hitbox": [0.2, 0.2, 0.6, 0.6],
         "is_solid": false
     }
 ]

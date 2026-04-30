@@ -19,7 +19,7 @@ class EditorState(GameState):
         self.__tiles: list[Tile] = list()
         self.level_path: str = ""
 
-        self.__camera_offset: pygame.Vector2 = pygame.Vector2(-500, -500)
+        self.__camera_offset: pygame.Vector2 = pygame.Vector2(-500, -300)
         self.__cursor_mode: CursorMode = CursorMode.SELECT
         self.__mouse_pressed_pos: pygame.Vector2 | None = None  # coordinates in level not on screen!
         self.__selection_rect: pygame.Rect | None = None
@@ -43,6 +43,7 @@ class EditorState(GameState):
         Level.save_tiles(self.level_path, self.__tiles)
         self.__tiles.clear()
         self.level_path = ""
+        self.__camera_offset = pygame.Vector2(-500, -300)
         self.__cursor_mode = CursorMode.SELECT
         self.__placeable_tile = ""
         self.__selected_tiles.clear()
@@ -84,7 +85,7 @@ class EditorState(GameState):
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
         if keys_just_pressed[pygame.K_ESCAPE]:
-            self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
+            self._game_state_manager.change_state_to_previous()
 
         # camera movement
         if keys_pressed[pygame.K_d]:
@@ -155,7 +156,11 @@ class EditorState(GameState):
 
         pressed_tile: Tile | None = None
         for tile in self.__tiles:
-            if tile.rect.collidepoint(mouse_pos + self.__camera_offset):
+            tile_hitbox_rect = pygame.FRect(
+                tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
+                tile.hitbox.width, tile.hitbox.height
+            )
+            if tile_hitbox_rect.collidepoint(mouse_pos + self.__camera_offset):
                 pressed_tile = tile
                 break
 
@@ -182,7 +187,11 @@ class EditorState(GameState):
                 self.__selection_rect.y -= self.__selection_rect.height
             # check if tiles in this rectangle
             for tile in self.__tiles:
-                if self.__selection_rect.colliderect(tile.rect):
+                tile_hitbox_rect = pygame.FRect(
+                    tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
+                    tile.hitbox.width, tile.hitbox.height
+                )
+                if self.__selection_rect.colliderect(tile_hitbox_rect):
                     self.__selected_tiles.add(tile)
                 elif tile in self.__selected_tiles and not keys_pressed[pygame.K_LCTRL]:
                     self.__selected_tiles.remove(tile)
@@ -206,9 +215,9 @@ class EditorState(GameState):
                     TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)
 
                 if tile in self.__selected_tiles:
-                    selection_surface = pygame.Surface(tile.rect.size, flags=pygame.SRCALPHA)
+                    selection_surface = pygame.Surface(tile.hitbox.size, flags=pygame.SRCALPHA)
                     selection_surface.fill((0, 255, 0, 127))
-                    surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset)
+                    surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset + tile.hitbox.topleft)
 
         # hammer icon
         if self.__cursor_mode == CursorMode.BUILD:

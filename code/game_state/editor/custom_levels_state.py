@@ -23,13 +23,33 @@ class CustomLevelsState(GameState):
         self.__level_surfaces_padding: int = 8
         self.__scroll: int = self.__level_surfaces_padding
 
+        self.__new_level_btn: Button = Button(
+            pygame.Rect(self.__level_surface_x + self.__level_surface_size.x + self.__level_surfaces_padding, 8,
+                        self.__level_surface_size.y, self.__level_surface_size.y),
+            pygame.Surface((self.__level_surface_size.y, self.__level_surface_size.y)),
+        )
+        self.__new_level_btn.texture.fill("#676767")
+
+        self.__padding: int = 4
+        self.__button_width = (Window.SIZE[0] - self.__padding * 4) / 3
+        self.__button_y = Window.SIZE[1] - 50
+        self.__play_btn: Button = Button(
+            pygame.Rect(self.__padding, self.__button_y, self.__button_width, 48),
+            pygame.Surface((self.__button_width, 48)),
+        )
+        self.__play_btn.texture.fill("#ffffff")
+
         self.__edit_btn: Button = Button(
-            pygame.Rect(4, Window.SIZE[1] - 50, Window.SIZE[0] / 3 - 16, 48),
-            pygame.Surface((Window.SIZE[0] / 3 - 16, 48)),
+            pygame.Rect(self.__padding * 2 + self.__button_width, self.__button_y, self.__button_width, 48),
+            pygame.Surface((self.__button_width, 48))
         )
         self.__edit_btn.texture.fill("#ffffff")
 
-        self.update_level_surfaces()
+        self.__delete_btn: Button = Button(
+            pygame.Rect(self.__padding * 3 + self.__button_width * 2, self.__button_y, self.__button_width, 48),
+            pygame.Surface((self.__button_width, 48))
+        )
+        self.__delete_btn.texture.fill("#ffffff")
 
     def update_level_surfaces(self) -> None:
         level_surfaces: list[pygame.Surface] = list()
@@ -48,6 +68,12 @@ class CustomLevelsState(GameState):
 
         self.__level_surfaces = tuple(level_surfaces)
 
+    def on_state_enter(self, *args, **kwargs) -> None:
+        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
+            filter(lambda level: True, Level.levels.items())
+        )
+        self.update_level_surfaces()
+
     def update(self, *args, **kwargs) -> None:
 
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
@@ -63,12 +89,12 @@ class CustomLevelsState(GameState):
                 self.__scroll = self.__level_surfaces_padding
 
         if self.__edit_btn.is_pressed() and self.__selected_level != -1:
-            editor_state = self._game_state_manager.game_states.get(self._game_state_manager.EDITOR_STATE, None)
+            editor_state = self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE, None)
             if editor_state is None:
-                raise RuntimeError("Could not find editor state.")
+                raise RuntimeError("Could not find data editor state.")
 
-            editor_state.level_path = self.__levels[self.__selected_level][0]
-            self._game_state_manager.change_state(self._game_state_manager.EDITOR_STATE)
+            editor_state.level = self.__levels[self.__selected_level]
+            self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
 
         if not mouse_press[0]:
             return
@@ -101,5 +127,15 @@ class CustomLevelsState(GameState):
 
             surface.blit(level_surface, [self.__level_surface_x, y])
 
+        self.__new_level_btn.draw(surface)
+        self.__new_level_btn.draw_text(surface, "+", UIConfig.fonts.get("tahoma_20"), "#000000")
+
+        if self.__selected_level == -1:
+            return
+
+        self.__play_btn.draw(surface)
+        self.__play_btn.draw_text(surface, "Play", UIConfig.fonts.get("tahoma_20"), "#000000")
         self.__edit_btn.draw(surface)
         self.__edit_btn.draw_text(surface, "Edit", UIConfig.fonts.get("tahoma_20"), "#000000")
+        self.__delete_btn.draw(surface)
+        self.__delete_btn.draw_text(surface, "Delete", UIConfig.fonts.get("tahoma_20"), "#000000")

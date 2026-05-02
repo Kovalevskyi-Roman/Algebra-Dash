@@ -12,7 +12,7 @@ class CursorMode(enum.Enum):
     BUILD = 1
 
 
-class EditorState(GameState):
+class TileEditorState(GameState):
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)
 

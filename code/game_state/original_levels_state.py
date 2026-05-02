@@ -20,6 +20,11 @@ class OriginalLevelsState(GameState):
         )
         self.__level_btn.texture.fill("#ffffff")
 
+    def on_state_enter(self, *args, **kwargs) -> None:
+        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
+            filter(lambda level: level[1].get("is_original", False), Level.levels.items())
+        )
+
     def update(self, *args, **kwargs) -> None:
         keys_just_pressed = pygame.key.get_just_pressed()
 

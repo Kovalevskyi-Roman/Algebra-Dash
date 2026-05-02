@@ -5,7 +5,7 @@ from .menu_state import MenuState
 from .play_state import PlayState
 from .settings_state import SettingsState
 from .original_levels_state import OriginalLevelsState
-from .editor import EditorState, CustomLevelsState
+from .editor import TileEditorState, CustomLevelsState, DataEditorState
 
 
 class GameStateManager:
@@ -13,8 +13,9 @@ class GameStateManager:
     PLAY_STATE: type[GameState] = PlayState
     SETTINGS_STATE: type[GameState] = SettingsState
     ORIGINAL_LEVELS_STATE: type[GameState] = OriginalLevelsState
-    EDITOR_STATE: type[GameState] = EditorState
+    TILE_EDITOR_STATE: type[GameState] = TileEditorState
     CUSTOM_LEVELS_STATE: type[GameState] = CustomLevelsState
+    DATA_EDITOR_STATE: type[GameState] = DataEditorState
 
     def __init__(self) -> None:
         self.game_states: dict[type[GameState], GameState] = {
@@ -22,8 +23,9 @@ class GameStateManager:
             self.PLAY_STATE: PlayState(self),
             self.SETTINGS_STATE: SettingsState(self),
             self.ORIGINAL_LEVELS_STATE: OriginalLevelsState(self),
-            self.EDITOR_STATE: EditorState(self),
-            self.CUSTOM_LEVELS_STATE: CustomLevelsState(self)
+            self.TILE_EDITOR_STATE: TileEditorState(self),
+            self.CUSTOM_LEVELS_STATE: CustomLevelsState(self),
+            self.DATA_EDITOR_STATE: DataEditorState(self)
         }
 
         self.current_state_type: type[GameState] = self.MENU_STATE

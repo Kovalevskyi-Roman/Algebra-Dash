@@ -3,6 +3,7 @@ import pygame
 
 class UIConfig:
     fonts: dict[str: pygame.Font] | None = None
+    CURSOR_BLINK_TIME: float = 0.45
 
     @classmethod
     def init(cls) -> None:

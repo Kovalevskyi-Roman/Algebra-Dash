@@ -6,4 +6,4 @@ from .play_state import PlayState
 from .settings_state import SettingsState
 from .original_levels_state import OriginalLevelsState
 
-from .editor import EditorState, CustomLevelsState
+from .editor import TileEditorState, CustomLevelsState

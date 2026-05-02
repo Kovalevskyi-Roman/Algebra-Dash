@@ -20,7 +20,6 @@ class Level:
             is level original    (boolean)
             max progress         (int)
             death count          (int)
-            bg color             (string)
     """
     def __init__(self) -> None:
         self.name: str = ""
@@ -75,12 +74,11 @@ class Level:
         self.name = ""
         self.collider = None
         self.__player = None
-        self.bg_color = ""
+        self.bg_color = "#1c10c7"
         try:
             with open(path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
                 self.name = content.get("name")
-                self.bg_color = content.get("bg_color", "#1c10c7")
 
         except FileNotFoundError:
             print(f"Could not find file '{path}/level_data.json'.")
@@ -162,11 +160,11 @@ class Level:
             json.dump(compressed_tiles, file)
 
     @classmethod
-    def save_data(cls, path: str, level_name: str, bg_color: str) -> None:
+    def save_data(cls, path: str, level_name: str, is_original: bool) -> None:
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
-                "name": level_name,
-                "bg_color": bg_color
+                "level_name": level_name,
+                "is_original": is_original
             }
             json.dump(content, level_data_file, indent=4)
 

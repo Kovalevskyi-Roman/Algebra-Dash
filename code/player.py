@@ -11,7 +11,7 @@ class Player:
     def __init__(self) -> None:
         self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
-        self.move_speed: float = 3
+        self.move_speed: float = 4.25
         self.collision: dict[str, bool] = {
             "top": False, "left": False, "bottom": False, "right": False
         }

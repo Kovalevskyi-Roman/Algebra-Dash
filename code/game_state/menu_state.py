@@ -15,29 +15,29 @@ class MenuState(GameState):
                 (Window.SIZE[0] / 2 - self.__play_btn_size.x / 2, Window.SIZE[1] / 2 - self.__play_btn_size.y / 2),
                 self.__play_btn_size
             ),
-            pygame.Surface(self.__play_btn_size)
+            pygame.image.load("../resources/textures/ui/play_button.png").convert_alpha()
         )
-        self.__play_btn.texture.fill("#ffffff")
+        self.__play_btn.scale_texture_to_rect()
 
         self.__editor_btn_size: pygame.Vector2 = pygame.Vector2(90, 90)
         self.__editor_btn: Button = Button(
             pygame.Rect(
-                (Window.SIZE[0] / 2 + self.__editor_btn_size.x * 2.4, Window.SIZE[1] / 2 - self.__editor_btn_size.y / 2),
+                (Window.SIZE[0] * (2 / 3) - self.__editor_btn_size.x / 2, Window.SIZE[1] / 2 - self.__editor_btn_size.y / 2),
                 self.__editor_btn_size
             ),
-            pygame.Surface(self.__editor_btn_size)
+            pygame.image.load("../resources/textures/ui/edit_button.png").convert_alpha()
         )
-        self.__editor_btn.texture.fill("#ffffff")
+        self.__editor_btn.scale_texture_to_rect()
 
-        self.__btn_size: pygame.Vector2 = pygame.Vector2(90, 90)
-        self.__btn: Button = Button(
+        self.__skin_shop_btn_size: pygame.Vector2 = pygame.Vector2(90, 90)
+        self.__skin_shop_btn: Button = Button(
             pygame.Rect(
-                (Window.SIZE[0] / 2 - self.__btn_size.x * 3.4, Window.SIZE[1] / 2 - self.__btn_size.y / 2),
-                self.__btn_size
+                (Window.SIZE[0] / 3 - self.__skin_shop_btn_size.x / 2, Window.SIZE[1] / 2 - self.__skin_shop_btn_size.y / 2),
+                self.__skin_shop_btn_size
             ),
-            pygame.Surface(self.__btn_size)
+            pygame.image.load("../resources/textures/ui/skin_shop_button.png").convert_alpha()
         )
-        self.__btn.texture.fill("#ffffff")
+        self.__skin_shop_btn.scale_texture_to_rect()
 
     def update(self, *args, **kwargs) -> None:
         if self.__play_btn.is_pressed():
@@ -49,4 +49,4 @@ class MenuState(GameState):
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__play_btn.draw(surface)
         self.__editor_btn.draw(surface)
-        self.__btn.draw(surface)
+        self.__skin_shop_btn.draw(surface)

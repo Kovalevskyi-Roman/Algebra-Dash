@@ -1,5 +1,7 @@
 import json
 import pathlib
+import shutil
+import random
 import pygame
 
 from collider import Collider
@@ -8,7 +10,7 @@ from tile import Tile, TileManager
 
 
 class Level:
-    levels: dict[str, dict[str, ...]] = {}
+    levels: dict[str, dict[str, ...]] = {}  # all existing levels
     """
     Level file structure:
 
@@ -182,8 +184,26 @@ class Level:
         return ""
 
     @classmethod
+    def create(cls) -> None:
+        characters = "qwertyuiopasdfghjkllzxcvbnm1234567890="
+        folder_name = "".join([random.choice(characters) for _ in range(18)])
+        path = pathlib.Path(f"../resources/data/levels/{folder_name}")
+        while path.exists():
+            folder_name = "".join([random.choice(characters) for _ in range(18)])
+            path = pathlib.Path(f"../resources/data/levels/{folder_name}")
+
+        path.mkdir()
+        with open(path / "level_data.json", "w") as level_data_file:
+            json.dump(
+                {"level_name": "New level", "is_original": True},
+                level_data_file, indent=4)
+
+        cls.load_levels()
+
+    @classmethod
     def delete(cls, path: str) -> None:
-        ...
+        shutil.rmtree(path)
+        cls.load_levels()
 
     def update(self, camera_offset: pygame.Vector2) -> None:
         for tile in self.tiles:

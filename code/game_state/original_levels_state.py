@@ -18,9 +18,10 @@ class OriginalLevelsState(GameState):
             pygame.Rect(Window.SIZE[0] / 2 - 200, Window.SIZE[1] / 2 - 120, 400, 240),
             pygame.Surface((400, 240))
         )
-        self.__level_btn.texture.fill("#ffffff")
+        self.__level_btn.texture.fill("#7A7A7A")
 
     def on_state_enter(self, *args, **kwargs) -> None:
+        Level.load_levels()
         self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
             filter(lambda level: level[1].get("is_original", False), Level.levels.items())
         )
@@ -42,16 +43,18 @@ class OriginalLevelsState(GameState):
             if self.__selected_level >= len(self.__levels):
                 self.__selected_level = 0
 
-        if self.__level_btn.is_just_pressed():
+        if self.__level_btn.is_just_pressed() and self.__levels:
             play_state = self._game_state_manager.game_states.get(self._game_state_manager.PLAY_STATE, None)
             if play_state is None:
-                print("State 'PLAY_STATE' not found. Unable to play level.")
-                return
+                raise AttributeError("State 'PLAY_STATE' not found")
 
             play_state.level_path = self.__levels[self.__selected_level][0]
             self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
+        if not self.__levels:
+            return
+
         self.__level_btn.draw(surface)
         self.__level_btn.draw_text(
             surface,

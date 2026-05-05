@@ -24,7 +24,7 @@ class TileEditorState(GameState):
         self.__mouse_pressed_pos: pygame.Vector2 | None = None  # coordinates in level not on screen!
         self.__selection_rect: pygame.Rect | None = None
 
-        self.__tile_panel_surface: pygame.Surface = pygame.Surface((Window.SIZE[0], Window.SIZE[1] / 5))
+        self.__tile_panel_surface: pygame.Surface = pygame.Surface((Window.SIZE[0], Window.SIZE[1] / 5), flags=pygame.SRCALPHA)
         self.__tile_icon_size: tuple[int, int] = (24, 24)
         self.__tile_icon_padding: int = 8
         self.__placeable_tile: str = ""
@@ -52,7 +52,7 @@ class TileEditorState(GameState):
         self.__draw_hitboxes = False
 
     def __update_tile_panel_surface(self) -> None:
-        self.__tile_panel_surface.fill((178, 178, 178))
+        self.__tile_panel_surface.fill("#7A7A7A7f")
         x = self.__tile_icon_padding
         y = self.__tile_icon_padding
         for tile in TileManager.TILE_DATA.items():

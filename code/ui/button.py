@@ -18,6 +18,9 @@ class Button:
     def is_pressed(self, button: int = 0) -> bool:
         return self.is_hovered() and pygame.mouse.get_pressed()[button]
 
+    def scale_texture_to_rect(self) -> None:
+        self.texture = pygame.transform.scale(self.texture, self.rect.size)
+
     def draw_text(self, surface: pygame.Surface, text: str, font: pygame.Font, f_color: str, bg_color: str | None = None,
                   offset: pygame.typing.SequenceLike[int] | None = None, antialias: bool = True) -> None:
         render: pygame.Surface = font.render(text, antialias, f_color, bg_color)

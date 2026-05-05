@@ -28,7 +28,7 @@ class CustomLevelsState(GameState):
                         self.__level_surface_size.y, self.__level_surface_size.y),
             pygame.Surface((self.__level_surface_size.y, self.__level_surface_size.y)),
         )
-        self.__new_level_btn.texture.fill("#676767")
+        self.__new_level_btn.texture.fill("#7A7A7A")
 
         self.__padding: int = 4
         self.__button_width = (Window.SIZE[0] - self.__padding * 4) / 3
@@ -37,19 +37,19 @@ class CustomLevelsState(GameState):
             pygame.Rect(self.__padding, self.__button_y, self.__button_width, 48),
             pygame.Surface((self.__button_width, 48)),
         )
-        self.__play_btn.texture.fill("#ffffff")
+        self.__play_btn.texture.fill("#7A7A7A")
 
         self.__edit_btn: Button = Button(
             pygame.Rect(self.__padding * 2 + self.__button_width, self.__button_y, self.__button_width, 48),
             pygame.Surface((self.__button_width, 48))
         )
-        self.__edit_btn.texture.fill("#ffffff")
+        self.__edit_btn.texture.fill("#7A7A7A")
 
         self.__delete_btn: Button = Button(
             pygame.Rect(self.__padding * 3 + self.__button_width * 2, self.__button_y, self.__button_width, 48),
             pygame.Surface((self.__button_width, 48))
         )
-        self.__delete_btn.texture.fill("#ffffff")
+        self.__delete_btn.texture.fill("#7A7A7A")
 
     def update_level_surfaces(self) -> None:
         level_surfaces: list[pygame.Surface] = list()
@@ -59,7 +59,7 @@ class CustomLevelsState(GameState):
             if self.__selected_level == i:
                 surface.fill("#d0d0d0")
             else:
-                surface.fill("#676767")
+                surface.fill("#7A7A7A")
 
             level_name = UIConfig.fonts.get("tahoma_20").render(level[1].get("level_name"), True, "#000000")
             surface.blit(level_name, [6, self.__level_surface_size.y / 2 - level_name.height / 2])
@@ -69,9 +69,11 @@ class CustomLevelsState(GameState):
         self.__level_surfaces = tuple(level_surfaces)
 
     def on_state_enter(self, *args, **kwargs) -> None:
+        Level.load_levels()
         self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
             filter(lambda level: True, Level.levels.items())
         )
+        self.__selected_level = -1
         self.update_level_surfaces()
 
     def update(self, *args, **kwargs) -> None:
@@ -88,13 +90,22 @@ class CustomLevelsState(GameState):
             if self.__scroll > self.__level_surfaces_padding:
                 self.__scroll = self.__level_surfaces_padding
 
-        if self.__edit_btn.is_pressed() and self.__selected_level != -1:
-            editor_state = self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE, None)
-            if editor_state is None:
-                raise RuntimeError("Could not find data editor state.")
+        if self.__new_level_btn.is_just_pressed():
+            Level.create()
+            self.on_state_enter()
 
-            editor_state.level = self.__levels[self.__selected_level]
-            self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
+        if self.__selected_level != -1:
+            if self.__edit_btn.is_pressed():
+                editor_state = self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE, None)
+                if editor_state is None:
+                    raise RuntimeError("State 'DATA_EDITOR_STATE' not found.")
+
+                editor_state.level = self.__levels[self.__selected_level]
+                self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
+
+            if self.__delete_btn.is_just_pressed():
+                Level.delete(self.__levels[self.__selected_level][0])
+                self.on_state_enter()
 
         if not mouse_press[0]:
             return
@@ -113,7 +124,6 @@ class CustomLevelsState(GameState):
                 break
 
             self.__selected_level = -1
-
         self.update_level_surfaces()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:

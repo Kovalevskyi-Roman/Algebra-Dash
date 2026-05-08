@@ -8,4 +8,4 @@ class SettingsState(GameState):
 
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)
-        self.show_hitboxes: bool = True
+        self.show_hitboxes: bool = False

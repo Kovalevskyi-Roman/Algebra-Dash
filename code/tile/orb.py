@@ -25,3 +25,4 @@ class BlueOrb(Tile):
 
         if pygame.key.get_just_pressed()[pygame.K_SPACE]:
             player.gravity_multiplier *= -1
+            player.velocity.y = 0

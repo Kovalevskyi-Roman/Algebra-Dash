@@ -39,7 +39,7 @@
         - [x] Blue portal
         - [x] Cube portal
         - [x] Ship portal
-        - [ ] Ball portal
+        - [x] Ball portal
         - [ ] Wave portal
         - [ ] Ufo portal
         - [ ] Robot portal
@@ -56,7 +56,7 @@
 - [ ] Player game modes
     - [x] Cube
     - [x] Ship
-    - [ ] Ball
+    - [x] Ball
     - [ ] Wave
     - [ ] Ufo
     - [ ] Robot

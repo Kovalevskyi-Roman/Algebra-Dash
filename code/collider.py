@@ -45,12 +45,17 @@ class Collider:
             if not TileManager.TILE_DATA.get(tile.id).get("is_solid"):
                 continue
 
+            tile_hitbox_rect = pygame.FRect(
+                tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
+                tile.hitbox.width, tile.hitbox.height
+            )
+
             if self.player.velocity.x > 0:
-                player_rect.right = tile.rect.left
+                player_rect.right = tile_hitbox_rect.left
                 self.player.collision["right"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
             elif self.player.velocity.x < 0:
-                player_rect.left = tile.rect.right
+                player_rect.left = tile_hitbox_rect.right
                 self.player.collision["left"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
         # checks collision on Y axis
@@ -61,12 +66,17 @@ class Collider:
             if not TileManager.TILE_DATA.get(tile.id).get("is_solid"):
                 continue
 
+            tile_hitbox_rect = pygame.FRect(
+                tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
+                tile.hitbox.width, tile.hitbox.height
+            )
+
             if self.player.velocity.y > 0:
-                player_rect.bottom = tile.rect.top
+                player_rect.bottom = tile_hitbox_rect.top
                 self.player.collision["bottom"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
             elif self.player.velocity.y < 0:
-                player_rect.top = tile.rect.bottom
+                player_rect.top = tile_hitbox_rect.bottom
                 self.player.collision["top"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
         # updates player position

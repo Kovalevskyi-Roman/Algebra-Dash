@@ -18,7 +18,7 @@ class PlayState(GameState):
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__player = Player()
-        self.__camera = Camera(self.__player)
+        self.__camera = Camera(self.__player.rect.center)
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
 
@@ -33,12 +33,12 @@ class PlayState(GameState):
             self._game_state_manager.change_state_to_previous()
             return
 
-        self.__player.update()
-        self.__camera.update()
-        self.__level.update(self.__camera.offset)
-
-        if not self.__player.alive:
+        if not self.__player.alive and not self.__player.immune:
             self.on_state_enter()
+
+        self.__player.update()
+        self.__camera.update(self.__player.rect.center)
+        self.__level.update(self.__camera.offset)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.fill(self.__level.bg_color)

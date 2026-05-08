@@ -12,6 +12,7 @@ class Tile:
     YELLOW_PORTAL: str = "yellow_portal"
     CUBE_PORTAL: str = "cube_portal"
     SHIP_PORTAL: str = "ship_portal"
+    BALL_PORTAL: str = "ball_portal"
     X1_SPEED_BUSTER: str = "x1_speed_buster"
     X2_SPEED_BUSTER: str = "x2_speed_buster"
     X3_SPEED_BUSTER: str = "x3_speed_buster"

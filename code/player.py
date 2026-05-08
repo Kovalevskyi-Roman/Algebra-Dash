@@ -1,12 +1,13 @@
 import pygame
 
 from tile import Tile
-from game_mode import GameMode, CubeMode, ShipMode
+from game_mode import GameMode, CubeMode, ShipMode, BallMode
 
 
 class Player:
     CUBE_MODE: type[GameMode] = CubeMode
     SHIP_MODE: type[ShipMode] = ShipMode
+    BALL_MODE: type[BallMode] = BallMode
 
     def __init__(self) -> None:
         self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
@@ -15,12 +16,14 @@ class Player:
         self.collision: dict[str, bool] = {
             "top": False, "left": False, "bottom": False, "right": False
         }
-        self.alive = True
+        self.alive: bool = True
+        self.immune: bool = True
         self.gravity_multiplier: float = 1
 
         self.game_modes: dict[type[GameMode], GameMode] = {
             self.CUBE_MODE: CubeMode(self, "../resources/textures/game_modes/cube_mode.png"),
-            self.SHIP_MODE: ShipMode(self, "../resources/textures/game_modes/ship_mode.png")
+            self.SHIP_MODE: ShipMode(self, "../resources/textures/game_modes/ship_mode.png"),
+            self.BALL_MODE: BallMode(self, "../resources/textures/game_modes/ball_mode.png"),
         }
         self.current_game_mode: type[GameMode] = self.CUBE_MODE
 
@@ -38,6 +41,9 @@ class Player:
 
         if self.collision["right"]:
             self.alive = False
+
+        if self.immune:
+            self.alive = True
 
     def draw_hitbox(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         game_mode_hitbox = self.game_modes.get(self.current_game_mode).hitbox

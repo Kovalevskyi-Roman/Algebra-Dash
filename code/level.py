@@ -29,6 +29,8 @@ class Level:
         self.collider: Collider | None = None
         self.__player: Player | None = None
         self.bg_color: str = ""
+        self.ground_tile: Tile | None = None
+        self.ceil_tile: Tile | None = None
 
     @classmethod
     def load_levels(cls) -> None:
@@ -50,7 +52,6 @@ class Level:
         tiles: list[Tile] = list()
         for compressed_tile_row in compressed_tiles:
             tile_row: list[Tile] = list()
-            compressed_row_position = compressed_tile_row.get("tile").get("position")
             for i in range(compressed_tile_row.get("count")):
                 tile_row.append(
                     TileManager.from_json(compressed_tile_row.get("tile"))
@@ -76,7 +77,7 @@ class Level:
         self.name = ""
         self.collider = None
         self.__player = None
-        self.bg_color = "#1c10c7"
+        self.bg_color = "#272727"
         try:
             with open(path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
@@ -86,7 +87,10 @@ class Level:
             print(f"Could not find file '{path}/level_data.json'.")
 
         self.tiles.extend(self.get_tiles(path))
-        self.tiles.append(TileManager.create_tile(Tile.FOLLOW_TILE, [0, 32]))  # floor tile
+        self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, Tile.SIZE])
+        self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, -Tile.SIZE * 32])
+        self.tiles.append(self.ground_tile)
+        self.tiles.append(self.ceil_tile)
 
         self.__player = player
         self.collider = Collider(self.__player, self)
@@ -211,10 +215,18 @@ class Level:
 
         self.collider.update_collision(camera_offset)
 
+        if self.ground_tile.rect.y >= Tile.SIZE:
+            self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE
+            self.ground_tile.rect.y = Tile.SIZE
+
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         for tile in self.tiles:
             TileManager.draw_tile(tile, surface, camera_offset)
 
         # draw ground
-        if -camera_offset.y + Tile.SIZE < surface.height:
-            pygame.draw.rect(surface, "#000000", [[0, -camera_offset.y + Tile.SIZE], surface.size])
+        if self.ground_tile.rect.y - camera_offset.y < surface.height:
+            pygame.draw.rect(surface, "#000000", [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
+
+        # draw ceiling
+        if self.ceil_tile.rect.bottom - camera_offset.y > 0:
+            pygame.draw.rect(surface, "#000000", [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])

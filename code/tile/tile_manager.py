@@ -58,7 +58,7 @@ class TileManager:
                     }
                 )
 
-            print(*cls.TILE_DATA.items(), sep="\n")
+            # print(*cls.TILE_DATA.items(), sep="\n")
 
     @classmethod
     def create_tile(cls, tile_id: str, position: pygame.typing.SequenceLike[int] | pygame.Vector2, *args, **kwargs) -> Tile | None:

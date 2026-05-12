@@ -42,9 +42,6 @@ class Player:
         if self.collision["right"]:
             self.alive = False
 
-        if self.immune:
-            self.alive = True
-
     def draw_hitbox(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         game_mode_hitbox = self.game_modes.get(self.current_game_mode).hitbox
         hitbox = pygame.FRect(self.rect.topleft + (game_mode_hitbox.topleft - camera_offset), game_mode_hitbox.size)

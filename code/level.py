@@ -4,6 +4,7 @@ import shutil
 import random
 import pygame
 
+from ui import UIConfig
 from collider import Collider
 from player import Player
 from tile import Tile, TileManager
@@ -25,12 +26,17 @@ class Level:
     """
     def __init__(self) -> None:
         self.name: str = ""
+        self.path: str = ""
         self.tiles: list[Tile] = list()
         self.collider: Collider | None = None
         self.__player: Player | None = None
         self.bg_color: str = ""
         self.ground_tile: Tile | None = None
         self.ceil_tile: Tile | None = None
+        self.__finish_x_pos: float = 0
+        self.max_progress: float = 0
+        self.current_progress: float = 0
+        self.death_count: int = 0
 
     @classmethod
     def load_levels(cls) -> None:
@@ -75,22 +81,26 @@ class Level:
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
         self.name = ""
+        self.path = path
         self.collider = None
         self.__player = None
         self.bg_color = "#272727"
         try:
-            with open(path + "/level_data.json", "r") as level_data_file:
+            with open(self.path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
                 self.name = content.get("name")
+                self.max_progress = content.get("max_progress", 0)
+                self.death_count = content.get("death_count", 0)
 
         except FileNotFoundError:
-            print(f"Could not find file '{path}/level_data.json'.")
+            print(f"Could not find file '{self.path}/level_data.json'.")
 
-        self.tiles.extend(self.get_tiles(path))
+        self.tiles.extend(self.get_tiles(self.path))
         self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, Tile.SIZE])
         self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, -Tile.SIZE * 32])
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
+        self.__finish_x_pos = max(self.tiles, key=lambda tile: tile.rect.x).rect.x + Tile.SIZE * 8
 
         self.__player = player
         self.collider = Collider(self.__player, self)
@@ -166,26 +176,30 @@ class Level:
             json.dump(compressed_tiles, file)
 
     @classmethod
-    def save_data(cls, path: str, level_name: str, is_original: bool) -> None:
+    def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
+                  max_progress: float = None, death_count: int = None) -> None:
+
+        level = list(filter(lambda l: l[0] == path, cls.levels.items()))
+        if not level:
+            raise ValueError(f"Level with path '{path}' does not exist.")
+
+        if level_name is None:
+            level_name = level[0][1].get("level_name")
+        if is_original is None:
+            is_original = level[0][1].get("is_original")
+        if max_progress is None:
+            max_progress = level[0][1].get("max_progress", 0)
+        if death_count is None:
+            death_count = level[0][1].get("death_count", 0)
+
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
                 "level_name": level_name,
-                "is_original": is_original
+                "is_original": is_original,
+                "max_progress": max_progress,
+                "death_count": death_count
             }
             json.dump(content, level_data_file, indent=4)
-
-    @classmethod
-    def get_path_from_level_name(cls, level_name: str) -> str:
-        path = pathlib.Path("../resources/data/levels")
-        for obj in path.iterdir():
-            if not obj.is_dir():
-                continue
-
-            with open(str(obj) + "/level_data.json", "r") as file:
-                if json.load(file).get("level_name") == level_name:
-                    return str(obj)
-
-        return ""
 
     @classmethod
     def create(cls) -> None:
@@ -198,9 +212,13 @@ class Level:
 
         path.mkdir()
         with open(path / "level_data.json", "w") as level_data_file:
-            json.dump(
-                {"level_name": "New level", "is_original": True},
-                level_data_file, indent=4)
+            level_data = {
+                "level_name": "New Level",
+                "is_original": False,
+                "max_progress": 0,
+                "death_count": 0,
+            }
+            json.dump(level_data, level_data_file, indent=4)
 
         cls.load_levels()
 
@@ -210,23 +228,43 @@ class Level:
         cls.load_levels()
 
     def update(self, camera_offset: pygame.Vector2) -> None:
+        self.__player.update()
+
         for tile in self.tiles:
             tile.update(player=self.__player, level=self)
 
         self.collider.update_collision(camera_offset)
 
+        if self.__player.immune:
+            self.__player.alive = True
+
+        self.current_progress = round((self.__player.rect.x / self.__finish_x_pos) * 100, 1)
+
         if self.ground_tile.rect.y >= Tile.SIZE:
             self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE
             self.ground_tile.rect.y = Tile.SIZE
 
+        if not self.__player.alive:
+            self.death_count += 1
+            if self.current_progress > self.max_progress:
+                self.save_data(self.path, max_progress=self.current_progress, death_count=self.death_count)
+
+        elif self.current_progress >= 100:
+            self.save_data(self.path, max_progress=100)
+
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+        surface.fill(self.bg_color)
+        self.__player.draw(surface, camera_offset)
+
         for tile in self.tiles:
             TileManager.draw_tile(tile, surface, camera_offset)
-
         # draw ground
         if self.ground_tile.rect.y - camera_offset.y < surface.height:
             pygame.draw.rect(surface, "#000000", [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
-
         # draw ceiling
         if self.ceil_tile.rect.bottom - camera_offset.y > 0:
             pygame.draw.rect(surface, "#000000", [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
+
+        # draw current progress
+        render: pygame.Surface = UIConfig.fonts.get("tahoma_16").render(f"{self.current_progress}%", True, "#ffffff")
+        surface.blit(render, [surface.width / 2 - render.width / 2, 0])

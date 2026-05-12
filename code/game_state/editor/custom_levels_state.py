@@ -61,7 +61,7 @@ class CustomLevelsState(GameState):
             else:
                 surface.fill("#7A7A7A")
 
-            level_name = UIConfig.fonts.get("tahoma_20").render(level[1].get("level_name"), True, "#000000")
+            level_name = UIConfig.fonts.get("jetbrains_20m").render(level[1].get("level_name"), True, "#000000")
             surface.blit(level_name, [6, self.__level_surface_size.y / 2 - level_name.height / 2])
 
             level_surfaces.append(surface)
@@ -138,14 +138,14 @@ class CustomLevelsState(GameState):
             surface.blit(level_surface, [self.__level_surface_x, y])
 
         self.__new_level_btn.draw(surface)
-        self.__new_level_btn.draw_text(surface, "+", UIConfig.fonts.get("tahoma_20"), "#000000")
+        self.__new_level_btn.draw_text(surface, "+", UIConfig.fonts.get("jetbrains_20m"), "#000000")
 
         if self.__selected_level == -1:
             return
 
         self.__play_btn.draw(surface)
-        self.__play_btn.draw_text(surface, "Play", UIConfig.fonts.get("tahoma_20"), "#000000")
+        self.__play_btn.draw_text(surface, "Play", UIConfig.fonts.get("jetbrains_20m"), "#000000")
         self.__edit_btn.draw(surface)
-        self.__edit_btn.draw_text(surface, "Edit", UIConfig.fonts.get("tahoma_20"), "#000000")
+        self.__edit_btn.draw_text(surface, "Edit", UIConfig.fonts.get("jetbrains_20m"), "#000000")
         self.__delete_btn.draw(surface)
-        self.__delete_btn.draw_text(surface, "Delete", UIConfig.fonts.get("tahoma_20"), "#000000")
+        self.__delete_btn.draw_text(surface, "Delete", UIConfig.fonts.get("jetbrains_20m"), "#000000")

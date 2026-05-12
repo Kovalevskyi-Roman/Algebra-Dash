@@ -14,7 +14,7 @@ class GameLoop:
         self.__game_state_manager.update()
 
     def __draw(self) -> None:
-        self.__window.fill((0, 0, 0))
+        self.__window.fill("#0e0e10")
         self.__game_state_manager.draw(self.__window.surface)
         self.__window.update()
 

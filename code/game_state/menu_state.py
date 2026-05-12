@@ -9,6 +9,9 @@ class MenuState(GameState):
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)
 
+        self.__title: pygame.Surface = pygame.image.load("../resources/textures/ui/title.png").convert_alpha()
+        self.__title = pygame.transform.scale(self.__title, (self.__title.width * 1.8, self.__title.height * 1.6))
+
         self.__play_btn_size: pygame.Vector2 = pygame.Vector2(120, 120)
         self.__play_btn: Button = Button(
             pygame.Rect(
@@ -47,6 +50,7 @@ class MenuState(GameState):
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
+        surface.blit(self.__title, [surface.width / 2 - self.__title.width / 2, -10])
         self.__play_btn.draw(surface)
         self.__editor_btn.draw(surface)
         self.__skin_shop_btn.draw(surface)

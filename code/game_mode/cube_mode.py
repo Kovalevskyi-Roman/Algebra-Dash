@@ -21,7 +21,7 @@ class CubeMode(GameMode):
             self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier
 
         if not bottom:
-            self.__rotation -= 3.5
+            self.__rotation -= 3.5 * (1 if self._player.velocity.x > 0 else -1)
         else:
             self.__rotation = round(self.__rotation / 90) * 90
 

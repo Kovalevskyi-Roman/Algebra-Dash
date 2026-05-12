@@ -13,9 +13,9 @@ class DataEditorState(GameState):
         self.level: tuple[str, dict[str, ...]] | None = None
 
         self.entry: Entry = Entry(
-            pygame.Rect(Window.SIZE[0] / 2 - 210, 80, 420, 45),
-            pygame.Surface((420, 45)),
-            UIConfig.fonts.get("tahoma_26"),
+            pygame.Rect(Window.SIZE[0] / 2 - 230, 80, 460, 45),
+            pygame.Surface((460, 45)),
+            UIConfig.fonts.get("jetbrains_26m"),
             "#000000",
             max_text_length=28
         )
@@ -55,7 +55,7 @@ class DataEditorState(GameState):
         self.entry.set_text(self.level[1].get("level_name"))
 
     def on_state_exit(self, *args, **kwargs) -> None:
-        Level.save_data(self.level[0], self.entry.get_text(), True)
+        Level.save_data(self.level[0], level_name=self.entry.get_text(), is_original=True)
         self.entry.active = False
         pygame.key.stop_text_input()
 

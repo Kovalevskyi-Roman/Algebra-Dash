@@ -29,20 +29,19 @@ class PlayState(GameState):
         self.level_path = ""
 
     def update(self, *args, **kwargs) -> None:
-        if pygame.key.get_just_released()[pygame.K_ESCAPE]:
+        if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
+            if self.__level.current_progress > self.__level.max_progress:
+                self.__level.save_data(self.level_path, max_progress=self.__level.current_progress)
             self._game_state_manager.change_state_to_previous()
             return
 
-        if not self.__player.alive and not self.__player.immune:
-            self.on_state_enter()
-
-        self.__player.update()
         self.__camera.update(self.__player.rect.center)
         self.__level.update(self.__camera.offset)
 
+        if not self.__player.alive:
+            self.on_state_enter()
+
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
-        surface.fill(self.__level.bg_color)
-        self.__player.draw(surface, self.__camera.offset)
         self.__level.draw(surface, self.__camera.offset)
 
         if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).show_hitboxes:

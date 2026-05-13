@@ -1,13 +1,14 @@
 import pygame
 
 from tile import Tile
-from game_mode import GameMode, CubeMode, ShipMode, BallMode
+from game_mode import GameMode, CubeMode, ShipMode, BallMode, WaveMode
 
 
 class Player:
     CUBE_MODE: type[GameMode] = CubeMode
     SHIP_MODE: type[ShipMode] = ShipMode
     BALL_MODE: type[BallMode] = BallMode
+    WAVE_MODE: type[WaveMode] = WaveMode
 
     def __init__(self) -> None:
         self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
@@ -24,6 +25,7 @@ class Player:
             self.CUBE_MODE: CubeMode(self, "../resources/textures/game_modes/cube_mode.png"),
             self.SHIP_MODE: ShipMode(self, "../resources/textures/game_modes/ship_mode.png"),
             self.BALL_MODE: BallMode(self, "../resources/textures/game_modes/ball_mode.png"),
+            self.WAVE_MODE: WaveMode(self, "../resources/textures/game_modes/wave_mode.png")
         }
         self.current_game_mode: type[GameMode] = self.CUBE_MODE
 

@@ -31,25 +31,6 @@ class CustomLevelsState(GameState):
         self.__new_level_btn.texture.fill("#7A7A7A")
 
         self.__padding: int = 4
-        self.__button_width = (Window.SIZE[0] - self.__padding * 4) / 3
-        self.__button_y = Window.SIZE[1] - 50
-        self.__play_btn: Button = Button(
-            pygame.Rect(self.__padding, self.__button_y, self.__button_width, 48),
-            pygame.Surface((self.__button_width, 48)),
-        )
-        self.__play_btn.texture.fill("#7A7A7A")
-
-        self.__edit_btn: Button = Button(
-            pygame.Rect(self.__padding * 2 + self.__button_width, self.__button_y, self.__button_width, 48),
-            pygame.Surface((self.__button_width, 48))
-        )
-        self.__edit_btn.texture.fill("#7A7A7A")
-
-        self.__delete_btn: Button = Button(
-            pygame.Rect(self.__padding * 3 + self.__button_width * 2, self.__button_y, self.__button_width, 48),
-            pygame.Surface((self.__button_width, 48))
-        )
-        self.__delete_btn.texture.fill("#7A7A7A")
 
     def update_level_surfaces(self) -> None:
         level_surfaces: list[pygame.Surface] = list()
@@ -94,19 +75,6 @@ class CustomLevelsState(GameState):
             Level.create()
             self.on_state_enter()
 
-        if self.__selected_level != -1:
-            if self.__edit_btn.is_pressed():
-                editor_state = self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE, None)
-                if editor_state is None:
-                    raise RuntimeError("State 'DATA_EDITOR_STATE' not found.")
-
-                editor_state.level = self.__levels[self.__selected_level]
-                self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
-
-            if self.__delete_btn.is_just_pressed():
-                Level.delete(self.__levels[self.__selected_level][0])
-                self.on_state_enter()
-
         if not mouse_press[0]:
             return
 
@@ -126,6 +94,14 @@ class CustomLevelsState(GameState):
             self.__selected_level = -1
         self.update_level_surfaces()
 
+        if self.__selected_level != -1:
+            editor_state = self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE, None)
+            if editor_state is None:
+                raise RuntimeError("State 'DATA_EDITOR_STATE' not found.")
+
+            editor_state.level = self.__levels[self.__selected_level]
+            self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
+
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         for i, level_surface in enumerate(self.__level_surfaces):
             y = i * (self.__level_surface_size.y + self.__level_surfaces_padding) + self.__scroll
@@ -139,13 +115,3 @@ class CustomLevelsState(GameState):
 
         self.__new_level_btn.draw(surface)
         self.__new_level_btn.draw_text(surface, "+", UIConfig.fonts.get("jetbrains_20m"), "#000000")
-
-        if self.__selected_level == -1:
-            return
-
-        self.__play_btn.draw(surface)
-        self.__play_btn.draw_text(surface, "Play", UIConfig.fonts.get("jetbrains_20m"), "#000000")
-        self.__edit_btn.draw(surface)
-        self.__edit_btn.draw_text(surface, "Edit", UIConfig.fonts.get("jetbrains_20m"), "#000000")
-        self.__delete_btn.draw(surface)
-        self.__delete_btn.draw_text(surface, "Delete", UIConfig.fonts.get("jetbrains_20m"), "#000000")

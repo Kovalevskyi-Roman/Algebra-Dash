@@ -30,6 +30,7 @@ class TileEditorState(GameState):
         self.__placeable_tile: str = ""
         self.__selected_tiles: set = set()
         self.__draw_hitboxes: bool = False
+        self.__was_redacted: bool = False
 
         # https://icons8.com/icon/DwTO-Bs0fTYD/hammer icon by https://icons8.com Icons8
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
@@ -41,6 +42,11 @@ class TileEditorState(GameState):
 
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_tiles(self.level_path, self.__tiles)
+        if self.__was_redacted:
+            Level.save_data(self.level_path, max_progress=0)
+            self.__was_redacted = False
+        Level.load_levels()
+
         self.__tiles.clear()
         self.level_path = ""
         self.__camera_offset = pygame.Vector2(-500, -300)
@@ -100,6 +106,7 @@ class TileEditorState(GameState):
         if keys_just_pressed[pygame.K_m]:
             if self.__cursor_mode == CursorMode.SELECT:
                 self.__cursor_mode = CursorMode.BUILD
+                self.__was_redacted = True
             elif self.__cursor_mode == CursorMode.BUILD:
                 self.__cursor_mode = CursorMode.SELECT
 

@@ -11,13 +11,61 @@
     {
         "id": "yellow_orb",
         "texture": "yellow_orb.png",
-        "hitbox": [0.15, 0.15, 0.7, 0.7],
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false
+    },
+    {
+        "id": "purple_orb",
+        "texture": "purple_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false
+    },
+    {
+        "id": "orange_orb",
+        "texture": "orange_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false
+    },
+    {
+        "id": "black_orb",
+        "texture": "black_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
         "is_solid": false
     },
     {
         "id": "blue_orb",
         "texture": "blue_orb.png",
-        "hitbox": [0.15, 0.15, 0.7, 0.7],
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false
+    },
+    {
+        "id": "green_orb",
+        "texture": "green_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false
+    },
+    {
+        "id": "yellow_trampoline",
+        "texture": "yellow_trampoline.png",
+        "hitbox": [0.1, 0.8, 0.8, 0.2],
+        "is_solid": false
+    },
+    {
+        "id": "purple_trampoline",
+        "texture": "purple_trampoline.png",
+        "hitbox": [0.1, 0.8, 0.8, 0.2],
+        "is_solid": false
+    },
+    {
+        "id": "orange_trampoline",
+        "texture": "orange_trampoline.png",
+        "hitbox": [0.1, 0.8, 0.8, 0.2],
+        "is_solid": false
+    },
+    {
+        "id": "blue_trampoline",
+        "texture": "blue_trampoline.png",
+        "hitbox": [0.1, 0.8, 0.8, 0.2],
         "is_solid": false
     },
     {

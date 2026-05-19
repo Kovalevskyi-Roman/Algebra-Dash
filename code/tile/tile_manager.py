@@ -3,7 +3,8 @@ import pygame
 
 from .tile import Tile
 from .spike import Spike
-from .orb import YellowOrb, BlueOrb
+from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb
+from .trampoline import YellowTrampoline, PurpleTrampoline, OrangeTrampoline, BlueTrampoline
 from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal, BallPortal, WavePortal
 from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster
 
@@ -76,8 +77,32 @@ class TileManager:
             case Tile.YELLOW_ORB:
                 tile = YellowOrb(position, size, hitbox, *args, **kwargs)
 
+            case Tile.PURPLE_ORB:
+                tile = PurpleOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.ORANGE_ORB:
+                tile = OrangeOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.BLACK_ORB:
+                tile = BlackOrb(position, size, hitbox, *args, **kwargs)
+
             case Tile.BLUE_ORB:
                 tile = BlueOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.GREEN_ORB:
+                tile = GreenOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.YELLOW_TRAMPOLINE:
+                tile = YellowTrampoline(position, size, hitbox, *args, **kwargs)
+
+            case Tile.PURPLE_TRAMPOLINE:
+                tile = PurpleTrampoline(position, size, hitbox, *args, **kwargs)
+
+            case Tile.ORANGE_TRAMPOLINE:
+                tile = OrangeTrampoline(position, size, hitbox, *args, **kwargs)
+
+            case Tile.BLUE_TRAMPOLINE:
+                tile = BlueTrampoline(position, size, hitbox, *args, **kwargs)
 
             case Tile.BLUE_PORTAL:
                 tile = BluePortal(position, size, hitbox, *args, **kwargs)

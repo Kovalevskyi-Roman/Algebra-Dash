@@ -18,7 +18,7 @@ class Player:
             "top": False, "left": False, "bottom": False, "right": False
         }
         self.alive: bool = True
-        self.immune: bool = True
+        self.immune: bool = False
         self.gravity_multiplier: float = 1
 
         self.game_modes: dict[type[GameMode], GameMode] = {

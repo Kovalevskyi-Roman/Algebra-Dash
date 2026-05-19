@@ -78,6 +78,12 @@ class Level:
         except FileNotFoundError:
             return list()
 
+    def set_player(self, player: Player) -> None:
+        self.__player = player
+        self.collider.player = self.__player
+        self.ground_tile.rect.y = Tile.SIZE
+        self.ceil_tile.rect.y = -Tile.SIZE * 32
+
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
         self.name = ""
@@ -185,12 +191,18 @@ class Level:
 
         if level_name is None:
             level_name = level[0][1].get("level_name")
+        else:
+            level[0][1]["level_name"] = level_name
         if is_original is None:
             is_original = level[0][1].get("is_original")
         if max_progress is None:
             max_progress = level[0][1].get("max_progress", 0)
+        else:
+            level[0][1]["max_progress"] = max_progress
         if death_count is None:
             death_count = level[0][1].get("death_count", 0)
+        else:
+            level[0][1]["death_count"] = death_count
 
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
@@ -248,9 +260,6 @@ class Level:
             self.death_count += 1
             if self.current_progress > self.max_progress:
                 self.save_data(self.path, max_progress=self.current_progress, death_count=self.death_count)
-
-        elif self.current_progress >= 100:
-            self.save_data(self.path, max_progress=100)
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         surface.fill(self.bg_color)

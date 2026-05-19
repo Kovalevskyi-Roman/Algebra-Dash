@@ -36,6 +36,19 @@ class TileEditorState(GameState):
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
         self.__hammer_icon = pygame.transform.flip(self.__hammer_icon, True, False)
 
+        # tile grid surface
+        self.__grid_surface: pygame.Surface = pygame.Surface(Window.SIZE + pygame.Vector2(Tile.SIZE, Tile.SIZE) * 2, flags=pygame.SRCALPHA)
+        for i in range(self.__grid_surface.height // Tile.SIZE):
+            pygame.draw.line(
+                self.__grid_surface, "#323232",
+                [0, Tile.SIZE * i], [self.__grid_surface.get_width(), Tile.SIZE * i]
+            )
+        for i in range(self.__grid_surface.width // Tile.SIZE):
+            pygame.draw.line(
+                self.__grid_surface, "#323232",
+                [Tile.SIZE * i, 0], [Tile.SIZE * i, self.__grid_surface.get_height()]
+            )
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
         self.__update_tile_panel_surface()
@@ -102,6 +115,22 @@ class TileEditorState(GameState):
             self.__camera_offset.y += 8
         elif keys_pressed[pygame.K_w]:
             self.__camera_offset.y -= 8
+        # tile movement
+        step: int = 2
+        if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
+            step = Tile.SIZE
+        if keys_just_pressed[pygame.K_LEFT]:
+            for tile in self.__selected_tiles:
+                tile.rect.x -= step
+        elif keys_just_pressed[pygame.K_RIGHT]:
+            for tile in self.__selected_tiles:
+                tile.rect.x += step
+        elif keys_just_pressed[pygame.K_UP]:
+            for tile in self.__selected_tiles:
+                tile.rect.y -= step
+        elif keys_just_pressed[pygame.K_DOWN]:
+            for tile in self.__selected_tiles:
+                tile.rect.y += step
 
         if keys_just_pressed[pygame.K_m]:
             if self.__cursor_mode == CursorMode.SELECT:
@@ -183,7 +212,7 @@ class TileEditorState(GameState):
                 [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x + 1,
                  mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y + 1]
                 # +self.__camera_offset needed because: (mouse_pos + camera) - (mouse_pressed_pos + camera) => mouse_pos - mouse_pressed_pos
-                # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fixes it)
+                # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fix it
             )
             # flips rectangle
             if self.__selection_rect.width < 0:
@@ -205,12 +234,13 @@ class TileEditorState(GameState):
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.fill("#171727")
-        # X axis line
+        # tile grid
+        surface.blit(self.__grid_surface, [-self.__camera_offset.x % Tile.SIZE - Tile.SIZE, -self.__camera_offset.y % Tile.SIZE - Tile.SIZE])
+        # start pos lines
         pygame.draw.line(
             surface, "#0000ff",
             [0, -self.__camera_offset.y + Tile.SIZE], [surface.get_width(), -self.__camera_offset.y + Tile.SIZE]
         )
-        # Y axis line
         pygame.draw.line(
             surface, "#00ff00",
             [-self.__camera_offset.x, 0], [-self.__camera_offset.x, surface.get_height()]

@@ -3,17 +3,30 @@ import pygame
 
 class Tile:
     SIZE: int = 32
+
     TILE: str = "tile"
     FOLLOW_TILE: str = "follow_tile"
     SPIKE: str = "spike"
+
     YELLOW_ORB: str = "yellow_orb"
+    PURPLE_ORB: str = "purple_orb"
+    ORANGE_ORB: str = "orange_orb"
+    BLACK_ORB: str = "black_orb"
     BLUE_ORB: str = "blue_orb"
+    GREEN_ORB: str = "green_orb"
+
+    YELLOW_TRAMPOLINE: str = "yellow_trampoline"
+    PURPLE_TRAMPOLINE: str = "purple_trampoline"
+    ORANGE_TRAMPOLINE: str = "orange_trampoline"
+    BLUE_TRAMPOLINE: str = "blue_trampoline"
+
     BLUE_PORTAL: str = "blue_portal"
     YELLOW_PORTAL: str = "yellow_portal"
     CUBE_PORTAL: str = "cube_portal"
     SHIP_PORTAL: str = "ship_portal"
     BALL_PORTAL: str = "ball_portal"
     WAVE_PORTAL: str = "wave_portal"
+
     X1_SPEED_BUSTER: str = "x1_speed_buster"
     X2_SPEED_BUSTER: str = "x2_speed_buster"
     X3_SPEED_BUSTER: str = "x3_speed_buster"

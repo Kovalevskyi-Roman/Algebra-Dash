@@ -53,8 +53,13 @@ class DataEditorState(GameState):
 
         self.__level_was_deleted: bool = False
         self.__delete_level_btn: Button = Button(
-            pygame.Rect(Window.SIZE[0] - 70, Window.SIZE[1] - 70, 50, 50),
-            pygame.image.load("../resources/textures/ui/trash_icon.png").convert_alpha()
+            pygame.Rect(Window.SIZE[0] - 70, Window.SIZE[1] - 70, 60, 60),
+            pygame.Surface((60, 60))
+        )
+        self.__delete_level_btn.texture.fill("#646464")
+        self.__delete_level_btn.texture.blit(
+            pygame.image.load("../resources/textures/ui/trash_icon.png").convert_alpha(),
+            [5, 5]
         )
 
     def on_state_enter(self, *args, **kwargs) -> None:
@@ -81,10 +86,10 @@ class DataEditorState(GameState):
         if self.entry.active:
             self.level[1]["level_name"] = self.entry.get_text()
 
-        if self.__back_btn.is_pressed():
+        if self.__back_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
 
-        elif self.__editor_btn.is_pressed():
+        elif self.__editor_btn.is_just_pressed():
             tile_editor_state = self._game_state_manager.game_states.get(self._game_state_manager.TILE_EDITOR_STATE, None)
             if tile_editor_state is None:
                 raise AttributeError("State 'TILE_EDITOR_STATE' not found.")
@@ -92,7 +97,7 @@ class DataEditorState(GameState):
             tile_editor_state.level_path = self.level[0]
             self._game_state_manager.change_state(self._game_state_manager.TILE_EDITOR_STATE)
 
-        elif self.__play_btn.is_pressed():
+        elif self.__play_btn.is_just_pressed():
             play_state = self._game_state_manager.game_states.get(self._game_state_manager.PLAY_STATE, None)
             if play_state is None:
                 raise AttributeError("State 'PLAY_STATE' not found.")
@@ -100,7 +105,7 @@ class DataEditorState(GameState):
             play_state.level_path = self.level[0]
             self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE)
 
-        elif self.__delete_level_btn.is_pressed():
+        elif self.__delete_level_btn.is_just_pressed():
             self.__level_was_deleted = True
             Level.delete(self.level[0])
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)

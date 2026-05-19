@@ -81,11 +81,11 @@ class Collider:
 
         # updates player position
         self.player.rect.topleft = pygame.Vector2(player_rect.topleft) - game_mode_hitbox.topleft
-        for tile in collided_with:
-            tile.on_player_collide(player=self.player, level=self.level)
 
         if self.player.collision["left"] or self.player.collision["right"]:
             self.player.velocity.x = 0
 
         if self.player.collision["bottom"] or self.player.collision["top"]:
             self.player.velocity.y = 0
+        for tile in collided_with:
+            tile.on_player_collide(player=self.player, level=self.level)

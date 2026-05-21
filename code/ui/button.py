@@ -23,6 +23,7 @@ class Button:
 
     def draw_text(self, surface: pygame.Surface, text: str, font: pygame.Font, f_color: str, bg_color: str | None = None,
                   offset: pygame.typing.SequenceLike[int] | None = None, antialias: bool = True) -> None:
+        """if offset x or y is -1 draws text at the center of a button rect"""
         render: pygame.Surface = font.render(text, antialias, f_color, bg_color)
         if offset is None:
             offset = pygame.Vector2(-1, -1)

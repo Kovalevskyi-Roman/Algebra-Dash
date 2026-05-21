@@ -58,7 +58,6 @@ class TileEditorState(GameState):
         if self.__was_redacted:
             Level.save_data(self.level_path, max_progress=0)
             self.__was_redacted = False
-        Level.load_levels()
 
         self.__tiles.clear()
         self.level_path = ""

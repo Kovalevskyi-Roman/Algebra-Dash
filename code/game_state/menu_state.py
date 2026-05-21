@@ -42,15 +42,34 @@ class MenuState(GameState):
         )
         self.__skin_shop_btn.scale_texture_to_rect()
 
+        self.__settings_btn: Button = Button(
+            pygame.Rect(Window.SIZE[0] - 43, Window.SIZE[1] - 43, 35, 35),
+            pygame.Surface((35, 35))
+        )
+        self.__settings_btn.texture.fill("#646464")
+        self.__settings_btn.texture.blit(
+            pygame.transform.scale(
+                pygame.image.load("../resources/textures/ui/settings_icon.png").convert_alpha(), (35, 35)
+            ),
+            [0, 0]
+        )
+
     def update(self, *args, **kwargs) -> None:
-        if self.__play_btn.is_pressed():
+        if self.__play_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.ORIGINAL_LEVELS_STATE)
 
-        elif self.__editor_btn.is_pressed():
+        elif self.__editor_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
+
+        elif self.__skin_shop_btn.is_just_pressed():
+            ...
+
+        elif self.__settings_btn.is_just_pressed():
+            self._game_state_manager.change_state(self._game_state_manager.SETTINGS_STATE)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.blit(self.__title, [surface.width / 2 - self.__title.width / 2, -20])
         self.__play_btn.draw(surface)
         self.__editor_btn.draw(surface)
         self.__skin_shop_btn.draw(surface)
+        self.__settings_btn.draw(surface)

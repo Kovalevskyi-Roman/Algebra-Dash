@@ -100,7 +100,7 @@ class PlayState(GameState):
             if self.__level.current_progress > self.__level.max_progress:
                 self.__level.save_data(self.level_path, max_progress=self.__level.current_progress)
 
-            if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).pause_on_death:
+            if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).pause_after_death:
                 self.__is_paused = True
 
             self.retry()

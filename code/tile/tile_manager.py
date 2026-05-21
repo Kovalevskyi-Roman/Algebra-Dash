@@ -162,14 +162,18 @@ class TileManager:
         # if you're not scaling tiles back to 1 their position corrupts
         tile_scale = tile.scale
         tile.scale_to_factor(1)
-
-        return {
+        json_tile: dict[str, ...] = {
             "id": tile.id,
-            "position": [tile.rect.x, tile.rect.y],
-            "flip_x": tile.flip_x,
-            "flip_y": tile.flip_y,
-            "scale": tile_scale
+            "position": [tile.rect.x, tile.rect.y]
         }
+        if tile_scale != 1:
+            json_tile.setdefault("scale", tile_scale)
+        if tile.flip_x:
+            json_tile.setdefault("flip_x", tile.flip_x)
+        if tile.flip_y:
+            json_tile.setdefault("flip_y", tile.flip_y)
+
+        return json_tile
 
     @classmethod
     def draw_tile_hitbox(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:

@@ -15,10 +15,10 @@ class Level:
     """
     Level file structure:
 
-    level folder (random hash value):
+    level folder (random value):
         tiles.json
         level_data.json:
-            level display name   (string)
+            level name           (string)
             level music name     (string)
             is level original    (boolean)
             max progress         (int)
@@ -40,8 +40,17 @@ class Level:
 
     @classmethod
     def load_levels(cls) -> None:
+        """
+        Loads level_data for every level that's in '../resources/data/level/' folder.
+        return => {
+            "level_path_1": {level_data.json},
+            ...
+            "level_path_N": {level_data.json},
+        }
+        """
         cls.levels.clear()
         path: pathlib.Path = pathlib.Path("../resources/data/levels/")
+        obj: pathlib.Path | None = None
         try:
             for obj in path.iterdir():
                 if not obj.is_dir():
@@ -51,14 +60,14 @@ class Level:
                     cls.levels.setdefault(str(obj), json.load(file))  # path, data
 
         except FileNotFoundError:
-            print(f"File 'level_data.json' not found.'")
+            print(f"Level with path: '{str(obj)}' has no level_data file.")
 
     @classmethod
     def __decompress_tiles(cls, compressed_tiles: list[dict[str, int | dict[str, ...]]]) -> list[Tile]:
         tiles: list[Tile] = list()
         for compressed_tile_row in compressed_tiles:
             tile_row: list[Tile] = list()
-            for i in range(compressed_tile_row.get("count")):
+            for i in range(compressed_tile_row.get("count", 1)):
                 tile_row.append(
                     TileManager.from_json(compressed_tile_row.get("tile"))
                 )
@@ -133,7 +142,7 @@ class Level:
             return list()
 
         if len(sorted_tiles) == 1:
-            return [{"count": 1, "tile": TileManager.to_json(sorted_tiles[0])}]
+            return [{"tile": TileManager.to_json(sorted_tiles[0])}]
 
         compressed_tiles: list[dict[str, int | dict[str, ...]]] = list()
         count = 1  # how many tiles in a row
@@ -157,19 +166,28 @@ class Level:
 
             # if tile has no neighbors
             if first_tile is None:
-                compressed_tiles.append({"count": count, "tile": TileManager.to_json(tile)})
+                json_tile = {"tile": TileManager.to_json(tile)}
+                if count > 1:
+                    json_tile.setdefault("count", count)
+                compressed_tiles.append(json_tile)
                 continue
 
             # if tile last in a row
-            compressed_tiles.append({"count": count, "tile": TileManager.to_json(first_tile)})
+            json_tile = {"tile": TileManager.to_json(first_tile)}
+            if count > 1:
+                json_tile.setdefault("count", count)
+            compressed_tiles.append(json_tile)
             count = 1
             first_tile = None
 
         # if level ends with tiles in a row
         if first_tile is not None:
-            compressed_tiles.append({"count": count, "tile": TileManager.to_json(first_tile)})
+            json_tile = {"tile": TileManager.to_json(first_tile)}
+            if count > 1:
+                json_tile.setdefault("count", count)
+            compressed_tiles.append(json_tile)
         else:
-            compressed_tiles.append({"count": 1, "tile": TileManager.to_json(last_tile)})
+            compressed_tiles.append({"tile": TileManager.to_json(last_tile)})
 
         return compressed_tiles
 
@@ -275,5 +293,5 @@ class Level:
             pygame.draw.rect(surface, "#000000", [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
 
         # draw current progress
-        render: pygame.Surface = UIConfig.fonts.get("tahoma_16").render(f"{self.current_progress}%", True, "#ffffff")
+        render: pygame.Surface = UIConfig.fonts.get("jetbrains_16l").render(f"{self.current_progress}%", True, "#ffffff")
         surface.blit(render, [surface.width / 2 - render.width / 2, 0])

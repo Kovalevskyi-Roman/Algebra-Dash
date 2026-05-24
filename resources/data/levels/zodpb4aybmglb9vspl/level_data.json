@@ -1,6 +1,10 @@
 {
     "level_name": "Test Level",
     "is_original": true,
-    "max_progress": 100,
-    "death_count": 73
+    "max_progress": 96.5,
+    "death_count": 82,
+    "editor_scroll": [
+        480.0,
+        -448.0
+    ]
 }

@@ -12,6 +12,8 @@ class SettingsState(GameState):
         super().__init__(game_state_manager, *args, **kwargs)
         self.show_hitboxes: bool = False
         self.pause_after_death: bool = False
+        self.is_player_immortal: bool = False
+        self.platformer_mode: bool = False
 
         self.__show_hitboxes_btn: Button = Button(
             pygame.Rect((8, 8), UIConfig.CHECKBOX_SIZE),
@@ -19,7 +21,17 @@ class SettingsState(GameState):
         )
 
         self.__pause_on_death_btn: Button = Button(
-            pygame.Rect((8, 8 + 8 + UIConfig.CHECKBOX_SIZE[1]), UIConfig.CHECKBOX_SIZE),
+            pygame.Rect((8, 8 * 2 + UIConfig.CHECKBOX_SIZE[1]), UIConfig.CHECKBOX_SIZE),
+            UIConfig.CHECKBOX_TEXTURE
+        )
+
+        self.__is_player_immortal_btn: Button = Button(
+            pygame.Rect((8, 8 * 3 + UIConfig.CHECKBOX_SIZE[1] * 2), UIConfig.CHECKBOX_SIZE),
+            UIConfig.CHECKBOX_TEXTURE
+        )
+
+        self.__platformer_mode_btn: Button = Button(
+            pygame.Rect((8, 8 * 4 + UIConfig.CHECKBOX_SIZE[1] * 3), UIConfig.CHECKBOX_SIZE),
             UIConfig.CHECKBOX_TEXTURE
         )
 
@@ -33,12 +45,16 @@ class SettingsState(GameState):
             content: dict[str, bool] = json.load(file)
             self.show_hitboxes = content.get("show_hitboxes", False)
             self.pause_after_death = content.get("pause_after_death", False)
+            self.is_player_immortal = content.get("is_player_immortal", False)
+            self.platformer_mode = content.get("platformer_mode", False)
 
     def __save_settings(self) -> None:
         with open("../resources/data/settings.json", "w") as file:
             content: dict[str, bool] = {
                 "show_hitboxes": self.show_hitboxes,
-                "pause_after_death": self.pause_after_death
+                "pause_after_death": self.pause_after_death,
+                "is_player_immortal": self.is_player_immortal,
+                "platformer_mode": self.platformer_mode
             }
             json.dump(content, file, indent=4)
 
@@ -53,6 +69,12 @@ class SettingsState(GameState):
         elif self.__pause_on_death_btn.is_just_pressed():
             self.pause_after_death = not self.pause_after_death
 
+        elif self.__is_player_immortal_btn.is_just_pressed():
+            self.is_player_immortal = not self.is_player_immortal
+
+        elif self.__platformer_mode_btn.is_just_pressed():
+            self.platformer_mode = not self.platformer_mode
+
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__show_hitboxes_btn.draw(surface)
         self.__show_hitboxes_btn.draw_text(surface, "Show hitboxes", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
@@ -66,3 +88,17 @@ class SettingsState(GameState):
 
         if self.pause_after_death:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__pause_on_death_btn.rect.topleft)
+
+        self.__is_player_immortal_btn.draw(surface)
+        self.__is_player_immortal_btn.draw_text(surface, "Player immortality", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
+                                                offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+
+        if self.is_player_immortal:
+            surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__is_player_immortal_btn.rect.topleft)
+
+        self.__platformer_mode_btn.draw(surface)
+        self.__platformer_mode_btn.draw_text(surface, "Platformer mode", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
+                                             offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+
+        if self.platformer_mode:
+            surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__platformer_mode_btn.rect.topleft)

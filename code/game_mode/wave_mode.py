@@ -15,7 +15,7 @@ class WaveMode(GameMode):
     def update(self):
         self._player.velocity.y = self._player.move_speed * self._player.gravity_multiplier
 
-        if pygame.key.get_pressed()[pygame.K_SPACE]:
+        if self._player.jump_action:
             self._player.velocity.y *= -1
 
         if self.__old_velocity != self._player.velocity:

@@ -51,6 +51,7 @@ class TileEditorState(GameState):
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
+        self.__camera_offset = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
         self.__update_tile_panel_surface()
 
     def on_state_exit(self, *args, **kwargs) -> None:
@@ -58,6 +59,8 @@ class TileEditorState(GameState):
         if self.__was_redacted:
             Level.save_data(self.level_path, max_progress=0)
             self.__was_redacted = False
+        else:
+            Level.save_data(self.level_path, editor_scroll=self.__camera_offset)
 
         self.__tiles.clear()
         self.level_path = ""
@@ -247,6 +250,19 @@ class TileEditorState(GameState):
         # tiles
         for tile in self.__tiles:
             if TileManager.draw_tile(tile, surface, self.__camera_offset):
+                # if tile is a game mode portal
+                if tile.id in [Tile.SHIP_PORTAL, Tile.BALL_PORTAL, Tile.WAVE_PORTAL]:
+                    # ceil level line
+                    pygame.draw.line(
+                        surface, "#ffffff",
+                        tile.rect.topleft - self.__camera_offset - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.top - self.__camera_offset.y - tile.ceil_level * Tile.SIZE])
+                    # ground level line
+                    pygame.draw.line(
+                        surface, "#ffffff",
+                        tile.rect.bottomleft - self.__camera_offset + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.bottom - self.__camera_offset.y + tile.ground_level * Tile.SIZE])
+
                 if self.__draw_hitboxes:
                     TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)
 

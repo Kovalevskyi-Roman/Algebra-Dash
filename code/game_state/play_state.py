@@ -55,14 +55,18 @@ class PlayState(GameState):
         self.__retry_btn.draw(self.__pause_surface)
         self.__back_btn.draw(self.__pause_surface)
 
+        self.__settings_state: GameState | None = None
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__player = Player()
         self.__camera = Camera(self.__player.rect.center)
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
         self.__is_paused = False
+        self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
 
     def on_state_exit(self, *args, **kwargs) -> None:
+        Level.save_data(self.level_path, death_count=self.__level.death_count)
         self.__player = None
         self.__camera = None
         self.__level = None
@@ -88,6 +92,8 @@ class PlayState(GameState):
                 self._game_state_manager.change_state_to_previous()
             return
 
+        self.__player.platformer_mode = self.__settings_state.platformer_mode
+
         self.__camera.update(self.__player.rect.center)
         self.__level.update(self.__camera.offset)
 
@@ -96,11 +102,18 @@ class PlayState(GameState):
             self._game_state_manager.change_state_to_previous()
             return
 
-        if not self.__player.alive:
-            if self.__level.current_progress > self.__level.max_progress:
-                self.__level.save_data(self.level_path, max_progress=self.__level.current_progress)
+        if self.__settings_state.is_player_immortal:
+            self.__player.alive = True
 
-            if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).pause_after_death:
+        if not self.__player.alive:
+            self.__level.death_count += 1
+            if self.__level.current_progress > self.__level.max_progress:
+                self.__level.save_data(self.level_path,
+                                       max_progress=self.__level.current_progress,
+                                       death_count=self.__level.death_count
+                                       )
+
+            if self.__settings_state.pause_after_death:
                 self.__is_paused = True
 
             self.retry()
@@ -108,7 +121,7 @@ class PlayState(GameState):
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__level.draw(surface, self.__camera.offset)
 
-        if self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE).show_hitboxes:
+        if self.__settings_state.show_hitboxes:
             for tile in self.__level.tiles:
                 TileManager.draw_tile_hitbox(tile, surface, self.__camera.offset)
 

@@ -72,8 +72,9 @@ class CustomLevelsState(GameState):
                 self.__scroll = self.__level_surfaces_padding
 
         if self.__new_level_btn.is_just_pressed():
-            Level.create()
-            self.on_state_enter()
+            level = Level.create()
+            self._game_state_manager.game_states.get(self._game_state_manager.DATA_EDITOR_STATE).level = level
+            self._game_state_manager.change_state(self._game_state_manager.DATA_EDITOR_STATE)
 
         if not mouse_press[0]:
             return

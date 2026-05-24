@@ -36,39 +36,57 @@ class ShipPortal(Tile):
     def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
         super().__init__(Tile.SHIP_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.__ground_level = 5
-        self.__ceil_level = 6
+        self.ground_level = 5
+        self.ceil_level = 6
+        self.__has_collided: bool = False
 
     def on_player_collide(self, *args, **kwargs) -> None:
         kwargs.get("player").current_game_mode = kwargs.get("player").SHIP_MODE
+        if self.__has_collided:
+            return
+
+        self.__has_collided = True
+        rect = self.rect.scale_by(1 / self.scale, 1 / self.scale)
         level = kwargs.get("level")
-        level.ground_tile.rect.y = (self.rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.__ground_level
-        level.ceil_tile.rect.y = (self.rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.__ceil_level + 1)
+        level.ground_tile.rect.y = (rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.ground_level
+        level.ceil_tile.rect.y = (rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.ceil_level + 1)
 
 
 class BallPortal(Tile):
     def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
         super().__init__(Tile.BALL_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.__ground_level = 5
-        self.__ceil_level = 6
+        self.ground_level = 5
+        self.ceil_level = 6
+        self.__has_collided: bool = False
 
     def on_player_collide(self, *args, **kwargs) -> None:
         kwargs.get("player").current_game_mode = kwargs.get("player").BALL_MODE
+        if self.__has_collided:
+            return
+
+        self.__has_collided = True
+        rect = self.rect.scale_by(1 / self.scale, 1 / self.scale)
         level = kwargs.get("level")
-        level.ground_tile.rect.y = (self.rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.__ground_level
-        level.ceil_tile.rect.y = (self.rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.__ceil_level + 1)
+        level.ground_tile.rect.y = (rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.ground_level
+        level.ceil_tile.rect.y = (rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.ceil_level + 1)
 
 
 class WavePortal(Tile):
     def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
         super().__init__(Tile.WAVE_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.__ground_level = 5
-        self.__ceil_level = 6
+        self.ground_level = 5
+        self.ceil_level = 6
+        self.__has_collided: bool = False
 
     def on_player_collide(self, *args, **kwargs) -> None:
         kwargs.get("player").current_game_mode = kwargs.get("player").WAVE_MODE
+        if self.__has_collided:
+            return
+
+        self.__has_collided = True
+        rect = self.rect.scale_by(1 / self.scale, 1 / self.scale)
         level = kwargs.get("level")
-        level.ground_tile.rect.y = (self.rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.__ground_level
-        level.ceil_tile.rect.y = (self.rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.__ceil_level + 1)
+        level.ground_tile.rect.y = (rect.bottom // Tile.SIZE * Tile.SIZE) + Tile.SIZE * self.ground_level
+        level.ceil_tile.rect.y = (rect.y // Tile.SIZE * Tile.SIZE) - Tile.SIZE * (self.ceil_level + 1)

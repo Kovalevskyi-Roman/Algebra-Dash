@@ -18,7 +18,7 @@ class Player:
             "top": False, "left": False, "bottom": False, "right": False
         }
         self.alive: bool = True
-        self.immune: bool = False
+        self.platformer_mode: bool = False
         self.gravity_multiplier: float = 1
 
         self.game_modes: dict[type[GameMode], GameMode] = {
@@ -29,15 +29,26 @@ class Player:
         }
         self.current_game_mode: type[GameMode] = self.CUBE_MODE
 
-    def update(self) -> None:
-        keys = pygame.key.get_pressed()
+        self.jump_action: bool = False
+        self.just_jump_action: bool = False
 
-        if keys[pygame.K_d]:
-            self.velocity.x = self.move_speed
-        elif keys[pygame.K_a]:
-            self.velocity.x = -self.move_speed
-        else:
-            self.velocity.x = 0
+    def update(self) -> None:
+        pressed_keys = pygame.key.get_pressed()
+        just_pressed_keys = pygame.key.get_just_pressed()
+        pressed_mouse = pygame.mouse.get_pressed()
+        just_pressed_mouse = pygame.mouse.get_just_pressed()
+
+        self.jump_action = pressed_keys[pygame.K_SPACE] or pressed_mouse[0]
+        self.just_jump_action = just_pressed_keys[pygame.K_SPACE] or just_pressed_mouse[0]
+
+        self.velocity.x = self.move_speed
+        if self.platformer_mode:
+            if pressed_keys[pygame.K_d]:
+                self.velocity.x = self.move_speed
+            elif pressed_keys[pygame.K_a]:
+                self.velocity.x = -self.move_speed
+            else:
+                self.velocity.x = 0
 
         self.game_modes.get(self.current_game_mode).update()
 

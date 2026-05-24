@@ -87,5 +87,6 @@ class Collider:
 
         if self.player.collision["bottom"] or self.player.collision["top"]:
             self.player.velocity.y = 0
+
         for tile in collided_with:
             tile.on_player_collide(player=self.player, level=self.level)

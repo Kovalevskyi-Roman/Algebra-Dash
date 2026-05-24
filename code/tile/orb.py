@@ -12,7 +12,7 @@ class YellowOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.velocity.y = self.__jump_high * player.gravity_multiplier
 
 
@@ -25,7 +25,7 @@ class PurpleOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.velocity.y = self.__jump_high * player.gravity_multiplier
 
 
@@ -38,7 +38,7 @@ class OrangeOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.velocity.y = self.__jump_high * player.gravity_multiplier
 
 
@@ -51,7 +51,7 @@ class BlackOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.velocity.y = self.__jump_high * player.gravity_multiplier
 
 
@@ -63,7 +63,7 @@ class BlueOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.gravity_multiplier *= -1
             player.velocity.y = 0
 
@@ -77,6 +77,6 @@ class GreenOrb(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         player = kwargs.get("player")
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE]:
+        if player.just_jump_action:
             player.gravity_multiplier *= -1
             player.velocity.y = self.__jump_high * player.gravity_multiplier

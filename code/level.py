@@ -2,6 +2,8 @@ import json
 import pathlib
 import shutil
 import random
+from pathlib import Path
+
 import pygame
 
 from ui import UIConfig
@@ -23,6 +25,7 @@ class Level:
             is level original    (boolean)
             max progress         (int)
             death count          (int)
+            editor scroll        (tuple[int, int])
     """
     def __init__(self) -> None:
         self.name: str = ""
@@ -201,7 +204,7 @@ class Level:
 
     @classmethod
     def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
-                  max_progress: float = None, death_count: int = None) -> None:
+                  max_progress: float = None, death_count: int = None, editor_scroll: pygame.Vector2 = None) -> None:
 
         level = list(filter(lambda l: l[0] == path, cls.levels.items()))
         if not level:
@@ -221,19 +224,26 @@ class Level:
             death_count = level[0][1].get("death_count", 0)
         else:
             level[0][1]["death_count"] = death_count
+        if editor_scroll is None:
+            editor_scroll = level[0][1].get("editor_scroll", [0, 0])
+        else:
+            editor_scroll = [editor_scroll.x, editor_scroll.y]
+            level[0][1]["editor_scroll"] = editor_scroll
 
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
                 "level_name": level_name,
                 "is_original": is_original,
                 "max_progress": max_progress,
-                "death_count": death_count
+                "death_count": death_count,
+                "editor_scroll": editor_scroll
             }
             json.dump(content, level_data_file, indent=4)
 
     @classmethod
-    def create(cls) -> None:
+    def create(cls) -> tuple[str, dict[str, str | bool | int]]:
         characters = "qwertyuiopasdfghjkllzxcvbnm1234567890="
+
         folder_name = "".join([random.choice(characters) for _ in range(18)])
         path = pathlib.Path(f"../resources/data/levels/{folder_name}")
         while path.exists():
@@ -247,10 +257,13 @@ class Level:
                 "is_original": False,
                 "max_progress": 0,
                 "death_count": 0,
+                "editor_scroll": [0, 0]
             }
             json.dump(level_data, level_data_file, indent=4)
 
         cls.load_levels()
+
+        return str(path), level_data
 
     @classmethod
     def delete(cls, path: str) -> None:
@@ -265,19 +278,11 @@ class Level:
 
         self.collider.update_collision(camera_offset)
 
-        if self.__player.immune:
-            self.__player.alive = True
-
         self.current_progress = round((self.__player.rect.x / self.__finish_x_pos) * 100, 1)
 
         if self.ground_tile.rect.y >= Tile.SIZE:
             self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE
             self.ground_tile.rect.y = Tile.SIZE
-
-        if not self.__player.alive:
-            self.death_count += 1
-            if self.current_progress > self.max_progress:
-                self.save_data(self.path, max_progress=self.current_progress, death_count=self.death_count)
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         surface.fill(self.bg_color)

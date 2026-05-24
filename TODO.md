@@ -8,7 +8,7 @@
 - [ ] Game state
     - [x] Game state manager
     - [x] Menu state
-    - [ ] Settings state
+    - [x] Settings state
     - [x] Original levels state
     - [x] Play state
     - [ ] Player color shop state
@@ -18,29 +18,29 @@
 - [ ] UI
     - [x] Config
     - [x] Button
-    - [ ] Input
+    - [x] Input
     - [ ] Slider
-- [ ] Level saving
+- [x] Level saving
     - [x] Tiles compression
-- [ ] Level loading
+- [x] Level loading
     - [x] Tiles decompression
 - [ ] Tile
     - [x] Tile
     - [x] Spike
-    - [ ] Orbs
+    - [x] Orbs
         - [x] Yellow orb
         - [x] Blue orb
-        - [ ] Pink orb
-        - [ ] Red orb
-        - [ ] Black orb
-        - [ ] Green orb
+        - [x] Pink orb
+        - [x] Red orb
+        - [x] Black orb
+        - [x] Green orb
     - [ ] Portals
         - [x] Yellow portal
         - [x] Blue portal
         - [x] Cube portal
         - [x] Ship portal
         - [x] Ball portal
-        - [ ] Wave portal
+        - [x] Wave portal
         - [ ] Ufo portal
         - [ ] Robot portal
         - [ ] Spider portal
@@ -57,7 +57,7 @@
     - [x] Cube
     - [x] Ship
     - [x] Ball
-    - [ ] Wave
+    - [x] Wave
     - [ ] Ufo
     - [ ] Robot
     - [ ] Spider

@@ -16,7 +16,7 @@ class BallMode(GameMode):
         if self._player.gravity_multiplier < 0:
             bottom = self._player.collision["top"]
 
-        if pygame.key.get_just_pressed()[pygame.K_SPACE] and bottom:
+        if self._player.just_jump_action and bottom:
             self._player.gravity_multiplier = -self._player.gravity_multiplier
 
         self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier

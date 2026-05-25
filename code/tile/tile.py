@@ -37,9 +37,10 @@ class Tile:
         self.id = id_
         self.rect: pygame.FRect = pygame.FRect(position, size)
         self.hitbox: pygame.FRect = pygame.FRect(*hitbox)
+        self.scale: float = 1.0
         self.flip_x: bool = False
         self.flip_y: bool = False
-        self.scale: float = 1.0
+        self.rotation: int = 0
 
     def scale_to_factor(self, scale: float) -> None:
         # resets scale
@@ -65,6 +66,19 @@ class Tile:
 
         self.flip_x = flip_x
         self.flip_y = flip_y
+
+    def rotate(self, angle: int) -> None:
+        """Rotates rect only by 90 degrees"""
+        self.rotation += angle
+        if abs(self.rotation) == 360:
+            self.rotation = 0
+
+        if not angle:
+            return
+
+        self.rect.width, self.rect.height = self.rect.height, self.rect.width
+        self.hitbox.width, self.hitbox.height = self.hitbox.height, self.hitbox.width
+        self.hitbox.x, self.hitbox.y = self.hitbox.y, self.hitbox.x
 
     def update(self, *args, **kwargs) -> None:
         if self.id == self.FOLLOW_TILE:

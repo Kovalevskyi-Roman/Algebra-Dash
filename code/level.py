@@ -102,7 +102,7 @@ class Level:
         self.path = path
         self.collider = None
         self.__player = None
-        self.bg_color = "#272727"
+        self.bg_color = "#0000ff"
         try:
             with open(self.path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
@@ -124,7 +124,7 @@ class Level:
         self.collider = Collider(self.__player, self)
 
     @classmethod
-    def __sort_tiles(cls, tiles: list[Tile]) -> list[Tile]:
+    def get_sorted_tiles(cls, tiles: list[Tile]) -> list[Tile]:
         # group tiles by Y coordinate
         tile_groups: dict[float, list[Tile]] = dict()
         for tile in tiles:
@@ -196,7 +196,7 @@ class Level:
 
     @classmethod
     def save_tiles(cls, path: str, tiles: list[Tile]) -> None:
-        sorted_tiles = cls.__sort_tiles(tiles)
+        sorted_tiles = cls.get_sorted_tiles(tiles)
         compressed_tiles = cls.__compress_tiles(sorted_tiles)
 
         with open(f"{path}/tiles.json", "w") as file:

@@ -158,7 +158,15 @@ class TileEditorState(GameState):
             for tile in self.__selected_tiles:
                 tile.flip_by(tile.flip_x, not tile.flip_y)
 
-        elif keys_just_pressed[pygame.K_BACKSPACE]:
+        elif keys_just_pressed[pygame.K_q]:
+            for tile in self.__selected_tiles:
+                tile.rotate(90)
+
+        elif keys_just_pressed[pygame.K_e]:
+            for tile in self.__selected_tiles:
+                tile.rotate(-90)
+
+        elif keys_just_pressed[pygame.K_BACKSPACE] or keys_just_pressed[pygame.K_DELETE]:
             for tile in self.__selected_tiles:
                 self.__tiles.remove(tile)
 
@@ -255,13 +263,13 @@ class TileEditorState(GameState):
                     # ceil level line
                     pygame.draw.line(
                         surface, "#ffffff",
-                        tile.rect.topleft - self.__camera_offset - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.top - self.__camera_offset.y - tile.ceil_level * Tile.SIZE])
+                        tile.rect.center - self.__camera_offset - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y - tile.ceil_level * Tile.SIZE])
                     # ground level line
                     pygame.draw.line(
                         surface, "#ffffff",
-                        tile.rect.bottomleft - self.__camera_offset + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.bottom - self.__camera_offset.y + tile.ground_level * Tile.SIZE])
+                        tile.rect.center - self.__camera_offset + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y + tile.ground_level * Tile.SIZE])
 
                 if self.__draw_hitboxes:
                     TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)

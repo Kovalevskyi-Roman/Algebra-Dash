@@ -29,7 +29,7 @@ class TileManager:
         else:
             texture = pygame.transform.scale(texture, texture_size)
 
-        return texture
+        return texture.convert_alpha()
 
     @classmethod
     def __load_tile_hitbox(cls, tile: dict[str, ...], size: tuple) -> tuple[int, ...]:
@@ -139,6 +139,7 @@ class TileManager:
 
         tile.scale_to_factor(kwargs.get("scale", 1))
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
+        tile.rotate(kwargs.get("rotation", 0))
         return tile
 
     @classmethod
@@ -151,8 +152,9 @@ class TileManager:
         scale: float = json_tile.get("scale", 1.0)
         flip_x: bool = json_tile.get("flip_x", False)
         flip_y: bool = json_tile.get("flip_y", False)
+        rotation: int = json_tile.get("rotation", 0)
 
-        return cls.create_tile(tile_id, tile_position, scale=scale, flip_x=flip_x, flip_y=flip_y)
+        return cls.create_tile(tile_id, tile_position, scale=scale, flip_x=flip_x, flip_y=flip_y, rotation=rotation)
 
     @classmethod
     def to_json(cls, tile: Tile) -> dict:
@@ -172,6 +174,8 @@ class TileManager:
             json_tile.setdefault("flip_x", tile.flip_x)
         if tile.flip_y:
             json_tile.setdefault("flip_y", tile.flip_y)
+        if tile.rotation:
+            json_tile.setdefault("rotation", tile.rotation)
 
         return json_tile
 
@@ -201,5 +205,8 @@ class TileManager:
             tile_texture = pygame.transform.flip(tile_texture, tile.flip_x, tile.flip_y)
         if tile.scale != 1:
             tile_texture = pygame.transform.scale_by(tile_texture, tile.scale)
+        if tile.rotation:
+            tile_texture = pygame.transform.rotate(tile_texture, tile.rotation)
+
         surface.blit(tile_texture, tile_pos)
         return True

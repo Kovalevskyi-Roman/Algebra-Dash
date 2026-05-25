@@ -18,7 +18,7 @@ class WaveMode(GameMode):
         if self._player.jump_action:
             self._player.velocity.y *= -1
 
-        if self.__old_velocity != self._player.velocity:
+        if self.__old_velocity.x != self._player.velocity.x or self.__old_velocity.y != self._player.velocity.y:
             self.__trail_points.append(pygame.Vector2(self._player.rect.center))
             self.__old_velocity = self._player.velocity.copy()
 

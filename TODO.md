@@ -15,16 +15,22 @@
     - [ ] Editor
         - [x] Custom levels state
         - [ ] Editor state
+        - [ ] Editor state UI
 - [ ] UI
     - [x] Config
     - [x] Button
     - [x] Input
+    - [x] Progress bar
     - [ ] Slider
 - [x] Level saving
     - [x] Tiles compression
 - [x] Level loading
     - [x] Tiles decompression
 - [ ] Tile
+    - [x] Tile scaling
+    - [x] Tile flipping
+    - [x] Tile rotating
+
     - [x] Tile
     - [x] Spike
     - [x] Orbs
@@ -53,6 +59,7 @@
     - [ ] Follow trigger
     - [ ] Toggle trigger
     - [ ] SFX trigger
+    - [ ] Camera trigger
 - [ ] Player game modes
     - [x] Cube
     - [x] Ship

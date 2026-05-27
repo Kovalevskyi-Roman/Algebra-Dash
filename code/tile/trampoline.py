@@ -45,3 +45,6 @@ class BlueTrampoline(Tile):
 
         self.__was_collide = True
         kwargs.get("player").gravity_multiplier *= -1
+
+    def reset(self) -> None:
+        self.__was_collide = False

@@ -54,6 +54,7 @@ class MusicManager:
     def stop(cls) -> None:
         pygame.mixer.music.stop()
         cls.playing = False
+        cls.paused = False
 
     @classmethod
     def pause(cls) -> None:

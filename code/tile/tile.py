@@ -86,3 +86,6 @@ class Tile:
 
     def on_player_collide(self, *args, **kwargs) -> None:
         ...
+
+    def reset(self) -> None:
+        ...

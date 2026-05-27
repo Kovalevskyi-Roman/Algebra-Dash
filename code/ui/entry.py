@@ -6,7 +6,7 @@ from window import Window
 
 class Entry:
     def __init__(self, rect: pygame.Rect, texture: pygame.Surface, font: pygame.Font, f_color: str,
-                 text: str = "", antialias: bool = True, max_text_length: int = 999) -> None:
+                 text: str = "", antialias: bool = True, max_text_length: int = 999, type_: str = "text") -> None:
         self.rect = rect
         self.texture = texture
         self.font = font
@@ -14,6 +14,7 @@ class Entry:
         self.text: list[str] = list(text)
         self.antialias = antialias
         self.max_text_length = max_text_length
+        self.type = type_
 
         self.active: bool = False
         self.blink_timer: float = UIConfig.CURSOR_BLINK_TIME
@@ -60,8 +61,13 @@ class Entry:
 
             if event.type == pygame.TEXTINPUT and len(self.text) < self.max_text_length:
                 self.cursor_pos += 1
-                self.text.insert(self.cursor_pos, event.text)
                 self.blink_timer += UIConfig.CURSOR_BLINK_TIME
+                char: str = event.text
+                if self.type == "text":
+                    self.text.insert(self.cursor_pos, char)
+
+                elif self.type == "int" and (char.isdigit() or char == "."):
+                    self.text.insert(self.cursor_pos, char)
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.blit(self.texture, self.rect)

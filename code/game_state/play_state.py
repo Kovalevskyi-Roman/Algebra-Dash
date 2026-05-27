@@ -81,6 +81,7 @@ class PlayState(GameState):
         self.__player = Player()
         self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
+        self.__level.reset_tiles()
         MusicManager.stop()
         MusicManager.play(start=self.__level.music_start_pos)
 
@@ -96,6 +97,7 @@ class PlayState(GameState):
         if self.__is_paused:
             if self.__play_btn.is_pressed():
                 self.__is_paused = False
+                MusicManager.unpause()
             elif self.__retry_btn.is_pressed():
                 self.retry()
                 self.__is_paused = False

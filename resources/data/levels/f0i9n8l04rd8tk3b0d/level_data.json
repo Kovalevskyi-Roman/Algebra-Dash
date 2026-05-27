@@ -1,0 +1,12 @@
+{
+    "level_name": "Float Play",
+    "music_name": "Float Play.ogg",
+    "music_start_pos": 0.0,
+    "is_original": true,
+    "max_progress": 100,
+    "death_count": 60,
+    "editor_scroll": [
+        656.0,
+        -608.0
+    ]
+}

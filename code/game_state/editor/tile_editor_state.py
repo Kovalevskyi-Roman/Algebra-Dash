@@ -1,7 +1,6 @@
 import enum
 import pygame
 
-from collider import Collider
 from game_state.game_state import GameState
 from level import Level
 from music_manager import MusicManager
@@ -198,19 +197,30 @@ class TileEditorState(GameState):
 
             self.__selected_tiles.clear()
 
+        # music control buttons
+        if self.__play_music_btn.is_just_pressed():
+            if not MusicManager.playing:
+                MusicManager.play(start=Level.levels.get(self.level_path).get("music_start_pos"))
+            elif MusicManager.paused:
+                MusicManager.unpause()
+            else:
+                MusicManager.pause()
+
+        elif self.__stop_music_btn.is_pressed() and MusicManager.playing:
+            self.__music_pos = 0
+            self.__music_speed = 4.25
+            MusicManager.pause()
+            MusicManager.stop()
+
+        # music line update
         if MusicManager.playing and not MusicManager.paused:
             self.__music_pos += self.__music_speed
             for tile in self.__tiles:
-                tile_screen_rect = pygame.FRect(tile.rect.topleft - self.__camera_offset, tile.rect.size)
-                # checks if tile is on screen
-                if tile_screen_rect.right < 0 or tile_screen_rect.left > Window.SIZE[0] or \
-                        tile_screen_rect.bottom < 0 or tile_screen_rect.top > Window.SIZE[1]:
+                if tile.__dict__.get("speed", None) is None:
                     continue
 
-                if tile_screen_rect.colliderect(pygame.FRect(self.__music_pos - self.__camera_offset.x, 0, 1, Window.SIZE[1])):
-                    if tile.__dict__.get("speed", None) is not None:
-                        print(tile.__dict__.get("speed"))
-                        self.__music_speed = tile.__dict__.get("speed")
+                if self.__music_pos > tile.rect.x:
+                    self.__music_speed = tile.__dict__.get("speed")
 
         if not mouse_pressed[0]:
             self.__mouse_pressed_pos = None
@@ -239,22 +249,6 @@ class TileEditorState(GameState):
                     y += self.__tile_icon_size[1] + self.__tile_icon_padding
             self.__update_tile_panel_surface()
             return
-
-        if self.__play_music_btn.is_pressed():
-            if self.__play_music_btn.is_just_pressed():
-                if not MusicManager.playing:
-                    MusicManager.play(start=Level.levels.get(self.level_path).get("music_start_pos"))
-                if MusicManager.paused:
-                    MusicManager.unpause()
-                else:
-                    MusicManager.pause()
-            return
-
-        if self.__stop_music_btn.is_pressed() and MusicManager.playing:
-            self.__music_pos = 0
-            self.__music_speed = 4.25
-            MusicManager.pause()
-            MusicManager.stop()
 
         # is any tile pressed
         pressed_tile: Tile | None = None

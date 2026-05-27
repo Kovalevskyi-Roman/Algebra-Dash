@@ -2,7 +2,6 @@ import json
 import pathlib
 import shutil
 import random
-from pathlib import Path
 
 import pygame
 
@@ -280,7 +279,8 @@ class Level:
         with open(path / "level_data.json", "w") as level_data_file:
             level_data = {
                 "level_name": "New Level",
-                "music_name": "",
+                "music_name": MusicManager.music[0],
+                "music_start_pos": 0,
                 "is_original": False,
                 "max_progress": 0,
                 "death_count": 0,
@@ -296,6 +296,10 @@ class Level:
     def delete(cls, path: str) -> None:
         shutil.rmtree(path)
         cls.load_levels()
+
+    def reset_tiles(self) -> None:
+        for tile in self.tiles:
+            tile.reset()
 
     def update(self, camera_offset: pygame.Vector2) -> None:
         self.__player.update()

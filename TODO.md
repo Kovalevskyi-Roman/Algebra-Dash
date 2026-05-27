@@ -16,6 +16,7 @@
         - [x] Custom levels state
         - [ ] Editor state
         - [ ] Editor state UI
+        - [x] Editor music line
 - [ ] UI
     - [x] Config
     - [x] Button
@@ -71,5 +72,5 @@
 - [ ] Player dual mode
 - [ ] Music and sounds
     - [ ] Menu music
-    - [ ] Level music
+    - [x] Level music
     - [ ] SFX

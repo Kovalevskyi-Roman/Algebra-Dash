@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pygame
 
+from music_manager import MusicManager
 from ui import UIConfig
 from collider import Collider
 from player import Player
@@ -20,26 +21,31 @@ class Level:
     level folder (random value):
         tiles.json
         level_data.json:
-            level name           (string)
-            level music name     (string)
-            is level original    (boolean)
-            max progress         (int)
-            death count          (int)
-            editor scroll        (tuple[int, int])
+            level name                (string)
+            level music name          (string)
+            level music start pos     (float)
+            is level original         (boolean)
+            max progress              (int)
+            death count               (int)
+            editor scroll             (tuple[int, int])
     """
     def __init__(self) -> None:
         self.name: str = ""
         self.path: str = ""
-        self.tiles: list[Tile] = list()
-        self.collider: Collider | None = None
-        self.__player: Player | None = None
         self.bg_color: str = ""
-        self.ground_tile: Tile | None = None
-        self.ceil_tile: Tile | None = None
-        self.__finish_x_pos: float = 0
         self.max_progress: float = 0
         self.current_progress: float = 0
         self.death_count: int = 0
+        self.music_name: str = ""
+        self.music_start_pos: float = 0
+
+        self.tiles: list[Tile] = list()
+        self.ground_tile: Tile | None = None
+        self.ceil_tile: Tile | None = None
+        self.__finish_x_pos: float = 0
+
+        self.collider: Collider | None = None
+        self.__player: Player | None = None
 
     @classmethod
     def load_levels(cls) -> None:
@@ -109,6 +115,8 @@ class Level:
                 self.name = content.get("name")
                 self.max_progress = content.get("max_progress", 0)
                 self.death_count = content.get("death_count", 0)
+                self.music_name = content.get("music_name", "")
+                self.music_start_pos = content.get("music_start_pos", 0)
 
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
@@ -122,6 +130,7 @@ class Level:
 
         self.__player = player
         self.collider = Collider(self.__player, self)
+        MusicManager.load(self.music_name)
 
     @classmethod
     def get_sorted_tiles(cls, tiles: list[Tile]) -> list[Tile]:
@@ -204,7 +213,8 @@ class Level:
 
     @classmethod
     def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
-                  max_progress: float = None, death_count: int = None, editor_scroll: pygame.Vector2 = None) -> None:
+                  max_progress: float = None, death_count: int = None, editor_scroll: pygame.Vector2 = None,
+                  music_name: str = None, music_start_pos: float = None) -> None:
 
         level = list(filter(lambda l: l[0] == path, cls.levels.items()))
         if not level:
@@ -214,25 +224,41 @@ class Level:
             level_name = level[0][1].get("level_name")
         else:
             level[0][1]["level_name"] = level_name
+
         if is_original is None:
             is_original = level[0][1].get("is_original")
+
         if max_progress is None:
             max_progress = level[0][1].get("max_progress", 0)
         else:
             level[0][1]["max_progress"] = max_progress
+
         if death_count is None:
             death_count = level[0][1].get("death_count", 0)
         else:
             level[0][1]["death_count"] = death_count
+
         if editor_scroll is None:
             editor_scroll = level[0][1].get("editor_scroll", [0, 0])
         else:
             editor_scroll = [editor_scroll.x, editor_scroll.y]
             level[0][1]["editor_scroll"] = editor_scroll
 
+        if music_name is None:
+            music_name = level[0][1].get("music_name", "")
+        else:
+            level[0][1]["music_name"] = music_name
+
+        if music_start_pos is None:
+            music_start_pos = level[0][1].get("music_start_pos", 0)
+        else:
+            level[0][1]["music_start_pos"] = music_start_pos
+
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
                 "level_name": level_name,
+                "music_name": music_name,
+                "music_start_pos": music_start_pos,
                 "is_original": is_original,
                 "max_progress": max_progress,
                 "death_count": death_count,
@@ -254,6 +280,7 @@ class Level:
         with open(path / "level_data.json", "w") as level_data_file:
             level_data = {
                 "level_name": "New Level",
+                "music_name": "",
                 "is_original": False,
                 "max_progress": 0,
                 "death_count": 0,

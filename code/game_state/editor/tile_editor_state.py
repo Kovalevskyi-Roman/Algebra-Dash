@@ -1,10 +1,13 @@
 import enum
 import pygame
 
+from collider import Collider
 from game_state.game_state import GameState
 from level import Level
+from music_manager import MusicManager
 from tile import Tile, TileManager
 from window import Window
+from ui import Button
 
 
 class CursorMode(enum.Enum):
@@ -49,10 +52,26 @@ class TileEditorState(GameState):
                 [Tile.SIZE * i, 0], [Tile.SIZE * i, self.__grid_surface.get_height()]
             )
 
+        self.__play_music_btn: Button = Button(
+            pygame.Rect(8, Window.SIZE[1] / 2 - 32, 24, 24),
+            pygame.Surface((24, 24))
+        )
+        self.__play_music_btn.texture.fill("#ffffff")
+        self.__stop_music_btn: Button = Button(
+            pygame.Rect(8, Window.SIZE[1] / 2, 24, 24),
+            pygame.Surface((24, 24))
+        )
+        self.__stop_music_btn.texture.fill("#ff0000")
+        self.__music_pos: float = 0
+        self.__music_speed: float = 4.25
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
         self.__camera_offset = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
         self.__update_tile_panel_surface()
+        MusicManager.load(Level.levels.get(self.level_path).get("music_name"))
+        self.__music_pos = 0
+        self.__music_speed = 4.25
 
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_tiles(self.level_path, self.__tiles)
@@ -71,6 +90,8 @@ class TileEditorState(GameState):
         self.__mouse_pressed_pos = None
         self.__selection_rect = None
         self.__draw_hitboxes = False
+        MusicManager.stop()
+        MusicManager.unload()
 
     def __update_tile_panel_surface(self) -> None:
         self.__tile_panel_surface.fill("#7A7A7A7f")
@@ -117,6 +138,7 @@ class TileEditorState(GameState):
             self.__camera_offset.y += 8
         elif keys_pressed[pygame.K_w]:
             self.__camera_offset.y -= 8
+
         # tile movement
         step: int = 2
         if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
@@ -134,6 +156,7 @@ class TileEditorState(GameState):
             for tile in self.__selected_tiles:
                 tile.rect.y += step
 
+        # cursor mode
         if keys_just_pressed[pygame.K_m]:
             if self.__cursor_mode == CursorMode.SELECT:
                 self.__cursor_mode = CursorMode.BUILD
@@ -144,6 +167,7 @@ class TileEditorState(GameState):
         elif keys_just_pressed[pygame.K_h]:
             self.__draw_hitboxes = not self.__draw_hitboxes
 
+        # tile scale
         elif keys_just_pressed[pygame.K_EQUALS]:
             for tile in self.__selected_tiles:
                 tile.scale_to_factor(tile.scale + 0.1)
@@ -151,6 +175,7 @@ class TileEditorState(GameState):
             for tile in self.__selected_tiles:
                 tile.scale_to_factor(tile.scale - 0.1)
 
+        # tile flip
         elif keys_just_pressed[pygame.K_x]:
             for tile in self.__selected_tiles:
                 tile.flip_by(not tile.flip_x, tile.flip_y)
@@ -158,19 +183,34 @@ class TileEditorState(GameState):
             for tile in self.__selected_tiles:
                 tile.flip_by(tile.flip_x, not tile.flip_y)
 
+        # tile rotation
         elif keys_just_pressed[pygame.K_q]:
             for tile in self.__selected_tiles:
                 tile.rotate(90)
-
         elif keys_just_pressed[pygame.K_e]:
             for tile in self.__selected_tiles:
                 tile.rotate(-90)
 
+        # tile deleting
         elif keys_just_pressed[pygame.K_BACKSPACE] or keys_just_pressed[pygame.K_DELETE]:
             for tile in self.__selected_tiles:
                 self.__tiles.remove(tile)
 
             self.__selected_tiles.clear()
+
+        if MusicManager.playing and not MusicManager.paused:
+            self.__music_pos += self.__music_speed
+            for tile in self.__tiles:
+                tile_screen_rect = pygame.FRect(tile.rect.topleft - self.__camera_offset, tile.rect.size)
+                # checks if tile is on screen
+                if tile_screen_rect.right < 0 or tile_screen_rect.left > Window.SIZE[0] or \
+                        tile_screen_rect.bottom < 0 or tile_screen_rect.top > Window.SIZE[1]:
+                    continue
+
+                if tile_screen_rect.colliderect(pygame.FRect(self.__music_pos - self.__camera_offset.x, 0, 1, Window.SIZE[1])):
+                    if tile.__dict__.get("speed", None) is not None:
+                        print(tile.__dict__.get("speed"))
+                        self.__music_speed = tile.__dict__.get("speed")
 
         if not mouse_pressed[0]:
             self.__mouse_pressed_pos = None
@@ -200,6 +240,23 @@ class TileEditorState(GameState):
             self.__update_tile_panel_surface()
             return
 
+        if self.__play_music_btn.is_pressed():
+            if self.__play_music_btn.is_just_pressed():
+                if not MusicManager.playing:
+                    MusicManager.play(start=Level.levels.get(self.level_path).get("music_start_pos"))
+                if MusicManager.paused:
+                    MusicManager.unpause()
+                else:
+                    MusicManager.pause()
+            return
+
+        if self.__stop_music_btn.is_pressed() and MusicManager.playing:
+            self.__music_pos = 0
+            self.__music_speed = 4.25
+            MusicManager.pause()
+            MusicManager.stop()
+
+        # is any tile pressed
         pressed_tile: Tile | None = None
         for tile in self.__tiles:
             tile_hitbox_rect = pygame.FRect(
@@ -210,6 +267,7 @@ class TileEditorState(GameState):
                 pressed_tile = tile
                 break
 
+        # is it possible to place new tile
         if self.__cursor_mode == CursorMode.BUILD and self.__placeable_tile and pressed_tile is None:
             placeable_tile_pos = (mouse_pos + self.__camera_offset) // Tile.SIZE * Tile.SIZE
             new_tile: Tile = TileManager.create_tile(self.__placeable_tile, placeable_tile_pos)
@@ -246,14 +304,20 @@ class TileEditorState(GameState):
         surface.fill("#171727")
         # tile grid
         surface.blit(self.__grid_surface, [-self.__camera_offset.x % Tile.SIZE - Tile.SIZE, -self.__camera_offset.y % Tile.SIZE - Tile.SIZE])
-        # start pos lines
+        # X axis line
         pygame.draw.line(
             surface, "#0000ff",
             [0, -self.__camera_offset.y + Tile.SIZE], [surface.get_width(), -self.__camera_offset.y + Tile.SIZE]
         )
+        # Y axis line
         pygame.draw.line(
             surface, "#00ff00",
             [-self.__camera_offset.x, 0], [-self.__camera_offset.x, surface.get_height()]
+        )
+        # music position line
+        pygame.draw.line(
+            surface, "#003fa3",
+            [self.__music_pos - self.__camera_offset.x, 0], [self.__music_pos - self.__camera_offset.x, surface.get_height()]
         )
         # tiles
         for tile in self.__tiles:
@@ -288,6 +352,10 @@ class TileEditorState(GameState):
             selection_surface = pygame.Surface(self.__selection_rect.size, flags=pygame.SRCALPHA)
             selection_surface.fill((0, 255, 0, 127))
             surface.blit(selection_surface, self.__selection_rect.topleft - self.__camera_offset)
+
+        self.__play_music_btn.draw(surface)
+        if MusicManager.playing:
+            self.__stop_music_btn.draw(surface)
 
         # tile panel
         surface.blit(self.__tile_panel_surface, (0, Window.SIZE[1] - self.__tile_panel_surface.get_height()))

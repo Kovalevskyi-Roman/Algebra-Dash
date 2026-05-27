@@ -10,10 +10,11 @@ class Collider:
         self.player = player
         self.level = level
 
-    def __get_collided_tiles(self, camera_offset: pygame.Vector2, player_rect: pygame.FRect) -> tuple[Tile, ...]:
+    @classmethod
+    def get_collided_tiles(cls, tiles: list[Tile], camera_offset: pygame.Vector2, rect: pygame.FRect) -> tuple[Tile, ...]:
         collided_tiles: list[Tile] = list()
 
-        for tile in self.level.tiles:
+        for tile in tiles:
             # checks if tile is on screen
             if tile.rect.right - camera_offset.x < 0 or tile.rect.left - camera_offset.x > Window.SIZE[0] or \
                     tile.rect.bottom - camera_offset.y < 0 or tile.rect.top - camera_offset.y > Window.SIZE[1]:
@@ -24,7 +25,7 @@ class Collider:
                 tile.hitbox.width, tile.hitbox.height
             )
 
-            if player_rect.colliderect(tile_hitbox_rect):
+            if rect.colliderect(tile_hitbox_rect):
                 collided_tiles.append(tile)
 
         return tuple(collided_tiles)
@@ -39,7 +40,7 @@ class Collider:
 
         # checks collision on X axis
         player_rect.x += self.player.velocity.x
-        collided_on_x = self.__get_collided_tiles(camera_offset, player_rect)
+        collided_on_x = self.get_collided_tiles(self.level.tiles, camera_offset, player_rect)
         collided_with.update(collided_on_x)
         for tile in collided_on_x:
             if not TileManager.TILE_DATA.get(tile.id).get("is_solid"):
@@ -60,7 +61,7 @@ class Collider:
 
         # checks collision on Y axis
         player_rect.y += self.player.velocity.y
-        collided_on_y = self.__get_collided_tiles(camera_offset, player_rect)
+        collided_on_y = self.get_collided_tiles(self.level.tiles, camera_offset, player_rect)
         collided_with.update(collided_on_y)
         for tile in collided_on_y:
             if not TileManager.TILE_DATA.get(tile.id).get("is_solid"):

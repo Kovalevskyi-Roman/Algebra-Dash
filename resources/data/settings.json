@@ -1,6 +1,6 @@
 {
-    "show_hitboxes": true,
+    "show_hitboxes": false,
     "pause_after_death": false,
-    "is_player_immortal": true,
-    "platformer_mode": true
+    "is_player_immortal": false,
+    "platformer_mode": false
 }

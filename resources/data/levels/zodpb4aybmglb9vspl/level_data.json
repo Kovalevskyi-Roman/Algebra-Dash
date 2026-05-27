@@ -1,10 +1,12 @@
 {
     "level_name": "Test Level",
+    "music_name": "Tick Tock.ogg",
+    "music_start_pos": 0,
     "is_original": true,
-    "max_progress": 100,
-    "death_count": 155,
+    "max_progress": 50.5,
+    "death_count": 277,
     "editor_scroll": [
-        496.0,
-        -512.0
+        96.0,
+        -440.0
     ]
 }

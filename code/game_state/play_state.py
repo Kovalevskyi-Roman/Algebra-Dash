@@ -1,6 +1,7 @@
 import pygame
 
 from level import Level
+from music_manager import MusicManager
 from tile import TileManager
 from ui import Button
 from window import Window
@@ -64,6 +65,7 @@ class PlayState(GameState):
         self.__level.load(self.level_path, self.__player)
         self.__is_paused = False
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
+        MusicManager.play(start=self.__level.music_start_pos)
 
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_data(self.level_path, death_count=self.__level.death_count)
@@ -72,15 +74,24 @@ class PlayState(GameState):
         self.__level = None
         self.level_path = ""
         self.__is_paused = False
+        MusicManager.stop()
+        MusicManager.unload()
 
     def retry(self) -> None:
         self.__player = Player()
         self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
+        MusicManager.stop()
+        MusicManager.play(start=self.__level.music_start_pos)
 
     def update(self, *args, **kwargs) -> None:
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
             self.__is_paused = not self.__is_paused
+
+            if self.__is_paused:
+                MusicManager.pause()
+            else:
+                MusicManager.unpause()
 
         if self.__is_paused:
             if self.__play_btn.is_pressed():
@@ -91,14 +102,13 @@ class PlayState(GameState):
             elif self.__back_btn.is_pressed():
                 self._game_state_manager.change_state_to_previous()
             return
-
         self.__player.platformer_mode = self.__settings_state.platformer_mode
 
         self.__camera.update(self.__player.rect.center)
         self.__level.update(self.__camera.offset)
 
         if self.__level.current_progress >= 100:
-            Level.save_data(self.level_path, max_progress=100)
+            Level.save_data(self.level_path, max_progress=100, death_count=self.__level.death_count)
             self._game_state_manager.change_state_to_previous()
             return
 

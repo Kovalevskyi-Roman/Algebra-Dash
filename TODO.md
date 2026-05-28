@@ -17,16 +17,19 @@
         - [ ] Editor state
         - [ ] Editor state UI
         - [x] Editor music line
+
 - [ ] UI
     - [x] Config
     - [x] Button
     - [x] Input
     - [x] Progress bar
     - [ ] Slider
+
 - [x] Level saving
     - [x] Tiles compression
 - [x] Level loading
     - [x] Tiles decompression
+
 - [ ] Tile
     - [x] Tile scaling
     - [x] Tile flipping
@@ -52,6 +55,7 @@
         - [ ] Robot portal
         - [ ] Spider portal
     - [x] Speed busters
+
 - [ ] Triggers
     - [ ] Tile groups
     - [ ] Start pos
@@ -61,6 +65,7 @@
     - [ ] Toggle trigger
     - [ ] SFX trigger
     - [ ] Camera trigger
+
 - [ ] Player game modes
     - [x] Cube
     - [x] Ship
@@ -70,6 +75,7 @@
     - [ ] Robot
     - [ ] Spider
 - [ ] Player dual mode
+
 - [ ] Music and sounds
     - [ ] Menu music
     - [x] Level music

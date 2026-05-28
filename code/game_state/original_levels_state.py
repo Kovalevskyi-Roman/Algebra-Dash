@@ -10,9 +10,7 @@ class OriginalLevelsState(GameState):
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)
 
-        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
-            filter(lambda level: level[1].get("is_original", False), Level.levels.items())
-        )
+        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple()
         self.__selected_level: int = 0
         self.__level_btn: Button = Button(
             pygame.Rect(Window.SIZE[0] / 2 - 340, 100, 680, 140),
@@ -21,13 +19,13 @@ class OriginalLevelsState(GameState):
         self.__level_btn.texture.fill("#6a6a6a")
 
         self.__progress: ProgressBar = ProgressBar(pygame.Rect(0, 300, 650, 25), 0, 100, border_radius=8)
-        self.__progress.set_progress(self.__levels[self.__selected_level][1].get("max_progress", 0))
 
     def on_state_enter(self, *args, **kwargs) -> None:
-        Level.load_levels()
         self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
             filter(lambda level: level[1].get("is_original", False), Level.levels.items())
         )
+        if self.__selected_level >= len(self.__levels):
+            self.__selected_level = 0
         self.__progress.set_progress(self.__levels[self.__selected_level][1].get("max_progress", 0))
 
     def update(self, *args, **kwargs) -> None:

@@ -13,9 +13,7 @@ class CustomLevelsState(GameState):
         # self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
         #     filter(lambda level: not level[1].get("is_original", False), Level.levels.items())
         # )
-        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
-            filter(lambda level: True, Level.levels.items())
-        )
+        self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple()
         self.__selected_level: int = -1
         self.__level_surfaces: tuple[pygame.Surface, ...] = tuple()
         self.__level_surface_size: pygame.Vector2 = pygame.Vector2(600, 40)
@@ -50,7 +48,6 @@ class CustomLevelsState(GameState):
         self.__level_surfaces = tuple(level_surfaces)
 
     def on_state_enter(self, *args, **kwargs) -> None:
-        Level.load_levels()
         self.__levels: tuple[tuple[str, dict[str, ...]], ...] = tuple(
             filter(lambda level: True, Level.levels.items())
         )

@@ -89,21 +89,21 @@ class PlayState(GameState):
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
             self.__is_paused = not self.__is_paused
 
-            if self.__is_paused:
-                MusicManager.pause()
-            else:
-                MusicManager.unpause()
+        if self.__is_paused and not MusicManager.paused:
+            MusicManager.pause()
+        elif not self.__is_paused and MusicManager.paused:
+            MusicManager.unpause()
 
         if self.__is_paused:
             if self.__play_btn.is_pressed():
                 self.__is_paused = False
-                MusicManager.unpause()
             elif self.__retry_btn.is_pressed():
                 self.retry()
                 self.__is_paused = False
             elif self.__back_btn.is_pressed():
                 self._game_state_manager.change_state_to_previous()
             return
+
         self.__player.platformer_mode = self.__settings_state.platformer_mode
 
         self.__camera.update(self.__player.rect.center)

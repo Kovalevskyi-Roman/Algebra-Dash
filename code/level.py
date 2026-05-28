@@ -27,21 +27,22 @@ class Level:
             max progress              (int)
             death count               (int)
             editor scroll             (tuple[int, int])
+            bg color                  (string)
     """
     def __init__(self) -> None:
-        self.name: str = ""
         self.path: str = ""
-        self.bg_color: str = ""
-        self.max_progress: float = 0
-        self.current_progress: float = 0
-        self.death_count: int = 0
+        self.name: str = ""
         self.music_name: str = ""
         self.music_start_pos: float = 0
+        self.max_progress: float = 0
+        self.death_count: int = 0
+        self.bg_color: str = ""
 
         self.tiles: list[Tile] = list()
         self.ground_tile: Tile | None = None
         self.ceil_tile: Tile | None = None
         self.__finish_x_pos: float = 0
+        self.current_progress: float = 0
 
         self.collider: Collider | None = None
         self.__player: Player | None = None
@@ -103,28 +104,27 @@ class Level:
 
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
-        self.name = ""
         self.path = path
-        self.collider = None
-        self.__player = None
-        self.bg_color = "#0000ff"
         try:
             with open(self.path + "/level_data.json", "r") as level_data_file:
                 content: dict[str, ...] = json.load(level_data_file)
                 self.name = content.get("name")
-                self.max_progress = content.get("max_progress", 0)
-                self.death_count = content.get("death_count", 0)
                 self.music_name = content.get("music_name", "")
                 self.music_start_pos = content.get("music_start_pos", 0)
+                self.max_progress = content.get("max_progress", 0)
+                self.death_count = content.get("death_count", 0)
+                self.bg_color = content.get("bg_color", "#0000ff")
 
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
 
         self.tiles.extend(self.get_tiles(self.path))
+
         self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, Tile.SIZE])
         self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, -Tile.SIZE * 32])
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
+
         self.__finish_x_pos = max(self.tiles, key=lambda tile: tile.rect.x).rect.x + Tile.SIZE * 8
 
         self.__player = player
@@ -166,16 +166,16 @@ class Level:
             if i + 1 == len(sorted_tiles) - 1:
                 last_tile = next_tile
 
-            # if tile in a row has next neighbor
+            # if tile in a row has next identical neighbor
             if tile.rect.y == next_tile.rect.y and tile.rect.x + Tile.SIZE == next_tile.rect.x and \
                     tile.id == next_tile.id and tile.flip_x == next_tile.flip_x and tile.flip_y == next_tile.flip_y and \
-                    tile.scale == next_tile.scale:
+                    tile.scale == next_tile.scale and tile.rotation == next_tile.rotation:
                 count += 1
                 if first_tile is None:
                     first_tile = tile
                 continue
 
-            # if tile has no neighbors
+            # if tile has no identical neighbors
             if first_tile is None:
                 json_tile = {"tile": TileManager.to_json(tile)}
                 if count > 1:
@@ -183,7 +183,7 @@ class Level:
                 compressed_tiles.append(json_tile)
                 continue
 
-            # if tile last in a row
+            # if tile last in a row of identical neighbors
             json_tile = {"tile": TileManager.to_json(first_tile)}
             if count > 1:
                 json_tile.setdefault("count", count)
@@ -213,7 +213,7 @@ class Level:
     @classmethod
     def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
                   max_progress: float = None, death_count: int = None, editor_scroll: pygame.Vector2 = None,
-                  music_name: str = None, music_start_pos: float = None) -> None:
+                  music_name: str = None, music_start_pos: float = None, bg_color: str = None) -> None:
 
         level = list(filter(lambda l: l[0] == path, cls.levels.items()))
         if not level:
@@ -221,37 +221,35 @@ class Level:
 
         if level_name is None:
             level_name = level[0][1].get("level_name")
-        else:
-            level[0][1]["level_name"] = level_name
+        level[0][1]["level_name"] = level_name
 
         if is_original is None:
             is_original = level[0][1].get("is_original")
 
         if max_progress is None:
             max_progress = level[0][1].get("max_progress", 0)
-        else:
-            level[0][1]["max_progress"] = max_progress
+        level[0][1]["max_progress"] = max_progress
 
         if death_count is None:
             death_count = level[0][1].get("death_count", 0)
-        else:
-            level[0][1]["death_count"] = death_count
+        level[0][1]["death_count"] = death_count
 
         if editor_scroll is None:
-            editor_scroll = level[0][1].get("editor_scroll", [0, 0])
-        else:
-            editor_scroll = [editor_scroll.x, editor_scroll.y]
-            level[0][1]["editor_scroll"] = editor_scroll
+            editor_scroll = pygame.Vector2(level[0][1].get("editor_scroll", [0, 0]))
+        editor_scroll = [editor_scroll.x, editor_scroll.y]
+        level[0][1]["editor_scroll"] = editor_scroll
 
         if music_name is None:
             music_name = level[0][1].get("music_name", "")
-        else:
-            level[0][1]["music_name"] = music_name
+        level[0][1]["music_name"] = music_name
 
         if music_start_pos is None:
             music_start_pos = level[0][1].get("music_start_pos", 0)
-        else:
-            level[0][1]["music_start_pos"] = music_start_pos
+        level[0][1]["music_start_pos"] = music_start_pos
+
+        if bg_color is None:
+            bg_color = level[0][1].get("bg_color", "#0000ff")
+        level[0][1]["bg_color"] = bg_color
 
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
@@ -261,7 +259,8 @@ class Level:
                 "is_original": is_original,
                 "max_progress": max_progress,
                 "death_count": death_count,
-                "editor_scroll": editor_scroll
+                "editor_scroll": editor_scroll,
+                "bg_color": bg_color
             }
             json.dump(content, level_data_file, indent=4)
 
@@ -284,7 +283,8 @@ class Level:
                 "is_original": False,
                 "max_progress": 0,
                 "death_count": 0,
-                "editor_scroll": [0, 0]
+                "editor_scroll": [0, 0],
+                "bg_color": "#0000ff"
             }
             json.dump(level_data, level_data_file, indent=4)
 
@@ -310,6 +310,8 @@ class Level:
         self.collider.update_collision(camera_offset)
 
         self.current_progress = round((self.__player.rect.x / self.__finish_x_pos) * 100, 1)
+        if self.current_progress < 0:
+            self.current_progress = 0
 
         if self.ground_tile.rect.y >= Tile.SIZE:
             self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE

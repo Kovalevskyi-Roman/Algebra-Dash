@@ -37,7 +37,7 @@ class Entry:
 
         elif mouse_just_pressed[0]:
             self.active = False
-            pygame.key.stop_text_input()
+            # pygame.key.stop_text_input()
 
         if not self.active:
             return

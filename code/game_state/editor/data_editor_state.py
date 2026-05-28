@@ -13,8 +13,9 @@ class DataEditorState(GameState):
 
         self.level: tuple[str, dict[str, ...]] | None = None  # (path, level_data)
 
+        self.__x_offset = 100
         self.__level_name_entry: Entry = Entry(
-            pygame.Rect(Window.SIZE[0] / 2 - 290, 80, 580, 90),
+            pygame.Rect(Window.SIZE[0] / 2 - 290 + self.__x_offset, 80, 580, 90),
             pygame.Surface((580, 90)),
             UIConfig.fonts.get("jetbrains_26m"),
             "#000000",
@@ -25,7 +26,7 @@ class DataEditorState(GameState):
         self.__editor_btn_size: pygame.Vector2 = pygame.Vector2(140, 140)
         self.__editor_btn: Button = Button(
             pygame.Rect(
-                (Window.SIZE[0] / 2 - self.__editor_btn_size.x / 2, 320 - self.__editor_btn_size.y / 2),
+                (Window.SIZE[0] / 2 - self.__editor_btn_size.x / 2 + self.__x_offset, 320 - self.__editor_btn_size.y / 2),
                 self.__editor_btn_size
             ),
             pygame.image.load("../resources/textures/ui/edit_button_round.png").convert_alpha()
@@ -35,7 +36,7 @@ class DataEditorState(GameState):
         self.__play_btn_size: pygame.Vector2 = pygame.Vector2(110, 110)
         self.__play_btn: Button = Button(
             pygame.Rect(
-                (Window.SIZE[0] / 3 - self.__play_btn_size.x / 2, 320 - self.__play_btn_size.y / 2),
+                (Window.SIZE[0] / 3 - self.__play_btn_size.x / 2 + self.__x_offset, 320 - self.__play_btn_size.y / 2),
                 self.__play_btn_size
             ),
             pygame.image.load("../resources/textures/ui/play_button_round.png").convert_alpha()
@@ -45,7 +46,7 @@ class DataEditorState(GameState):
         self.__back_btn_size: pygame.Vector2 = pygame.Vector2(110, 110)
         self.__back_btn: Button = Button(
             pygame.Rect(
-                (Window.SIZE[0] * (2 / 3) - self.__back_btn_size.x / 2, 320 - self.__back_btn_size.y / 2),
+                (Window.SIZE[0] * (2 / 3) - self.__back_btn_size.x / 2 + self.__x_offset, 320 - self.__back_btn_size.y / 2),
                 self.__back_btn_size
             ),
             pygame.image.load("../resources/textures/ui/back_button.png").convert_alpha()
@@ -64,19 +65,19 @@ class DataEditorState(GameState):
         )
 
         self.__current_music: int = 0
-        self.__label = UIConfig.fonts.get("jetbrains_20l").render("Music name and offset", True, "#ffffff")
+        self.__music_label = UIConfig.fonts.get("jetbrains_20l").render("Music name and offset", True, "#ffffff")
         self.__previous_music_btn: Button = Button(
-            pygame.Rect(10, Window.SIZE[1] - 70, 24, 24),
+            pygame.Rect(10, 32, 24, 24),
             pygame.Surface((24, 24))
         )
         self.__previous_music_btn.texture.fill("#7A7A7A")
         self.__next_music_btn: Button = Button(
-            pygame.Rect(10 + 24 + 220, Window.SIZE[1] - 70, 24, 24),
+            pygame.Rect(10 + 24 + 220, 32, 24, 24),
             pygame.Surface((24, 24))
         )
         self.__next_music_btn.texture.fill("#7A7A7A")
         self.__music_start_pos_entry: Entry = Entry(
-            pygame.Rect(34, Window.SIZE[1] - 38, 220, 32),
+            pygame.Rect(34, 64, 220, 32),
             pygame.Surface((220, 32)),
             UIConfig.fonts.get("jetbrains_16l"),
             "#000000",
@@ -85,18 +86,28 @@ class DataEditorState(GameState):
         )
         self.__music_start_pos_entry.texture.fill("#646464")
 
+        self.__bg_color_label = UIConfig.fonts.get("jetbrains_20l").render("BG Color", True, "#ffffff")
+        self.__bg_color_entry: Entry = Entry(
+            pygame.Rect(34, 136, 220, 32),
+            pygame.Surface((220, 32)),
+            UIConfig.fonts.get("jetbrains_16l"),
+            "#000000",
+            max_text_length=7
+        )
+        self.__bg_color_entry.texture.fill("#646464")
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.level = (self.level[0], Level.levels.get(self.level[0]))
         self.__level_name_entry.set_text(self.level[1].get("level_name"))
         self.__current_music = MusicManager.music.index(self.level[1].get("music_name"))
         self.__music_start_pos_entry.set_text(str(self.level[1].get("music_start_pos")))
+        self.__bg_color_entry.set_text(self.level[1].get("bg_color"))
 
     def on_state_exit(self, *args, **kwargs) -> None:
         if not self.__level_was_deleted:
             Level.save_data(
-                self.level[0], level_name=self.__level_name_entry.get_text(),
-                is_original=True, music_name=self.level[1].get("music_name"),
-                music_start_pos=self.level[1].get("music_start_pos")
+                self.level[0], level_name=self.__level_name_entry.get_text(), music_name=self.level[1].get("music_name"),
+                music_start_pos=self.level[1].get("music_start_pos"), bg_color=self.level[1].get("bg_color")
             )
         self.__level_name_entry.active = False
         self.__music_start_pos_entry.active = False
@@ -107,13 +118,15 @@ class DataEditorState(GameState):
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
             if self.__level_name_entry.active:
                 self.__level_name_entry.active = False
-                pygame.key.stop_text_input()
             elif self.__music_start_pos_entry.active:
                 self.__music_start_pos_entry.active = False
-                pygame.key.stop_text_input()
             else:
                 self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
                 return
+
+        if not self.__level_name_entry.active and not self.__music_start_pos_entry.active and \
+                not self.__bg_color_entry.active:
+            pygame.key.stop_text_input()
 
         self.__level_name_entry.update()
         if self.__level_name_entry.active:
@@ -125,6 +138,12 @@ class DataEditorState(GameState):
             text = self.__music_start_pos_entry.get_text()
             if text and text.strip("."):
                 self.level[1]["music_start_pos"] = float(text)
+
+        self.__bg_color_entry.update()
+        if self.__bg_color_entry.active:
+            self.level[1]["bg_color"] = self.__bg_color_entry.get_text()
+        elif len(self.level[1].get("bg_color")) != 7:
+            self.level[1]["bg_color"] = "#0000ff"
 
         if self.__back_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
@@ -170,11 +189,19 @@ class DataEditorState(GameState):
         self.__back_btn.draw(surface)
         self.__delete_level_btn.draw(surface)
 
-        surface.blit(self.__label, [self.__previous_music_btn.rect.right + 110 - self.__label.width / 2, Window.SIZE[1] - 100])
+        # music config UI
+        surface.blit(self.__music_label, [self.__previous_music_btn.rect.right + 110 - self.__music_label.width / 2, 0])
+
         self.__previous_music_btn.draw(surface)
         self.__previous_music_btn.draw_text(surface, "<", UIConfig.fonts.get("jetbrains_16l"), "#000000")
         self.__next_music_btn.draw(surface)
         self.__next_music_btn.draw_text(surface, ">", UIConfig.fonts.get("jetbrains_16l"), "#000000")
+
         music_name = UIConfig.fonts.get("jetbrains_16l").render(self.level[1].get("music_name"), True, "#ffffff", wraplength=220)
-        surface.blit(music_name, [self.__previous_music_btn.rect.right + 110 - music_name.width / 2, Window.SIZE[1] - 70])
+        surface.blit(music_name, [self.__previous_music_btn.rect.right + 110 - music_name.width / 2, 32])
+
         self.__music_start_pos_entry.draw(surface)
+
+        # bg color config UI
+        surface.blit(self.__bg_color_label, [self.__previous_music_btn.rect.right + 110 - self.__bg_color_label.width / 2, 104])
+        self.__bg_color_entry.draw(surface)

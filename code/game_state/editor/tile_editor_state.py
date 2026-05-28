@@ -33,6 +33,7 @@ class TileEditorState(GameState):
         self.__selected_tiles: set = set()
         self.__draw_hitboxes: bool = False
         self.__was_redacted: bool = False
+        self.__bg_color: str = ""
 
         # https://icons8.com/icon/DwTO-Bs0fTYD/hammer icon by https://icons8.com Icons8
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
@@ -68,6 +69,7 @@ class TileEditorState(GameState):
         self.__tiles = Level.get_tiles(self.level_path)
         self.__camera_offset = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
         self.__update_tile_panel_surface()
+        self.__bg_color = Level.levels.get(self.level_path).get("bg_color", "#171727")
         MusicManager.load(Level.levels.get(self.level_path).get("music_name"))
         self.__music_pos = 0
         self.__music_speed = 4.25
@@ -209,11 +211,10 @@ class TileEditorState(GameState):
         elif self.__stop_music_btn.is_pressed() and MusicManager.playing:
             self.__music_pos = 0
             self.__music_speed = 4.25
-            MusicManager.pause()
             MusicManager.stop()
 
         # music line update
-        if MusicManager.playing and not MusicManager.paused:
+        if pygame.mixer.music.get_busy():
             self.__music_pos += self.__music_speed
             for tile in self.__tiles:
                 if tile.__dict__.get("speed", None) is None:
@@ -252,13 +253,16 @@ class TileEditorState(GameState):
 
         # is any tile pressed
         pressed_tile: Tile | None = None
+        pressed_tile_hit_box: bool = False
         for tile in self.__tiles:
-            tile_hitbox_rect = pygame.FRect(
-                tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
-                tile.hitbox.width, tile.hitbox.height
-            )
-            if tile_hitbox_rect.collidepoint(mouse_pos + self.__camera_offset):
+            if tile.rect.collidepoint(mouse_pos + self.__camera_offset):
                 pressed_tile = tile
+                tile_hitbox_rect = pygame.FRect(
+                    tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
+                    tile.hitbox.width, tile.hitbox.height
+                )
+                if tile_hitbox_rect.collidepoint(mouse_pos + self.__camera_offset):
+                    pressed_tile_hit_box = True
                 break
 
         # is it possible to place new tile
@@ -295,18 +299,20 @@ class TileEditorState(GameState):
                     self.__selected_tiles.remove(tile)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
-        surface.fill("#171727")
+        surface.fill(self.__bg_color)
         # tile grid
         surface.blit(self.__grid_surface, [-self.__camera_offset.x % Tile.SIZE - Tile.SIZE, -self.__camera_offset.y % Tile.SIZE - Tile.SIZE])
         # X axis line
         pygame.draw.line(
             surface, "#0000ff",
-            [0, -self.__camera_offset.y + Tile.SIZE], [surface.get_width(), -self.__camera_offset.y + Tile.SIZE]
+            [0, -self.__camera_offset.y + Tile.SIZE], [surface.get_width(), -self.__camera_offset.y + Tile.SIZE],
+            width=3
         )
         # Y axis line
         pygame.draw.line(
             surface, "#00ff00",
-            [-self.__camera_offset.x, 0], [-self.__camera_offset.x, surface.get_height()]
+            [-self.__camera_offset.x - Tile.SIZE, 0], [-self.__camera_offset.x - Tile.SIZE, surface.get_height()],
+            width=3
         )
         # music position line
         pygame.draw.line(
@@ -320,14 +326,18 @@ class TileEditorState(GameState):
                 if tile.id in [Tile.SHIP_PORTAL, Tile.BALL_PORTAL, Tile.WAVE_PORTAL]:
                     # ceil level line
                     pygame.draw.line(
-                        surface, "#ffffff",
+                        surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
                         tile.rect.center - self.__camera_offset - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y - tile.ceil_level * Tile.SIZE])
+                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y - tile.ceil_level * Tile.SIZE],
+                        width=3
+                    )
                     # ground level line
                     pygame.draw.line(
-                        surface, "#ffffff",
+                        surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
                         tile.rect.center - self.__camera_offset + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y + tile.ground_level * Tile.SIZE])
+                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y + tile.ground_level * Tile.SIZE],
+                        width=3
+                    )
 
                 if self.__draw_hitboxes:
                     TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)

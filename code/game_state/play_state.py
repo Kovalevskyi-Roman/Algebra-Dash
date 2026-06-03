@@ -59,12 +59,13 @@ class PlayState(GameState):
         self.__settings_state: GameState | None = None
 
     def on_state_enter(self, *args, **kwargs) -> None:
-        self.__player = Player()
+        self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
+        self.__player = Player(self.__settings_state.player_first_color,
+                               self.__settings_state.player_second_color, self.__settings_state.player_icons)
         self.__camera = Camera(self.__player.rect.center)
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
         self.__is_paused = False
-        self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
         MusicManager.play(start=self.__level.music_start_pos)
 
     def on_state_exit(self, *args, **kwargs) -> None:
@@ -78,7 +79,8 @@ class PlayState(GameState):
         MusicManager.unload()
 
     def retry(self) -> None:
-        self.__player = Player()
+        self.__player = Player(self.__settings_state.player_first_color,
+                               self.__settings_state.player_second_color, self.__settings_state.player_icons)
         self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
         self.__level.reset_tiles()
@@ -134,10 +136,10 @@ class PlayState(GameState):
         self.__level.draw(surface, self.__camera.offset)
 
         if self.__settings_state.show_hitboxes:
+            self.__player.draw_hitbox(surface, self.__camera.offset)
+
             for tile in self.__level.tiles:
                 TileManager.draw_tile_hitbox(tile, surface, self.__camera.offset)
-
-            self.__player.draw_hitbox(surface, self.__camera.offset)
 
         if self.__is_paused:
             surface.blit(self.__pause_surface, [0, 0])

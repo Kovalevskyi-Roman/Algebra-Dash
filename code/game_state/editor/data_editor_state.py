@@ -116,10 +116,10 @@ class DataEditorState(GameState):
 
     def update(self, *args, **kwargs) -> None:
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
-            if self.__level_name_entry.active:
+            if self.__level_name_entry.active or self.__music_start_pos_entry.active or self.__bg_color_entry.active:
                 self.__level_name_entry.active = False
-            elif self.__music_start_pos_entry.active:
                 self.__music_start_pos_entry.active = False
+                self.__bg_color_entry.active = False
             else:
                 self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
                 return
@@ -140,10 +140,9 @@ class DataEditorState(GameState):
                 self.level[1]["music_start_pos"] = float(text)
 
         self.__bg_color_entry.update()
-        if self.__bg_color_entry.active:
+        if not self.__bg_color_entry.active and self.__bg_color_entry.get_text() != self.level[1].get("bg_color"):
+            self.__bg_color_entry.set_text(UIConfig.fix_hex_color(self.__bg_color_entry.get_text()))
             self.level[1]["bg_color"] = self.__bg_color_entry.get_text()
-        elif len(self.level[1].get("bg_color")) != 7:
-            self.level[1]["bg_color"] = "#0000ff"
 
         if self.__back_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)

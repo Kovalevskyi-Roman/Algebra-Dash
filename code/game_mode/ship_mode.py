@@ -3,11 +3,23 @@ import pygame
 from tile import Tile
 from .game_mode import GameMode
 from game_state.settings_state import SettingsState
+from game_state.icon_editor_state import IconEditorState
 
 
 class ShipMode(GameMode):
-    def __init__(self, player: "Player", texture_path: str, texture_size: tuple[int, int] | None = None) -> None:
-        super().__init__(player, texture_path, texture_size)
+    def __init__(self, player: "Player") -> None:
+        super().__init__(player)
+        self.load_texture("ship")
+
+        self.__cube_icon = IconEditorState.icons.get("cube")[self._player.icons.get("cube", 0)]
+        self.__cube_icon = IconEditorState.get_colored_icon(self.__cube_icon, self._player.first_color, self._player.second_color)
+        self.__cube_icon = pygame.transform.scale_by(self.__cube_icon, 0.45)
+
+        self.texture.blit(
+            self.__cube_icon,
+            (Tile.SIZE / 2 - self.__cube_icon.width / 2, Tile.SIZE / 2 - self.__cube_icon.height / 2)
+        )
+
         self.hitbox = pygame.Rect(2, 10, Tile.SIZE - 2, Tile.SIZE - 10)
         self.__gravity: float = SettingsState.GRAVITY * 0.9
         self.jump_height: float = -self.__gravity * 1.8

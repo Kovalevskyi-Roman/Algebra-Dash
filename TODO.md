@@ -11,7 +11,7 @@
     - [x] Settings state
     - [x] Original levels state
     - [x] Play state
-    - [ ] Player color shop state
+    - [x] Icon editor state
     - [ ] Editor
         - [x] Custom levels state
         - [ ] Editor state
@@ -80,3 +80,10 @@
     - [ ] Menu music
     - [x] Level music
     - [ ] SFX
+
+
+# Bugs
+- [ ] Tile rotating
+
+
+

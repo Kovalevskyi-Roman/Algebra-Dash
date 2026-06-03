@@ -1,22 +1,17 @@
 import pygame
 
 from tile import Tile
-
+from game_state.icon_editor_state import IconEditorState
 
 class GameMode:
-    def __init__(self, player: "Player", texture_path: str, texture_size: tuple[int, int] | None = None) -> None:
+    def __init__(self, player: "Player") -> None:
         self._player = player
         self.hitbox: pygame.Rect = pygame.Rect(0, 0, Tile.SIZE, Tile.SIZE)
         self.texture: pygame.Surface | None = None
 
-        self.load_texture(texture_path, texture_size)
-
-    def load_texture(self, texture_path: str, texture_size: tuple[int, int] | None) -> None:
-        if texture_size is None:
-            texture_size = (Tile.SIZE, Tile.SIZE)
-
-        self.texture = pygame.image.load(texture_path).convert_alpha()
-        self.texture = pygame.transform.scale(self.texture, texture_size)
+    def load_texture(self, game_mode: str) -> None:
+        self.texture = IconEditorState.icons.get(game_mode)[self._player.icons.get(game_mode, 0)]
+        self.texture = IconEditorState.get_colored_icon(self.texture, self._player.first_color, self._player.second_color)
 
     def update(self):
         ...

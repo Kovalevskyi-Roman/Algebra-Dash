@@ -5,8 +5,10 @@ from game_state.settings_state import SettingsState
 
 
 class CubeMode(GameMode):
-    def __init__(self, player: "Player", texture_path: str, texture_size: tuple[int, int] | None = None) -> None:
-        super().__init__(player, texture_path, texture_size)
+    def __init__(self, player: "Player") -> None:
+        super().__init__(player)
+        self.load_texture("cube")
+
         self.jump_height: float = -9
         self.__rotation: float = 0
 
@@ -21,7 +23,7 @@ class CubeMode(GameMode):
             self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier
 
         if not bottom:
-            self.__rotation -= 3.5 * (1 if self._player.velocity.x > 0 else -1)
+            self.__rotation -= 3.5 * (1 if self._player.velocity.x >= 0 else -1)
         else:
             self.__rotation = round(self.__rotation / 90) * 90
 

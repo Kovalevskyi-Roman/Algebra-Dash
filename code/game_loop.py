@@ -24,4 +24,5 @@ class GameLoop:
             self.__update()
             self.__draw()
 
+        self.__game_state_manager.game_states.get(GameStateManager.SETTINGS_STATE).save_settings()
         pygame.quit()

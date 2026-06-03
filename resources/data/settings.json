@@ -2,5 +2,12 @@
     "show_hitboxes": false,
     "pause_after_death": false,
     "is_player_immortal": false,
-    "platformer_mode": false
+    "platformer_mode": false,
+    "player_first_color": "#171717",
+    "player_second_color": "#ffffff",
+    "player_icons": {
+        "cube": 1,
+        "ball": 2,
+        "ship": 0
+    }
 }

@@ -10,22 +10,25 @@ class Player:
     BALL_MODE: type[BallMode] = BallMode
     WAVE_MODE: type[WaveMode] = WaveMode
 
-    def __init__(self) -> None:
+    def __init__(self, first_color: str, second_color: str, icons: dict[str, int]) -> None:
         self.rect: pygame.FRect = pygame.FRect(-Tile.SIZE, 0, Tile.SIZE, Tile.SIZE)
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.move_speed: float = 4.25
         self.collision: dict[str, bool] = {
             "top": False, "left": False, "bottom": False, "right": False
         }
+        self.first_color = first_color
+        self.second_color = second_color
+        self.icons = icons
         self.alive: bool = True
         self.platformer_mode: bool = False
         self.gravity_multiplier: float = 1
 
         self.game_modes: dict[type[GameMode], GameMode] = {
-            self.CUBE_MODE: CubeMode(self, "../resources/textures/game_modes/cube_mode.png"),
-            self.SHIP_MODE: ShipMode(self, "../resources/textures/game_modes/ship_mode.png"),
-            self.BALL_MODE: BallMode(self, "../resources/textures/game_modes/ball_mode.png"),
-            self.WAVE_MODE: WaveMode(self, "../resources/textures/game_modes/wave_mode.png")
+            self.CUBE_MODE: CubeMode(self),
+            self.SHIP_MODE: ShipMode(self),
+            self.BALL_MODE: BallMode(self),
+            self.WAVE_MODE: WaveMode(self)
         }
         self.current_game_mode: type[GameMode] = self.CUBE_MODE
 
@@ -57,7 +60,7 @@ class Player:
 
     def draw_hitbox(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
         game_mode_hitbox = self.game_modes.get(self.current_game_mode).hitbox
-        hitbox = pygame.FRect(self.rect.topleft + (game_mode_hitbox.topleft - camera_offset), game_mode_hitbox.size)
+        hitbox = pygame.FRect(self.rect.topleft - camera_offset + game_mode_hitbox.topleft, game_mode_hitbox.size)
         pygame.draw.rect(surface, "#00ff00", hitbox, width=1)
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:

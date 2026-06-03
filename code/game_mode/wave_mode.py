@@ -5,9 +5,11 @@ from .game_mode import GameMode
 
 
 class WaveMode(GameMode):
-    def __init__(self, player: "Player", texture_path: str, texture_size: tuple[int, int] | None = None) -> None:
-        super().__init__(player, texture_path, texture_size)
-        self.hitbox = pygame.Rect(10, 10, Tile.SIZE - 18, Tile.SIZE - 18)
+    def __init__(self, player: "Player") -> None:
+        super().__init__(player)
+        self.load_texture("wave")
+
+        self.hitbox = pygame.Rect(11, 11, Tile.SIZE - 22, Tile.SIZE - 22)
         self.__rotation: float = 0
         self.__old_velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.__trail_points: list[pygame.Vector2] = list()
@@ -43,9 +45,9 @@ class WaveMode(GameMode):
             if next_point.x - camera_offset.x < 0:
                 need_to_remove.append(point)
 
-            pygame.draw.line(surface, "#ff0000", point - camera_offset, next_point - camera_offset, width=5)
+            pygame.draw.line(surface, self._player.second_color, point - camera_offset, next_point - camera_offset, width=6)
 
-        pygame.draw.line(surface, "#ff0000", next_point - camera_offset, self._player.rect.center - camera_offset, width=5)
+        pygame.draw.line(surface, self._player.second_color, next_point - camera_offset, self._player.rect.center - camera_offset, width=6)
         for point in need_to_remove:
             self.__trail_points.remove(point)
 

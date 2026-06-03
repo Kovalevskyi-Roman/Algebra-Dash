@@ -6,12 +6,14 @@ from .play_state import PlayState
 from .settings_state import SettingsState
 from .original_levels_state import OriginalLevelsState
 from .editor import TileEditorState, CustomLevelsState, DataEditorState
+from .icon_editor_state import IconEditorState
 
 
 class GameStateManager:
     MENU_STATE: type[GameState] = MenuState
     PLAY_STATE: type[GameState] = PlayState
     SETTINGS_STATE: type[GameState] = SettingsState
+    ICON_EDITOR_STATE: type[GameState] = IconEditorState
     ORIGINAL_LEVELS_STATE: type[GameState] = OriginalLevelsState
     TILE_EDITOR_STATE: type[GameState] = TileEditorState
     CUSTOM_LEVELS_STATE: type[GameState] = CustomLevelsState
@@ -22,6 +24,7 @@ class GameStateManager:
             self.MENU_STATE: MenuState(self),
             self.PLAY_STATE: PlayState(self),
             self.SETTINGS_STATE: SettingsState(self),
+            self.ICON_EDITOR_STATE: IconEditorState(self),
             self.ORIGINAL_LEVELS_STATE: OriginalLevelsState(self),
             self.TILE_EDITOR_STATE: TileEditorState(self),
             self.CUSTOM_LEVELS_STATE: CustomLevelsState(self),

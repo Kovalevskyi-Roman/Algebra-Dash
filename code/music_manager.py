@@ -21,6 +21,7 @@ class MusicManager:
                 music.append(obj.name)
 
         cls.music = tuple(music)
+        pygame.mixer.music.set_volume(0.2)
 
     @classmethod
     def load(cls, music_name: str) -> None:

@@ -15,6 +15,10 @@ class SettingsState(GameState):
         self.is_player_immortal: bool = False
         self.platformer_mode: bool = False
 
+        self.player_first_color: str = ""
+        self.player_second_color: str = ""
+        self.player_icons: dict[str, int] = dict()
+
         self.__show_hitboxes_btn: Button = Button(
             pygame.Rect((8, 8), UIConfig.CHECKBOX_SIZE),
             UIConfig.CHECKBOX_TEXTURE
@@ -38,7 +42,7 @@ class SettingsState(GameState):
         self.__load_settings()
 
     def on_state_exit(self, *args, **kwargs) -> None:
-        self.__save_settings()
+        self.save_settings()
 
     def __load_settings(self) -> None:
         with open("../resources/data/settings.json", "r") as file:
@@ -48,13 +52,21 @@ class SettingsState(GameState):
             self.is_player_immortal = content.get("is_player_immortal", False)
             self.platformer_mode = content.get("platformer_mode", False)
 
-    def __save_settings(self) -> None:
+            self.player_first_color = content.get("player_first_color", "#ffdd00")
+            self.player_second_color = content.get("player_second_color", "#0000ff")
+            self.player_icons = content.get("player_icons", {})
+
+    def save_settings(self) -> None:
         with open("../resources/data/settings.json", "w") as file:
             content: dict[str, bool] = {
                 "show_hitboxes": self.show_hitboxes,
                 "pause_after_death": self.pause_after_death,
                 "is_player_immortal": self.is_player_immortal,
-                "platformer_mode": self.platformer_mode
+                "platformer_mode": self.platformer_mode,
+
+                "player_first_color": self.player_first_color,
+                "player_second_color": self.player_second_color,
+                "player_icons": self.player_icons
             }
             json.dump(content, file, indent=4)
 

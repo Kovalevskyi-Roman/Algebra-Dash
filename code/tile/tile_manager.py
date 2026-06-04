@@ -139,7 +139,11 @@ class TileManager:
 
         tile.scale_to_factor(kwargs.get("scale", 1))
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
-        tile.rotate(kwargs.get("rotation", 0))
+        rotation = kwargs.get("rotation", 0)
+        while rotation != 0:
+            tile.rotate_by_90_degrees(90 if rotation > 0 else -90)
+            rotation -= 90 if rotation > 0 else -90
+
         return tile
 
     @classmethod
@@ -181,12 +185,14 @@ class TileManager:
 
     @classmethod
     def draw_tile_hitbox(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+        # rect = pygame.Rect(tile.rect.topleft - camera_offset, tile.rect.size)
         hitbox_rect = pygame.FRect(tile.rect.topleft + (tile.hitbox.topleft - camera_offset), tile.hitbox.size)
 
         if hitbox_rect.right < 0 or hitbox_rect.x > surface.get_width() or \
                 hitbox_rect.bottom < 0 or hitbox_rect.y > surface.get_height():
             return
 
+        # pygame.draw.rect(surface, "#0000ff", rect, width=1)
         pygame.draw.rect(surface, "#ff0000", hitbox_rect, width=1)
 
     @classmethod

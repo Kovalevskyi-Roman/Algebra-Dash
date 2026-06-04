@@ -59,26 +59,37 @@ class Tile:
 
     def flip_by(self, flip_x: bool, flip_y: bool) -> None:
         if self.flip_x != flip_x:
-            self.hitbox.x = self.rect.width - self.hitbox.width - self.hitbox.x
+            if abs(self.rotation) == 90:
+                self.hitbox.y = self.rect.height - self.hitbox.height - self.hitbox.y
+            else:
+                self.hitbox.x = self.rect.width - self.hitbox.width - self.hitbox.x
 
         if self.flip_y != flip_y:
-            self.hitbox.y = self.rect.height - self.hitbox.height - self.hitbox.y
+            if abs(self.rotation) == 90:
+                self.hitbox.x = self.rect.width - self.hitbox.width - self.hitbox.x
+            else:
+                self.hitbox.y = self.rect.height - self.hitbox.height - self.hitbox.y
 
         self.flip_x = flip_x
         self.flip_y = flip_y
 
-    def rotate(self, angle: int) -> None:
-        """Rotates rect only by 90 degrees"""
-        self.rotation += angle
+    def rotate_by_90_degrees(self, direction: int) -> None:
+        self.rotation += direction
         if abs(self.rotation) == 360:
             self.rotation = 0
 
-        if not angle:
+        if not direction:
             return
+
+        # counterclockwise
+        if direction > 0:
+            self.hitbox.x, self.hitbox.y = self.hitbox.y, self.rect.width - self.hitbox.x - self.hitbox.width
+        # clockwise
+        elif direction < 0:
+            self.hitbox.x, self.hitbox.y = self.rect.height - self.hitbox.y - self.hitbox.height, self.hitbox.x
 
         self.rect.width, self.rect.height = self.rect.height, self.rect.width
         self.hitbox.width, self.hitbox.height = self.hitbox.height, self.hitbox.width
-        self.hitbox.x, self.hitbox.y = self.hitbox.y, self.hitbox.x
 
     def update(self, *args, **kwargs) -> None:
         if self.id == self.FOLLOW_TILE:

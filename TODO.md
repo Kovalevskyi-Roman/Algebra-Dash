@@ -83,7 +83,7 @@
 
 
 # Bugs
-- [ ] Tile rotating
+- [x] Tile rotating
 
 
 

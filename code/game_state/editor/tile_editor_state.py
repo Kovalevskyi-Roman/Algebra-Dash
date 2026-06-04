@@ -187,10 +187,10 @@ class TileEditorState(GameState):
         # tile rotation
         elif keys_just_pressed[pygame.K_q]:
             for tile in self.__selected_tiles:
-                tile.rotate(90)
+                tile.rotate_by_90_degrees(90)
         elif keys_just_pressed[pygame.K_e]:
             for tile in self.__selected_tiles:
-                tile.rotate(-90)
+                tile.rotate_by_90_degrees(-90)
 
         # tile deleting
         elif keys_just_pressed[pygame.K_BACKSPACE] or keys_just_pressed[pygame.K_DELETE]:

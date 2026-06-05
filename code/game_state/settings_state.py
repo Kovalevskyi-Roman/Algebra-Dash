@@ -1,7 +1,8 @@
 import json
 import pygame
 
-from ui import UIConfig, Button
+from ui import UIConfig, Button, Slider
+from window import Window
 from .game_state import GameState
 
 
@@ -39,14 +40,22 @@ class SettingsState(GameState):
             UIConfig.CHECKBOX_TEXTURE
         )
 
+        self.__music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Music volume", True, "#ffffff")
+        self.music_volume_slider: Slider = Slider(
+            pygame.Vector2(Window.SIZE[0] / 2, self.__music_volume_lbl.height + 8), Window.SIZE[0] // 2 - 50,
+            0, 100.5
+        )
+
         self.__load_settings()
 
     def on_state_exit(self, *args, **kwargs) -> None:
+        pygame.mixer.music.set_volume(round(self.music_volume_slider.value) / 100)
         self.save_settings()
 
     def __load_settings(self) -> None:
         with open("../resources/data/settings.json", "r") as file:
-            content: dict[str, bool] = json.load(file)
+            content: dict[str, bool | dict[str, int] | int] = json.load(file)
+
             self.show_hitboxes = content.get("show_hitboxes", False)
             self.pause_after_death = content.get("pause_after_death", False)
             self.is_player_immortal = content.get("is_player_immortal", False)
@@ -54,11 +63,14 @@ class SettingsState(GameState):
 
             self.player_first_color = content.get("player_first_color", "#ffdd00")
             self.player_second_color = content.get("player_second_color", "#0000ff")
-            self.player_icons = content.get("player_icons", {})
+            self.player_icons = content.get("player_icons", dict())
+            self.music_volume_slider.set_value(content.get("music_volume", 25))
+
+        pygame.mixer.music.set_volume(round(self.music_volume_slider.value) / 100)
 
     def save_settings(self) -> None:
         with open("../resources/data/settings.json", "w") as file:
-            content: dict[str, bool] = {
+            content: dict[str, bool | dict[str, int] | int] = {
                 "show_hitboxes": self.show_hitboxes,
                 "pause_after_death": self.pause_after_death,
                 "is_player_immortal": self.is_player_immortal,
@@ -66,7 +78,8 @@ class SettingsState(GameState):
 
                 "player_first_color": self.player_first_color,
                 "player_second_color": self.player_second_color,
-                "player_icons": self.player_icons
+                "player_icons": self.player_icons,
+                "music_volume": round(self.music_volume_slider.value)
             }
             json.dump(content, file, indent=4)
 
@@ -86,6 +99,8 @@ class SettingsState(GameState):
 
         elif self.__platformer_mode_btn.is_just_pressed():
             self.platformer_mode = not self.platformer_mode
+
+        self.music_volume_slider.update()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__show_hitboxes_btn.draw(surface)
@@ -114,3 +129,7 @@ class SettingsState(GameState):
 
         if self.platformer_mode:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__platformer_mode_btn.rect.topleft)
+
+        surface.blit(self.__music_volume_lbl,
+                     [self.music_volume_slider.rect.centerx - self.__music_volume_lbl.width / 2, 0])
+        self.music_volume_slider.draw(surface)

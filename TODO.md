@@ -23,7 +23,7 @@
     - [x] Button
     - [x] Input
     - [x] Progress bar
-    - [ ] Slider
+    - [x] Slider
 
 - [x] Level saving
     - [x] Tiles compression
@@ -37,6 +37,7 @@
 
     - [x] Tile
     - [x] Spike
+    - [x] Speed busters
     - [x] Orbs
         - [x] Yellow orb
         - [x] Blue orb
@@ -44,6 +45,8 @@
         - [x] Red orb
         - [x] Black orb
         - [x] Green orb
+        - [ ] Dash orb
+
     - [ ] Portals
         - [x] Yellow portal
         - [x] Blue portal
@@ -54,7 +57,6 @@
         - [ ] Ufo portal
         - [ ] Robot portal
         - [ ] Spider portal
-    - [x] Speed busters
 
 - [ ] Triggers
     - [ ] Tile groups
@@ -66,6 +68,7 @@
     - [ ] SFX trigger
     - [ ] Camera trigger
 
+- [ ] Player dual mode
 - [ ] Player game modes
     - [x] Cube
     - [x] Ship
@@ -74,7 +77,6 @@
     - [ ] Ufo
     - [ ] Robot
     - [ ] Spider
-- [ ] Player dual mode
 
 - [ ] Music and sounds
     - [ ] Menu music

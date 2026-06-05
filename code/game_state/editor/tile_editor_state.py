@@ -57,8 +57,15 @@ class TileEditorState(GameState):
             pygame.Surface((24, 24))
         )
         self.__play_music_btn.texture.fill("#ffffff")
-        self.__stop_music_btn: Button = Button(
+
+        self.__remote_music_btn: Button = Button(
             pygame.Rect(8, Window.SIZE[1] / 2, 24, 24),
+            pygame.Surface((24, 24))
+        )
+        self.__remote_music_btn.texture.fill("#0000ff")
+
+        self.__stop_music_btn: Button = Button(
+            pygame.Rect(8, Window.SIZE[1] / 2 + 32, 24, 24),
             pygame.Surface((24, 24))
         )
         self.__stop_music_btn.texture.fill("#ff0000")
@@ -77,7 +84,7 @@ class TileEditorState(GameState):
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_tiles(self.level_path, self.__tiles)
         if self.__was_redacted:
-            Level.save_data(self.level_path, max_progress=0)
+            Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_offset)
             self.__was_redacted = False
         else:
             Level.save_data(self.level_path, editor_scroll=self.__camera_offset)
@@ -93,6 +100,23 @@ class TileEditorState(GameState):
         self.__draw_hitboxes = False
         MusicManager.stop()
         MusicManager.unload()
+
+    def __get_music_line_pos(self) -> float:
+        music_pos: float = 0
+        music_time: float = 1
+        self.__music_speed = 4.25
+
+        while music_time < MusicManager.position:
+            music_pos += self.__music_speed
+            music_time += Window.DELTA
+            for tile in self.__tiles:
+                if tile.__dict__.get("speed", None) is None:
+                    continue
+
+                if self.__music_pos > tile.rect.x:
+                    self.__music_speed = tile.__dict__.get("speed")
+
+        return music_pos
 
     def __update_tile_panel_surface(self) -> None:
         self.__tile_panel_surface.fill("#7A7A7A7f")
@@ -213,8 +237,12 @@ class TileEditorState(GameState):
             self.__music_speed = 4.25
             MusicManager.stop()
 
+        elif self.__remote_music_btn.is_just_pressed():
+            self.__music_pos = self.__get_music_line_pos()
+            MusicManager.rewind_by(1)
+
         # music line update
-        if pygame.mixer.music.get_busy():
+        if MusicManager.playing and not MusicManager.paused:
             self.__music_pos += self.__music_speed
             for tile in self.__tiles:
                 if tile.__dict__.get("speed", None) is None:
@@ -357,9 +385,11 @@ class TileEditorState(GameState):
             selection_surface.fill((0, 255, 0, 127))
             surface.blit(selection_surface, self.__selection_rect.topleft - self.__camera_offset)
 
+        # music control buttons
         self.__play_music_btn.draw(surface)
         if MusicManager.playing:
             self.__stop_music_btn.draw(surface)
+            self.__remote_music_btn.draw(surface)
 
         # tile panel
         surface.blit(self.__tile_panel_surface, (0, Window.SIZE[1] - self.__tile_panel_surface.get_height()))

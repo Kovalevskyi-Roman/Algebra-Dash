@@ -2,6 +2,7 @@ import pygame
 
 from window import Window
 from game_state import GameStateManager
+from music_manager import MusicManager
 
 
 class GameLoop:
@@ -15,6 +16,7 @@ class GameLoop:
 
     def __draw(self) -> None:
         self.__window.fill("#16191D")
+        MusicManager.update()
         self.__game_state_manager.draw(self.__window.surface)
         self.__window.update()
 

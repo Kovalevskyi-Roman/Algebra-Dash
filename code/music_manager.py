@@ -1,12 +1,15 @@
 import pathlib
 import pygame
 
+from window import Window
+
 
 class MusicManager:
     music: tuple[str, ...] | None = None
     loaded_music: str = ""
     playing: bool = False
     paused: bool = False
+    position: float = 0  # in seconds
 
     @classmethod
     def init(cls) -> None:
@@ -21,7 +24,11 @@ class MusicManager:
                 music.append(obj.name)
 
         cls.music = tuple(music)
-        pygame.mixer.music.set_volume(0.2)
+
+    @classmethod
+    def update(cls) -> None:
+        if cls.playing and not cls.paused:
+            cls.position += Window.DELTA
 
     @classmethod
     def load(cls, music_name: str) -> None:
@@ -34,6 +41,7 @@ class MusicManager:
         cls.loaded_music = music_name
         cls.playing = False
         cls.paused = False
+        cls.position = 0
 
     @classmethod
     def unload(cls) -> None:
@@ -41,6 +49,7 @@ class MusicManager:
         cls.loaded_music = ""
         cls.playing = False
         cls.paused = False
+        cls.position = 0
 
     @classmethod
     def play(cls, music_name: str = "", loops: int = 0, start: float = 0, fade_ms: int = 0) -> None:
@@ -50,12 +59,15 @@ class MusicManager:
 
         pygame.mixer.music.play(loops, start, fade_ms)
         cls.playing = True
+        cls.paused = False
+        cls.position = start
 
     @classmethod
     def stop(cls) -> None:
         pygame.mixer.music.stop()
         cls.playing = False
         cls.paused = False
+        cls.position = 0
 
     @classmethod
     def pause(cls) -> None:
@@ -66,3 +78,14 @@ class MusicManager:
     def unpause(cls) -> None:
         pygame.mixer.music.unpause()
         cls.paused = False
+
+    @classmethod
+    def rewind_by(cls, time: float) -> None:
+        cls.position -= time
+        if cls.position < 0:
+            cls.position = 0
+
+        was_paused: bool = cls.paused
+        cls.play(start=cls.position)
+        if was_paused:
+            cls.pause()

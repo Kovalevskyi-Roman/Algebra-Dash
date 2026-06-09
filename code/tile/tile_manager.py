@@ -5,7 +5,7 @@ from .tile import Tile
 from .spike import Spike
 from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb, DashOrb, ReversedDashOrb
 from .trampoline import YellowTrampoline, PurpleTrampoline, OrangeTrampoline, BlueTrampoline
-from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal, BallPortal, WavePortal
+from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal, BallPortal, WavePortal, UfoPortal
 from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster
 
 
@@ -122,6 +122,9 @@ class TileManager:
 
             case Tile.SHIP_PORTAL:
                 tile = ShipPortal(position, size, hitbox, *args, **kwargs)
+
+            case Tile.UFO_PORTAL:
+                tile = UfoPortal(position, size, hitbox, *args, **kwargs)
 
             case Tile.BALL_PORTAL:
                 tile = BallPortal(position, size, hitbox, *args, **kwargs)

@@ -253,7 +253,7 @@ class TileEditorState(GameState):
             self.__music_speed = 4.25
             MusicManager.stop()
 
-        elif self.__remote_music_btn.is_just_pressed():
+        elif self.__remote_music_btn.is_just_pressed() and MusicManager.playing:
             self.__music_pos = self.__get_music_line_pos()
             MusicManager.rewind_by(1)
 
@@ -322,8 +322,8 @@ class TileEditorState(GameState):
             # creates selection rectangle
             self.__selection_rect = pygame.Rect(
                 self.__mouse_pressed_pos,
-                [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x + 1,
-                 mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y + 1]
+                [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x,
+                 mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y]
                 # +self.__camera_offset needed because: (mouse_pos + camera) - (mouse_pressed_pos + camera) => mouse_pos - mouse_pressed_pos
                 # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fix it
             )
@@ -344,6 +344,9 @@ class TileEditorState(GameState):
                     self.__selected_tiles.add(tile)
                 elif tile in self.__selected_tiles and not keys_pressed[pygame.K_LCTRL]:
                     self.__selected_tiles.remove(tile)
+
+            if pressed_tile and pressed_tile_hit_box:
+                self.__selected_tiles.add(pressed_tile)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.fill(self.__bg_color)

@@ -1,12 +1,13 @@
 import pygame
 
 from tile import Tile
-from game_mode import GameMode, CubeMode, ShipMode, BallMode, WaveMode
+from game_mode import GameMode, CubeMode, ShipMode, BallMode, WaveMode, UfoMode
 
 
 class Player:
     CUBE_MODE: type[GameMode] = CubeMode
     SHIP_MODE: type[ShipMode] = ShipMode
+    UFO_MODE: type[UfoMode] = UfoMode
     BALL_MODE: type[BallMode] = BallMode
     WAVE_MODE: type[WaveMode] = WaveMode
 
@@ -28,6 +29,7 @@ class Player:
         self.game_modes: dict[type[GameMode], GameMode] = {
             self.CUBE_MODE: CubeMode(self),
             self.SHIP_MODE: ShipMode(self),
+            self.UFO_MODE: UfoMode(self),
             self.BALL_MODE: BallMode(self),
             self.WAVE_MODE: WaveMode(self)
         }

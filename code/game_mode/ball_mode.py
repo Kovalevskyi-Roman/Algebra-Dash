@@ -11,7 +11,6 @@ class BallMode(GameMode):
         self.load_texture("ball")
 
         self.hitbox = pygame.Rect(2, 2, Tile.SIZE - 4, Tile.SIZE - 4)
-        self.rotation: float = 0
 
     def dash(self) -> None:
         self._player.velocity = self._player.dash_direction * self._player.move_speed

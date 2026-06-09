@@ -45,7 +45,7 @@
         - [x] Red orb
         - [x] Black orb
         - [x] Green orb
-        - [ ] Dash orb
+        - [x] Dash orb
 
     - [ ] Portals
         - [x] Yellow portal
@@ -54,7 +54,7 @@
         - [x] Ship portal
         - [x] Ball portal
         - [x] Wave portal
-        - [ ] Ufo portal
+        - [x] Ufo portal
         - [ ] Robot portal
         - [ ] Spider portal
 
@@ -74,7 +74,7 @@
     - [x] Ship
     - [x] Ball
     - [x] Wave
-    - [ ] Ufo
+    - [x] Ufo
     - [ ] Robot
     - [ ] Spider
 

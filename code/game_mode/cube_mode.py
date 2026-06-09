@@ -10,7 +10,6 @@ class CubeMode(GameMode):
         self.load_texture("cube")
 
         self.jump_height: float = -9
-        self.rotation: float = 0
 
     def dash(self) -> None:
         self._player.velocity = self._player.dash_direction * self._player.move_speed

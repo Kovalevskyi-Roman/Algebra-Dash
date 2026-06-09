@@ -120,8 +120,8 @@ class Level:
 
         self.tiles.extend(self.get_tiles(self.path))
 
-        self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, Tile.SIZE])
-        self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [0, -Tile.SIZE * 32])
+        self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, Tile.SIZE])
+        self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, -Tile.SIZE * 32])
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
 

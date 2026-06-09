@@ -1,7 +1,7 @@
 import pygame
 
 from window import Window
-from player import Player
+from tile import Tile
 
 
 class Camera:
@@ -17,7 +17,7 @@ class Camera:
         """Sets target at the center of the screen if offset is None."""
         if offset is None:
             self.offset.x += round(self.target.x - (Window.SIZE[0] // 2) - self.offset.x)
-            self.offset.y += round(self.target.y - (Window.SIZE[1] // 2) - self.offset.y)
+            self.offset.y += round(self.target.y - (Window.SIZE[1] // 2) - self.offset.y - Tile.SIZE)
             return
 
         self.offset = offset
@@ -26,7 +26,7 @@ class Camera:
         self.target = pygame.Vector2(target)
         distance: pygame.Vector2 = pygame.Vector2(
             round(self.target.x - (Window.SIZE[0] // 2) - self.offset.x),
-            round(self.target.y - (Window.SIZE[1] // 2) - self.offset.y)
+            round(self.target.y - (Window.SIZE[1] // 2) - self.offset.y - Tile.SIZE)
         )
 
         self.offset += distance * self.smoothness

@@ -10,7 +10,6 @@ class WaveMode(GameMode):
         self.load_texture("wave")
 
         self.hitbox = pygame.Rect(11, 11, Tile.SIZE - 22, Tile.SIZE - 22)
-        self.rotation: float = 0
         self.__old_velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.__trail_points: list[pygame.Vector2] = list()
 

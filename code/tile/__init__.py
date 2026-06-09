@@ -2,7 +2,7 @@
 from .tile_manager import TileManager
 from .tile import Tile
 from .spike import Spike
-from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb
+from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb, DashOrb, ReversedDashOrb
 from .trampoline import YellowTrampoline, PurpleTrampoline, OrangeTrampoline, BlueTrampoline
 from .portal import YellowPortal, BluePortal, CubePortal, ShipPortal, BallPortal, WavePortal
 from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster

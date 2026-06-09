@@ -23,6 +23,7 @@ class Player:
         self.alive: bool = True
         self.platformer_mode: bool = False
         self.gravity_multiplier: float = 1
+        self.dash_direction: pygame.Vector2 = pygame.Vector2(0, 0)
 
         self.game_modes: dict[type[GameMode], GameMode] = {
             self.CUBE_MODE: CubeMode(self),
@@ -53,7 +54,13 @@ class Player:
             else:
                 self.velocity.x = 0
 
-        self.game_modes.get(self.current_game_mode).update()
+        if self.dash_direction.length():
+            self.game_modes.get(self.current_game_mode).dash()
+
+            if not self.jump_action:
+                self.dash_direction = pygame.Vector2(0, 0)
+        else:
+            self.game_modes.get(self.current_game_mode).update()
 
         if self.collision["right"]:
             self.alive = False

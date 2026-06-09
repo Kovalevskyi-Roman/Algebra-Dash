@@ -3,11 +3,11 @@
     "music_name": "Tick Tock.ogg",
     "music_start_pos": 7.0,
     "is_original": true,
-    "max_progress": 47.5,
-    "death_count": 613,
+    "max_progress": 29.0,
+    "death_count": 668,
     "editor_scroll": [
-        616.0,
-        -376.0
+        880.0,
+        -568.0
     ],
     "bg_color": "#707aff"
 }

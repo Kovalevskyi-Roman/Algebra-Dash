@@ -3,11 +3,11 @@
     "music_name": "Float Play.ogg",
     "music_start_pos": 0.0,
     "is_original": true,
-    "max_progress": 41.4,
-    "death_count": 745,
+    "max_progress": 100,
+    "death_count": 798,
     "editor_scroll": [
-        3680.0,
-        -752.0
+        -264.0,
+        -456.0
     ],
     "bg_color": "#b2b2b2"
 }

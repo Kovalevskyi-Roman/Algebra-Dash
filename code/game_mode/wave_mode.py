@@ -10,11 +10,21 @@ class WaveMode(GameMode):
         self.load_texture("wave")
 
         self.hitbox = pygame.Rect(11, 11, Tile.SIZE - 22, Tile.SIZE - 22)
-        self.__rotation: float = 0
+        self.rotation: float = 0
         self.__old_velocity: pygame.Vector2 = pygame.Vector2(0, 0)
         self.__trail_points: list[pygame.Vector2] = list()
 
+    def dash(self) -> None:
+        self._player.velocity = self._player.dash_direction * self._player.move_speed
+        if self._player.dash_direction.angle > 0:
+            self.rotation = self._player.dash_direction.angle - 45
+        else:
+            self.rotation = -self._player.dash_direction.angle - 45
+
     def update(self):
+        if self.rotation:
+            self.rotation = 0
+
         self._player.velocity.y = self._player.move_speed * self._player.gravity_multiplier
 
         if self._player.jump_action:
@@ -28,7 +38,7 @@ class WaveMode(GameMode):
             self._player.alive = False
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
-        texture = pygame.transform.rotate(self.texture, self.__rotation)
+        texture = pygame.transform.rotate(self.texture, self.rotation)
         if self._player.velocity.y >= 0:
             texture = pygame.transform.flip(texture, False, True)
 

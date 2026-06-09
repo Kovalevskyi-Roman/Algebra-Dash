@@ -8,6 +8,7 @@
         "texture": "spike.png",
         "hitbox": [0.29, 0.3, 0.42, 0.48]
     },
+
     {
         "id": "yellow_orb",
         "texture": "yellow_orb.png",
@@ -45,6 +46,21 @@
         "is_solid": false
     },
     {
+        "id": "dash_orb",
+        "texture": "dash_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false,
+        "free_rotatable": true
+    },
+    {
+        "id": "reversed_dash_orb",
+        "texture": "reversed_dash_orb.png",
+        "hitbox": [-0.1, -0.1, 1.2, 1.2],
+        "is_solid": false,
+        "free_rotatable": true
+    },
+
+    {
         "id": "yellow_trampoline",
         "texture": "yellow_trampoline.png",
         "hitbox": [0.1, 0.8, 0.8, 0.2],
@@ -68,6 +84,7 @@
         "hitbox": [0.1, 0.8, 0.8, 0.2],
         "is_solid": false
     },
+
     {
         "id": "blue_portal",
         "texture": "blue_portal.png",
@@ -110,6 +127,7 @@
         "hitbox": [0.3, 0.05, 0.35, 0.9],
         "is_solid": false
     },
+
     {
         "id": "x1_speed_buster",
         "texture": "x1_speed_buster.png",

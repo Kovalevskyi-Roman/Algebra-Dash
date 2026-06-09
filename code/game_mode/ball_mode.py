@@ -11,7 +11,11 @@ class BallMode(GameMode):
         self.load_texture("ball")
 
         self.hitbox = pygame.Rect(2, 2, Tile.SIZE - 4, Tile.SIZE - 4)
-        self.__rotation: float = 0
+        self.rotation: float = 0
+
+    def dash(self) -> None:
+        self._player.velocity = self._player.dash_direction * self._player.move_speed
+        self.rotation -= self._player.velocity.x * self._player.gravity_multiplier
 
     def update(self):
         bottom = self._player.collision["bottom"]
@@ -23,10 +27,10 @@ class BallMode(GameMode):
 
         self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier
 
-        self.__rotation -= self._player.velocity.x * self._player.gravity_multiplier
-        if abs(self.__rotation) >= 360:
-            self.__rotation = 0
+        self.rotation -= self._player.velocity.x * self._player.gravity_multiplier
+        if abs(self.rotation) >= 360:
+            self.rotation = 0
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
-        texture = pygame.transform.rotate(self.texture, self.__rotation)
+        texture = pygame.transform.rotate(self.texture, self.rotation)
         surface.blit(texture, self._player.rect.center - camera_offset - texture.get_rect().center)

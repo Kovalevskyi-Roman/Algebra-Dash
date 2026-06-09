@@ -3,7 +3,7 @@ import pygame
 
 from .tile import Tile
 from .spike import Spike
-from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb
+from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb, DashOrb, ReversedDashOrb
 from .trampoline import YellowTrampoline, PurpleTrampoline, OrangeTrampoline, BlueTrampoline
 from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal, BallPortal, WavePortal
 from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster
@@ -53,9 +53,10 @@ class TileManager:
                     tile.get("id"),
                     {
                         "texture": texture,
-                        "is_solid": tile.get("is_solid", True),
                         "size": size,
-                        "hitbox": hitbox
+                        "hitbox": hitbox,
+                        "is_solid": tile.get("is_solid", True),
+                        "free_rotatable": tile.get("free_rotatable", False)
                     }
                 )
 
@@ -91,6 +92,12 @@ class TileManager:
 
             case Tile.GREEN_ORB:
                 tile = GreenOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.DASH_ORB:
+                tile = DashOrb(position, size, hitbox, *args, **kwargs)
+
+            case Tile.REVERSED_DASH_ORB:
+                tile = ReversedDashOrb(position, size, hitbox, *args, **kwargs)
 
             case Tile.YELLOW_TRAMPOLINE:
                 tile = YellowTrampoline(position, size, hitbox, *args, **kwargs)
@@ -139,12 +146,29 @@ class TileManager:
 
         tile.scale_to_factor(kwargs.get("scale", 1))
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
+
         rotation = kwargs.get("rotation", 0)
-        while rotation != 0:
-            tile.rotate_by_90_degrees(90 if rotation > 0 else -90)
-            rotation -= 90 if rotation > 0 else -90
+        if not cls.TILE_DATA.get(tile_id, {}).get("free_rotatable", False):
+            while rotation != 0:
+                tile.rotate_by_90_degrees(90 if rotation > 0 else -90)
+                rotation -= 90 if rotation > 0 else -90
+        else:
+            tile.rotation = rotation
 
         return tile
+
+    @classmethod
+    def set_tile_rotation(cls, tile: Tile, rotation: float) -> None:
+        if not cls.TILE_DATA.get(tile.id, {}).get("free_rotatable", False):
+            while tile.rotation != 0:
+                tile.rotate_by_90_degrees(-90 if tile.rotation > 0 else 90)
+
+            while tile.rotation // 90 != rotation // 90:
+                tile.rotate_by_90_degrees(90 if rotation > 0 else -90)
+
+            return
+
+        tile.rotation = rotation
 
     @classmethod
     def from_json(cls, json_tile: dict[str, ...]) -> Tile:
@@ -199,10 +223,10 @@ class TileManager:
     def draw_tile(cls, tile: Tile, surface: pygame.Surface, camera_offset: pygame.Vector2) -> bool:
         """return True if the tile was drawn"""
         tile_texture: pygame.Surface | None = cls.TILE_DATA.get(tile.id, {}).get("texture", None)
-        tile_pos: pygame.Vector2 = pygame.Vector2(tile.rect.topleft - camera_offset)
         if tile_texture is None:
             return False
 
+        tile_pos: pygame.Vector2 = pygame.Vector2(tile.rect.topleft - camera_offset)
         if tile_pos.x + tile.rect.width < 0 or tile_pos.x > surface.get_width() or \
                 tile_pos.y + tile.rect.height < 0 or tile_pos.y > surface.get_height():
             return False
@@ -214,5 +238,6 @@ class TileManager:
         if tile.rotation:
             tile_texture = pygame.transform.rotate(tile_texture, tile.rotation)
 
-        surface.blit(tile_texture, tile_pos)
+        tile_texture_pos = tile.rect.center - pygame.Vector2(tile_texture.size) * 0.5
+        surface.blit(tile_texture, tile_texture_pos - camera_offset)
         return True

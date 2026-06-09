@@ -1,5 +1,6 @@
 import pygame
 
+from math import cos, sin, pi
 from .tile import Tile
 
 
@@ -89,3 +90,44 @@ class GreenOrb(Tile):
         if player.just_jump_action:
             player.gravity_multiplier *= -1
             player.velocity.y = self.__jump_high * player.gravity_multiplier
+
+
+class DashOrb(Tile):
+    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
+                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
+        super().__init__(Tile.DASH_ORB, position, size, hitbox, *args, **kwargs)
+        self.__was_pressed: bool = False
+
+    def on_player_collide(self, *args, **kwargs) -> None:
+        if self.__was_pressed:
+            return
+        player = kwargs.get("player")
+
+        if player.just_jump_action:
+            self.__was_pressed = True
+            rotation = (pi * self.rotation) / 180
+            player.dash_direction = pygame.Vector2(cos(rotation), -sin(rotation))
+
+    def reset(self) -> None:
+        self.__was_pressed = False
+
+
+class ReversedDashOrb(Tile):
+    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
+                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
+        super().__init__(Tile.REVERSED_DASH_ORB, position, size, hitbox, *args, **kwargs)
+        self.__was_pressed = False
+
+    def on_player_collide(self, *args, **kwargs) -> None:
+        if self.__was_pressed:
+            return
+        player = kwargs.get("player")
+
+        if player.just_jump_action:
+            self.__was_pressed = True
+            rotation = (pi * self.rotation) / 180
+            player.gravity_multiplier *= -1
+            player.dash_direction = pygame.Vector2(cos(rotation), -sin(rotation))
+
+    def reset(self) -> None:
+        self.__was_pressed = False

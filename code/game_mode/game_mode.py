@@ -8,10 +8,15 @@ class GameMode:
         self._player = player
         self.hitbox: pygame.Rect = pygame.Rect(0, 0, Tile.SIZE, Tile.SIZE)
         self.texture: pygame.Surface | None = None
+        self.rotation: float = 0
 
     def load_texture(self, game_mode: str) -> None:
         self.texture = IconEditorState.icons.get(game_mode)[self._player.icons.get(game_mode, 0)]
         self.texture = IconEditorState.get_colored_icon(self.texture, self._player.first_color, self._player.second_color)
+
+    def dash(self) -> None:
+        self._player.velocity = self._player.dash_direction * self._player.move_speed
+        self.rotation = -self._player.dash_direction.angle
 
     def update(self):
         ...

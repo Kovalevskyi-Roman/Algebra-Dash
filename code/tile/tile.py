@@ -14,6 +14,8 @@ class Tile:
     BLACK_ORB: str = "black_orb"
     BLUE_ORB: str = "blue_orb"
     GREEN_ORB: str = "green_orb"
+    DASH_ORB: str = "dash_orb"
+    REVERSED_DASH_ORB: str = "reversed_dash_orb"
 
     YELLOW_TRAMPOLINE: str = "yellow_trampoline"
     PURPLE_TRAMPOLINE: str = "purple_trampoline"
@@ -40,7 +42,7 @@ class Tile:
         self.scale: float = 1.0
         self.flip_x: bool = False
         self.flip_y: bool = False
-        self.rotation: int = 0
+        self.rotation: float = 0
 
     def scale_to_factor(self, scale: float) -> None:
         # resets scale

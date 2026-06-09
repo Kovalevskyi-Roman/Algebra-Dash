@@ -10,7 +10,11 @@ class CubeMode(GameMode):
         self.load_texture("cube")
 
         self.jump_height: float = -9
-        self.__rotation: float = 0
+        self.rotation: float = 0
+
+    def dash(self) -> None:
+        self._player.velocity = self._player.dash_direction * self._player.move_speed
+        self.rotation -= 3.5 * (1 if self._player.velocity.x >= 0 else -1)
 
     def update(self):
         bottom = self._player.collision["bottom"]
@@ -23,15 +27,15 @@ class CubeMode(GameMode):
             self._player.velocity.y += SettingsState.GRAVITY * self._player.gravity_multiplier
 
         if not bottom:
-            self.__rotation -= 3.5 * (1 if self._player.velocity.x >= 0 else -1)
+            self.rotation -= 3.5 * (1 if self._player.velocity.x >= 0 else -1)
         else:
-            self.__rotation = round(self.__rotation / 90) * 90
+            self.rotation = round(self.rotation / 90) * 90
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
-        if abs(self.__rotation) >= 360:
-            self.__rotation = 0
+        if abs(self.rotation) >= 360:
+            self.rotation = 0
 
-        texture = pygame.transform.rotate(self.texture, self.__rotation)
+        texture = pygame.transform.rotate(self.texture, self.rotation)
         if self._player.gravity_multiplier < 0:
             texture = pygame.transform.flip(texture, False, True)
 

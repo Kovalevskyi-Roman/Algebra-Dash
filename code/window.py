@@ -11,6 +11,7 @@ class Window:
     def __init__(self) -> None:
         self.surface: pygame.Surface = pygame.display.set_mode(self.SIZE)
         self.clock: pygame.time.Clock = pygame.time.Clock()
+        pygame.display.set_caption("Algebra Dash")
 
     @classmethod
     def update_events(cls) -> None:

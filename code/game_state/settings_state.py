@@ -43,7 +43,7 @@ class SettingsState(GameState):
         self.__music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Music volume", True, "#ffffff")
         self.music_volume_slider: Slider = Slider(
             pygame.Vector2(Window.SIZE[0] / 2, self.__music_volume_lbl.height + 8), Window.SIZE[0] // 2 - 50,
-            0, 100.5
+            0, 100
         )
 
         self.__load_settings()

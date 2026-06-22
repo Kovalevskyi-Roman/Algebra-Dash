@@ -4,10 +4,10 @@
     "music_start_pos": 0.0,
     "is_original": true,
     "max_progress": 100,
-    "death_count": 817,
+    "death_count": 823,
     "editor_scroll": [
-        160.0,
-        -592.0
+        104.0,
+        -560.0
     ],
     "bg_color": "#b2b2b2"
 }

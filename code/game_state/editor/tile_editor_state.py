@@ -13,6 +13,7 @@ class CursorMode(enum.Enum):
     SELECT = 0
     BUILD = 1
     ROTATE = 2
+    SCALE = 3
 
 
 class TileEditorState(GameState):
@@ -75,8 +76,17 @@ class TileEditorState(GameState):
         self.__music_speed: float = 4.25
 
         self.__tile_rotation_slider: Slider = Slider(
-            pygame.Vector2(Window.SIZE[0] / 2 - 180, Window.SIZE[1] / 2), 380,
-            0, 361
+            pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2), 500,
+            -180, 180
+        )
+
+        self.__tile_scale_x_slider: Slider = Slider(
+            pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2 - 40), 380,
+            0.5, 4
+        )
+        self.__tile_scale_y_slider: Slider = Slider(
+            pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2 + 40), 380,
+            0.5, 4
         )
 
     def on_state_enter(self, *args, **kwargs) -> None:
@@ -164,6 +174,10 @@ class TileEditorState(GameState):
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
         if keys_just_pressed[pygame.K_ESCAPE]:
+            if self.__cursor_mode != CursorMode.SELECT:
+                self.__cursor_mode = CursorMode.SELECT
+                return
+
             self._game_state_manager.change_state_to_previous()
 
         # camera movement
@@ -195,14 +209,11 @@ class TileEditorState(GameState):
 
         # cursor mode
         if keys_just_pressed[pygame.K_m]:
-            if self.__cursor_mode == CursorMode.SELECT:
+            if self.__cursor_mode == CursorMode.BUILD:
+                self.__cursor_mode = CursorMode.SELECT
+            else:
                 self.__cursor_mode = CursorMode.BUILD
                 self.__was_redacted = True
-            elif self.__cursor_mode == CursorMode.BUILD:
-                self.__cursor_mode = CursorMode.SELECT
-
-            elif self.__cursor_mode == CursorMode.ROTATE:
-                self.__cursor_mode = CursorMode.SELECT
 
         # tile rotation mode
         elif keys_just_pressed[pygame.K_r]:
@@ -211,18 +222,20 @@ class TileEditorState(GameState):
 
             elif self.__selected_tiles:
                 self.__cursor_mode = CursorMode.ROTATE
-                self.__tile_rotation_slider.set_value(list(self.__selected_tiles)[0].rotation + 180)
+                self.__tile_rotation_slider.set_value(list(self.__selected_tiles)[0].rotation)
+
+        # tile scaling mode
+        elif keys_just_pressed[pygame.K_t]:
+            if self.__cursor_mode == CursorMode.SCALE:
+                self.__cursor_mode = CursorMode.SELECT
+
+            elif self.__selected_tiles:
+                self.__cursor_mode = CursorMode.SCALE
+                self.__tile_scale_x_slider.set_value(list(self.__selected_tiles)[0].scale_x)
+                self.__tile_scale_y_slider.set_value(list(self.__selected_tiles)[0].scale_y)
 
         elif keys_just_pressed[pygame.K_h]:
             self.__draw_hitboxes = not self.__draw_hitboxes
-
-        # tile scale
-        elif keys_just_pressed[pygame.K_EQUALS]:
-            for tile in self.__selected_tiles:
-                tile.scale_to_factor(tile.scale + 0.1)
-        elif keys_just_pressed[pygame.K_MINUS]:
-            for tile in self.__selected_tiles:
-                tile.scale_to_factor(tile.scale - 0.1)
 
         # tile flip
         elif keys_just_pressed[pygame.K_x]:
@@ -294,9 +307,22 @@ class TileEditorState(GameState):
             first_selected: Tile = list(self.__selected_tiles)[0]
 
             self.__tile_rotation_slider.update()
-            if first_selected.rotation != self.__tile_rotation_slider.value - 180:
+            if first_selected.rotation != self.__tile_rotation_slider.value:
                 for tile in self.__selected_tiles:
-                    TileManager.set_tile_rotation(tile, self.__tile_rotation_slider.value - 180)
+                    TileManager.set_tile_rotation(tile, self.__tile_rotation_slider.value)
+
+        # tile scaling
+        if self.__cursor_mode == CursorMode.SCALE:
+            first_selected: Tile = list(self.__selected_tiles)[0]
+            self.__tile_scale_x_slider.update()
+            self.__tile_scale_y_slider.update()
+            if first_selected.scale_x != self.__tile_scale_x_slider.value:
+                for tile in self.__selected_tiles:
+                    tile.set_x_scale(round(self.__tile_scale_x_slider.value, 2))
+
+            if first_selected.scale_y != self.__tile_scale_y_slider.value:
+                for tile in self.__selected_tiles:
+                    tile.set_y_scale(round(self.__tile_scale_y_slider.value, 2))
 
         # is any tile pressed
         pressed_tile: Tile | None = None
@@ -324,8 +350,6 @@ class TileEditorState(GameState):
                 self.__mouse_pressed_pos,
                 [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x,
                  mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y]
-                # +self.__camera_offset needed because: (mouse_pos + camera) - (mouse_pressed_pos + camera) => mouse_pos - mouse_pressed_pos
-                # if self.__mouse_pressed_pos == mouse_pos, width and height equals 0 => rect don't collide, so adding 1 fix it
             )
             # flips rectangle
             if self.__selection_rect.width < 0:
@@ -409,6 +433,10 @@ class TileEditorState(GameState):
 
         elif self.__cursor_mode == CursorMode.ROTATE:
             self.__tile_rotation_slider.draw(surface)
+
+        elif self.__cursor_mode == CursorMode.SCALE:
+            self.__tile_scale_x_slider.draw(surface)
+            self.__tile_scale_y_slider.draw(surface)
 
         # music control buttons
         self.__play_music_btn.draw(surface)

@@ -40,25 +40,31 @@ class Tile:
         self.id = id_
         self.rect: pygame.FRect = pygame.FRect(position, size)
         self.hitbox: pygame.FRect = pygame.FRect(*hitbox)
-        self.scale: float = 1.0
+        self.scale_x: float = 1.0
+        self.scale_y: float = 1.0
         self.flip_x: bool = False
         self.flip_y: bool = False
         self.rotation: float = 0
 
-    def scale_to_factor(self, scale: float) -> None:
-        # resets scale
-        self.rect = self.rect.scale_by(1 / self.scale, 1 / self.scale)
-        self.hitbox.x /= self.scale
-        self.hitbox.y /= self.scale
-        self.hitbox.width /= self.scale
-        self.hitbox.height /= self.scale
-        # sets new scale
-        self.scale = round(scale, 2)
-        self.rect = self.rect.scale_by(self.scale, self.scale)
-        self.hitbox.x *= self.scale
-        self.hitbox.y *= self.scale
-        self.hitbox.width *= self.scale
-        self.hitbox.height *= self.scale
+    def set_x_scale(self, scale: float) -> None:
+        self.rect = self.rect.scale_by(1 / self.scale_x, 1)
+        self.hitbox.x /= self.scale_x
+        self.hitbox.width /= self.scale_x
+
+        self.scale_x = round(scale, 2)
+        self.rect = self.rect.scale_by(self.scale_x, 1)
+        self.hitbox.x *= self.scale_x
+        self.hitbox.width *= self.scale_x
+
+    def set_y_scale(self, scale: float) -> None:
+        self.rect = self.rect.scale_by(1, 1 / self.scale_y)
+        self.hitbox.y /= self.scale_y
+        self.hitbox.height /= self.scale_y
+
+        self.scale_y = round(scale, 2)
+        self.rect = self.rect.scale_by(1, self.scale_y)
+        self.hitbox.y *= self.scale_y
+        self.hitbox.height *= self.scale_y
 
     def flip_by(self, flip_x: bool, flip_y: bool) -> None:
         if self.flip_x != flip_x:
@@ -93,6 +99,21 @@ class Tile:
 
         self.rect.width, self.rect.height = self.rect.height, self.rect.width
         self.hitbox.width, self.hitbox.height = self.hitbox.height, self.hitbox.width
+
+    def is_equal_to(self, other_tile: "Tile") -> bool:
+        if self.id != other_tile.id:
+            return False
+
+        if self.flip_x != other_tile.flip_x or self.flip_y != other_tile.flip_y:
+            return False
+
+        if self.scale_x != other_tile.scale_x or self.scale_y != other_tile.scale_y:
+            return False
+
+        if self.rotation != other_tile.rotation:
+            return False
+
+        return True
 
     def update(self, *args, **kwargs) -> None:
         if self.id == self.FOLLOW_TILE:

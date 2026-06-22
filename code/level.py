@@ -76,11 +76,10 @@ class Level:
         tiles: list[Tile] = list()
         for compressed_tile_row in compressed_tiles:
             tile_row: list[Tile] = list()
-            for i in range(compressed_tile_row.get("count", 1)):
-                tile_row.append(
-                    TileManager.from_json(compressed_tile_row.get("tile"))
-                )
-                compressed_tile_row.get("tile").get("position")[0] += Tile.SIZE
+            for i in range(compressed_tile_row.get("c", compressed_tile_row.get("count", 1))):
+                json_tile = compressed_tile_row.get("t", compressed_tile_row.get("tile"))
+                tile_row.append(TileManager.from_json(json_tile))
+                json_tile.get("xy", json_tile.get("position"))[0] += Tile.SIZE
 
             tiles.extend(tile_row)
 
@@ -153,7 +152,7 @@ class Level:
             return list()
 
         if len(sorted_tiles) == 1:
-            return [{"tile": TileManager.to_json(sorted_tiles[0])}]
+            return [{"t": TileManager.to_json(sorted_tiles[0])}]
 
         compressed_tiles: list[dict[str, int | dict[str, ...]]] = list()
         count = 1  # how many tiles in a row
@@ -167,9 +166,7 @@ class Level:
                 last_tile = next_tile
 
             # if tile in a row has next identical neighbor
-            if tile.rect.y == next_tile.rect.y and tile.rect.x + Tile.SIZE == next_tile.rect.x and \
-                    tile.id == next_tile.id and tile.flip_x == next_tile.flip_x and tile.flip_y == next_tile.flip_y and \
-                    tile.scale == next_tile.scale and tile.rotation == next_tile.rotation:
+            if tile.rect.y == next_tile.rect.y and tile.rect.right == next_tile.rect.x and tile.is_equal_to(next_tile):
                 count += 1
                 if first_tile is None:
                     first_tile = tile
@@ -177,28 +174,28 @@ class Level:
 
             # if tile has no identical neighbors
             if first_tile is None:
-                json_tile = {"tile": TileManager.to_json(tile)}
+                json_tile = {"t": TileManager.to_json(tile)}
                 if count > 1:
-                    json_tile.setdefault("count", count)
+                    json_tile.setdefault("c", count)
                 compressed_tiles.append(json_tile)
                 continue
 
             # if tile last in a row of identical neighbors
-            json_tile = {"tile": TileManager.to_json(first_tile)}
+            json_tile = {"t": TileManager.to_json(first_tile)}
             if count > 1:
-                json_tile.setdefault("count", count)
+                json_tile.setdefault("c", count)
             compressed_tiles.append(json_tile)
             count = 1
             first_tile = None
 
         # if level ends with tiles in a row
         if first_tile is not None:
-            json_tile = {"tile": TileManager.to_json(first_tile)}
+            json_tile = {"t": TileManager.to_json(first_tile)}
             if count > 1:
-                json_tile.setdefault("count", count)
+                json_tile.setdefault("c", count)
             compressed_tiles.append(json_tile)
         else:
-            compressed_tiles.append({"tile": TileManager.to_json(last_tile)})
+            compressed_tiles.append({"t": TileManager.to_json(last_tile)})
 
         return compressed_tiles
 

@@ -147,18 +147,24 @@ class TileManager:
             case _:
                 tile = Tile(tile_id, position, size, hitbox, *args, **kwargs)
 
-        tile.scale_to_factor(kwargs.get("scale", 1))
+        tile.set_x_scale(kwargs.get("scale_x", 1))
+        tile.set_y_scale(kwargs.get("scale_y", 1))
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
-
-        rotation = kwargs.get("rotation", 0)
-        if not cls.TILE_DATA.get(tile_id, {}).get("free_rotatable", False):
-            while rotation != 0:
-                tile.rotate_by_90_degrees(90 if rotation > 0 else -90)
-                rotation -= 90 if rotation > 0 else -90
-        else:
-            tile.rotation = rotation
+        cls.set_tile_rotation(tile, kwargs.get("rotation", 0))
 
         return tile
+
+    @classmethod
+    def clone_tile(cls, tile: Tile) -> Tile:
+        return cls.create_tile(
+            tile.id,
+            tile.rect.topleft,
+            scale_x=tile.scale_x,
+            scale_y=tile.scale_y,
+            flip_x=tile.flip_x,
+            flip_y=tile.flip_y,
+            rotation=tile.rotation
+        )
 
     @classmethod
     def set_tile_rotation(cls, tile: Tile, rotation: float) -> None:
@@ -179,34 +185,41 @@ class TileManager:
             raise ValueError("Could not create Tile from JSON because JSON is None.")
 
         tile_id: str = json_tile.get("id")
-        tile_position: list | tuple = json_tile.get("position")
-        scale: float = json_tile.get("scale", 1.0)
-        flip_x: bool = json_tile.get("flip_x", False)
-        flip_y: bool = json_tile.get("flip_y", False)
-        rotation: int = json_tile.get("rotation", 0)
+        tile_position: list | tuple = json_tile.get("xy", json_tile.get("position"))
+        scale_x: float = json_tile.get("sx", json_tile.get("scale_x", 1))
+        scale_y: float = json_tile.get("sy", json_tile.get("scale_y", 1))
+        flip_x: bool = json_tile.get("fx", json_tile.get("flip_x", False))
+        flip_y: bool = json_tile.get("fy", json_tile.get("flip_y", False))
+        rotation: int = json_tile.get("rot", json_tile.get("rotation", 0))
 
-        return cls.create_tile(tile_id, tile_position, scale=scale, flip_x=flip_x, flip_y=flip_y, rotation=rotation)
+        return cls.create_tile(tile_id, tile_position, scale_x=scale_x, scale_y=scale_y,
+                               flip_x=flip_x, flip_y=flip_y, rotation=rotation)
 
     @classmethod
     def to_json(cls, tile: Tile) -> dict:
         if tile is None:
             raise ValueError("Could not convert tile to JSON because tile is None.")
 
-        # if you're not scaling tiles back to 1 their position corrupts
-        tile_scale = tile.scale
-        tile.scale_to_factor(1)
+        # without scaling tiles back to 1 their position corrupts
+        tile_scale_x = tile.scale_x
+        tile_scale_y = tile.scale_y
+        tile.set_x_scale(1)
+        tile.set_y_scale(1)
+
         json_tile: dict[str, ...] = {
             "id": tile.id,
-            "position": [tile.rect.x, tile.rect.y]
+            "xy": [round(tile.rect.x, 2), round(tile.rect.y, 2)]
         }
-        if tile_scale != 1:
-            json_tile.setdefault("scale", tile_scale)
-        if tile.flip_x:
-            json_tile.setdefault("flip_x", tile.flip_x)
+        if tile_scale_x != 1:
+            json_tile.setdefault("sx", tile_scale_x)
+        if tile_scale_y != 1:
+            json_tile.setdefault("sy", tile_scale_y)
+        if tile.flip_x or tile.flip_y:
+            json_tile.setdefault("fx", tile.flip_x)
         if tile.flip_y:
-            json_tile.setdefault("flip_y", tile.flip_y)
+            json_tile.setdefault("fy", tile.flip_y)
         if tile.rotation:
-            json_tile.setdefault("rotation", tile.rotation)
+            json_tile.setdefault("rot", tile.rotation)
 
         return json_tile
 
@@ -236,10 +249,10 @@ class TileManager:
 
         if tile.flip_x or tile.flip_y:
             tile_texture = pygame.transform.flip(tile_texture, tile.flip_x, tile.flip_y)
-        if tile.scale != 1:
-            tile_texture = pygame.transform.scale_by(tile_texture, tile.scale)
         if tile.rotation:
             tile_texture = pygame.transform.rotate(tile_texture, tile.rotation)
+        if tile.scale_x != 1 or tile.scale_y != 1:
+            tile_texture = pygame.transform.scale(tile_texture, tile.rect.size)
 
         tile_texture_pos = tile.rect.center - pygame.Vector2(tile_texture.size) * 0.5
         surface.blit(tile_texture, tile_texture_pos - camera_offset)

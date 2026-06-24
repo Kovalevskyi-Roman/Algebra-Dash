@@ -23,7 +23,7 @@ class TileEditorState(GameState):
         self.__tiles: list[Tile] = list()
         self.level_path: str = ""
 
-        self.__camera_offset: pygame.Vector2 = pygame.Vector2(-500, -300)
+        self.__camera_scroll: pygame.Vector2 = pygame.Vector2(-500, -300)
         self.__cursor_mode: CursorMode = CursorMode.SELECT
         self.__mouse_pressed_pos: pygame.Vector2 | None = None  # coordinates in level not on screen!
         self.__selection_rect: pygame.Rect | None = None
@@ -89,9 +89,16 @@ class TileEditorState(GameState):
             0.5, 4
         )
 
+        self.__x_scroll_slider: Slider = Slider(
+            pygame.Vector2(Window.SIZE[0] / 4, 0), Window.SIZE[0] // 2,
+            -1000, 1000
+        )
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
-        self.__camera_offset = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
+        self.__camera_scroll = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
+        self.__x_scroll_slider.max_value = Level.get_finish_pos(self.__tiles).x + 1000
+        self.__x_scroll_slider.set_value(self.__camera_scroll.x)
         self.__update_tile_panel_surface()
         self.__bg_color = Level.levels.get(self.level_path).get("bg_color", "#171727")
         MusicManager.load(Level.levels.get(self.level_path).get("music_name"))
@@ -101,14 +108,14 @@ class TileEditorState(GameState):
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_tiles(self.level_path, self.__tiles)
         if self.__was_redacted:
-            Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_offset)
+            Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_scroll)
             self.__was_redacted = False
         else:
-            Level.save_data(self.level_path, editor_scroll=self.__camera_offset)
+            Level.save_data(self.level_path, editor_scroll=self.__camera_scroll)
 
         self.__tiles.clear()
         self.level_path = ""
-        self.__camera_offset = pygame.Vector2(-500, -300)
+        self.__camera_scroll = pygame.Vector2(-500, -300)
         self.__cursor_mode = CursorMode.SELECT
         self.__placeable_tile = ""
         self.__selected_tiles.clear()
@@ -180,15 +187,29 @@ class TileEditorState(GameState):
 
             self._game_state_manager.change_state_to_previous()
 
+        # level saving
+        if (keys_pressed[pygame.K_LCTRL] or keys_pressed[pygame.K_RCTRL]) and keys_just_pressed[pygame.K_s]:
+            Level.save_tiles(self.level_path, self.__tiles)
+            if self.__was_redacted:
+                Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_scroll)
+                self.__was_redacted = False
+            else:
+                Level.save_data(self.level_path, editor_scroll=self.__camera_scroll)
+            self.__x_scroll_slider.max_value = Level.get_finish_pos(self.__tiles).x + 1000
+            self.__x_scroll_slider.set_value(self.__camera_scroll.x)
+            return
+
         # camera movement
         if keys_pressed[pygame.K_d]:
-            self.__camera_offset.x += 8
+            self.__camera_scroll.x += 8
+            self.__x_scroll_slider.set_value(self.__camera_scroll.x)
         elif keys_pressed[pygame.K_a]:
-            self.__camera_offset.x -= 8
+            self.__camera_scroll.x -= 8
+            self.__x_scroll_slider.set_value(self.__camera_scroll.x)
         if keys_pressed[pygame.K_s]:
-            self.__camera_offset.y += 8
+            self.__camera_scroll.y += 8
         elif keys_pressed[pygame.K_w]:
-            self.__camera_offset.y -= 8
+            self.__camera_scroll.y -= 8
 
         # tile movement
         step: int = 2
@@ -252,6 +273,15 @@ class TileEditorState(GameState):
 
             self.__selected_tiles.clear()
 
+        # x scroll slider
+        self.__x_scroll_slider.update()
+        if self.__x_scroll_slider.value != self.__camera_scroll.x:
+            self.__camera_scroll.x = int(self.__x_scroll_slider.value)
+        if self.__x_scroll_slider.is_collided:
+            self.__mouse_pressed_pos = None
+            self.__selection_rect = None
+            return
+
         # music control buttons
         if self.__play_music_btn.is_just_pressed():
             if not MusicManager.playing:
@@ -279,7 +309,7 @@ class TileEditorState(GameState):
             self.__selection_rect = None
             return
         if self.__mouse_pressed_pos is None:
-            self.__mouse_pressed_pos = mouse_pos.copy() + self.__camera_offset
+            self.__mouse_pressed_pos = mouse_pos.copy() + self.__camera_scroll
 
         # tile panel
         if mouse_pos.y >= Window.SIZE[1] - self.__tile_panel_surface.get_height():
@@ -328,19 +358,19 @@ class TileEditorState(GameState):
         pressed_tile: Tile | None = None
         pressed_tile_hit_box: bool = False
         for tile in self.__tiles:
-            if tile.rect.collidepoint(mouse_pos + self.__camera_offset):
+            if tile.rect.collidepoint(mouse_pos + self.__camera_scroll):
                 pressed_tile = tile
                 tile_hitbox_rect = pygame.FRect(
                     tile.rect.x + tile.hitbox.x, tile.rect.y + tile.hitbox.y,
                     tile.hitbox.width, tile.hitbox.height
                 )
-                if tile_hitbox_rect.collidepoint(mouse_pos + self.__camera_offset):
+                if tile_hitbox_rect.collidepoint(mouse_pos + self.__camera_scroll):
                     pressed_tile_hit_box = True
                 break
 
         # is it possible to place new tile
         if self.__cursor_mode == CursorMode.BUILD and self.__placeable_tile and pressed_tile is None:
-            placeable_tile_pos = (mouse_pos + self.__camera_offset) // Tile.SIZE * Tile.SIZE
+            placeable_tile_pos = (mouse_pos + self.__camera_scroll) // Tile.SIZE * Tile.SIZE
             new_tile: Tile = TileManager.create_tile(self.__placeable_tile, placeable_tile_pos)
             self.__tiles.append(new_tile)
 
@@ -348,8 +378,8 @@ class TileEditorState(GameState):
             # creates selection rectangle
             self.__selection_rect = pygame.Rect(
                 self.__mouse_pressed_pos,
-                [mouse_pos.x + self.__camera_offset.x - self.__mouse_pressed_pos.x,
-                 mouse_pos.y + self.__camera_offset.y - self.__mouse_pressed_pos.y]
+                [mouse_pos.x + self.__camera_scroll.x - self.__mouse_pressed_pos.x,
+                 mouse_pos.y + self.__camera_scroll.y - self.__mouse_pressed_pos.y]
             )
             # flips rectangle
             if self.__selection_rect.width < 0:
@@ -375,57 +405,57 @@ class TileEditorState(GameState):
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.fill(self.__bg_color)
         # tile grid
-        surface.blit(self.__grid_surface, [-self.__camera_offset.x % Tile.SIZE - Tile.SIZE, -self.__camera_offset.y % Tile.SIZE - Tile.SIZE])
+        surface.blit(self.__grid_surface, [-self.__camera_scroll.x % Tile.SIZE - Tile.SIZE, -self.__camera_scroll.y % Tile.SIZE - Tile.SIZE])
         # X axis line
         pygame.draw.line(
             surface, "#0000ff",
-            [0, -self.__camera_offset.y + Tile.SIZE], [surface.get_width(), -self.__camera_offset.y + Tile.SIZE],
+            [0, -self.__camera_scroll.y + Tile.SIZE], [surface.get_width(), -self.__camera_scroll.y + Tile.SIZE],
             width=3
         )
         # Y axis line
         pygame.draw.line(
             surface, "#00ff00",
-            [-self.__camera_offset.x - Tile.SIZE, 0], [-self.__camera_offset.x - Tile.SIZE, surface.get_height()],
+            [-self.__camera_scroll.x - Tile.SIZE, 0], [-self.__camera_scroll.x - Tile.SIZE, surface.get_height()],
             width=3
         )
         # music position line
         pygame.draw.line(
             surface, "#003fa3",
-            [self.__music_pos - self.__camera_offset.x, 0], [self.__music_pos - self.__camera_offset.x, surface.get_height()]
+            [self.__music_pos - self.__camera_scroll.x, 0], [self.__music_pos - self.__camera_scroll.x, surface.get_height()]
         )
         # tiles
         for tile in self.__tiles:
-            if TileManager.draw_tile(tile, surface, self.__camera_offset):
+            if TileManager.draw_tile(tile, surface, self.__camera_scroll):
                 # if tile is a game mode portal
                 if tile.id in [Tile.SHIP_PORTAL, Tile.BALL_PORTAL, Tile.WAVE_PORTAL]:
                     # ceil level line
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                        tile.rect.center - self.__camera_offset - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y - tile.ceil_level * Tile.SIZE],
+                                 tile.rect.center - self.__camera_scroll - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - tile.ceil_level * Tile.SIZE],
                         width=3
                     )
                     # ground level line
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                        tile.rect.center - self.__camera_offset + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_offset.y + tile.ground_level * Tile.SIZE],
+                                 tile.rect.center - self.__camera_scroll + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + tile.ground_level * Tile.SIZE],
                         width=3
                     )
 
                 if self.__draw_hitboxes:
-                    TileManager.draw_tile_hitbox(tile, surface, self.__camera_offset)
+                    TileManager.draw_tile_hitbox(tile, surface, self.__camera_scroll)
 
                 if tile in self.__selected_tiles:
                     selection_surface = pygame.Surface(tile.hitbox.size, flags=pygame.SRCALPHA)
                     selection_surface.fill((0, 255, 0, 127))
-                    surface.blit(selection_surface, tile.rect.topleft - self.__camera_offset + tile.hitbox.topleft)
+                    surface.blit(selection_surface, tile.rect.topleft - self.__camera_scroll + tile.hitbox.topleft)
 
         # selection rect
         if self.__selection_rect is not None:
             selection_surface = pygame.Surface(self.__selection_rect.size, flags=pygame.SRCALPHA)
             selection_surface.fill((0, 255, 0, 127))
-            surface.blit(selection_surface, self.__selection_rect.topleft - self.__camera_offset)
+            surface.blit(selection_surface, self.__selection_rect.topleft - self.__camera_scroll)
 
         # hammer icon
         if self.__cursor_mode == CursorMode.BUILD:
@@ -437,6 +467,8 @@ class TileEditorState(GameState):
         elif self.__cursor_mode == CursorMode.SCALE:
             self.__tile_scale_x_slider.draw(surface)
             self.__tile_scale_y_slider.draw(surface)
+
+        self.__x_scroll_slider.draw(surface)
 
         # music control buttons
         self.__play_music_btn.draw(surface)

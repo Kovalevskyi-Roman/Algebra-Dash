@@ -37,6 +37,7 @@ class Level:
         self.max_progress: float = 0
         self.death_count: int = 0
         self.bg_color: str = ""
+        self.ground_color: str = ""
 
         self.tiles: list[Tile] = list()
         self.ground_tile: Tile | None = None
@@ -99,7 +100,7 @@ class Level:
         self.__player = player
         self.collider.player = self.__player
         self.ground_tile.rect.y = Tile.SIZE
-        self.ceil_tile.rect.y = -Tile.SIZE * 32
+        self.ceil_tile.rect.y = -Tile.SIZE * 64
 
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
@@ -113,6 +114,7 @@ class Level:
                 self.max_progress = content.get("max_progress", 0)
                 self.death_count = content.get("death_count", 0)
                 self.bg_color = content.get("bg_color", "#0000ff")
+                self.ground_color = content.get("ground_color", "#000000")
 
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
@@ -120,15 +122,22 @@ class Level:
         self.tiles.extend(self.get_tiles(self.path))
 
         self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, Tile.SIZE])
-        self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, -Tile.SIZE * 32])
+        self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, -Tile.SIZE * 64])
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
 
-        self.__finish_x_pos = max(self.tiles, key=lambda tile: tile.rect.x).rect.x + Tile.SIZE * 8
+        self.__finish_x_pos = self.get_finish_pos(self.tiles).x
 
         self.__player = player
         self.collider = Collider(self.__player, self)
         MusicManager.load(self.music_name)
+
+    @classmethod
+    def get_finish_pos(cls, tiles: list[Tile]) -> pygame.Vector2:
+        if not tiles:
+            return pygame.Vector2(Tile.SIZE * 8, 0)
+
+        return pygame.Vector2(max(tiles, key=lambda tile: tile.rect.x).rect.topleft) + (Tile.SIZE * 8, 0)
 
     @classmethod
     def get_sorted_tiles(cls, tiles: list[Tile]) -> list[Tile]:
@@ -210,7 +219,8 @@ class Level:
     @classmethod
     def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
                   max_progress: float = None, death_count: int = None, editor_scroll: pygame.Vector2 = None,
-                  music_name: str = None, music_start_pos: float = None, bg_color: str = None) -> None:
+                  music_name: str = None, music_start_pos: float = None, bg_color: str = None,
+                  ground_color: str = None) -> None:
 
         level = list(filter(lambda l: l[0] == path, cls.levels.items()))
         if not level:
@@ -248,6 +258,10 @@ class Level:
             bg_color = level[0][1].get("bg_color", "#0000ff")
         level[0][1]["bg_color"] = bg_color
 
+        if ground_color is None:
+            ground_color = level[0][1].get("ground_color", "#000000")
+        level[0][1]["ground_color"] = ground_color
+
         with open(path + "/level_data.json", "w") as level_data_file:
             content: dict[str, ...] = {
                 "level_name": level_name,
@@ -257,7 +271,8 @@ class Level:
                 "max_progress": max_progress,
                 "death_count": death_count,
                 "editor_scroll": editor_scroll,
-                "bg_color": bg_color
+                "bg_color": bg_color,
+                "ground_color": ground_color
             }
             json.dump(content, level_data_file, indent=4)
 
@@ -281,7 +296,8 @@ class Level:
                 "max_progress": 0,
                 "death_count": 0,
                 "editor_scroll": [0, 0],
-                "bg_color": "#0000ff"
+                "bg_color": "#0000ff",
+                "ground_color": "#000000"
             }
             json.dump(level_data, level_data_file, indent=4)
 
@@ -322,10 +338,10 @@ class Level:
             TileManager.draw_tile(tile, surface, camera_offset)
         # draw ground
         if self.ground_tile.rect.y - camera_offset.y < surface.height:
-            pygame.draw.rect(surface, "#000000", [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
+            pygame.draw.rect(surface, self.ground_color, [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
         # draw ceiling
         if self.ceil_tile.rect.bottom - camera_offset.y > 0:
-            pygame.draw.rect(surface, "#000000", [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
+            pygame.draw.rect(surface, self.ground_color, [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
 
         # draw current progress
         render: pygame.Surface = UIConfig.fonts.get("jetbrains_16l").render(f"{self.current_progress}%", True, "#ffffff")

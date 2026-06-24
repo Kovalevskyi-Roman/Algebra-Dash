@@ -96,18 +96,30 @@ class DataEditorState(GameState):
         )
         self.__bg_color_entry.texture.fill("#646464")
 
+        self.__ground_color_label = UIConfig.fonts.get("jetbrains_20l").render("Ground Color", True, "#ffffff")
+        self.__ground_color_entry: Entry = Entry(
+            pygame.Rect(34, 206, 220, 32),
+            pygame.Surface((220, 32)),
+            UIConfig.fonts.get("jetbrains_16l"),
+            "#000000",
+            max_text_length=7
+        )
+        self.__ground_color_entry.texture.fill("#646464")
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.level = (self.level[0], Level.levels.get(self.level[0]))
         self.__level_name_entry.set_text(self.level[1].get("level_name"))
         self.__current_music = MusicManager.music.index(self.level[1].get("music_name"))
-        self.__music_start_pos_entry.set_text(str(self.level[1].get("music_start_pos")))
-        self.__bg_color_entry.set_text(self.level[1].get("bg_color"))
+        self.__music_start_pos_entry.set_text(str(self.level[1].get("music_start_pos", 0)))
+        self.__bg_color_entry.set_text(self.level[1].get("bg_color", "#0000ff"))
+        self.__ground_color_entry.set_text(self.level[1].get("ground_color", "#000000"))
 
     def on_state_exit(self, *args, **kwargs) -> None:
         if not self.__level_was_deleted:
             Level.save_data(
                 self.level[0], level_name=self.__level_name_entry.get_text(), music_name=self.level[1].get("music_name"),
-                music_start_pos=self.level[1].get("music_start_pos"), bg_color=self.level[1].get("bg_color")
+                music_start_pos=self.level[1].get("music_start_pos"), bg_color=self.level[1].get("bg_color"),
+                ground_color=self.level[1].get("ground_color")
             )
         self.__level_name_entry.active = False
         self.__music_start_pos_entry.active = False
@@ -116,17 +128,15 @@ class DataEditorState(GameState):
 
     def update(self, *args, **kwargs) -> None:
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
-            if self.__level_name_entry.active or self.__music_start_pos_entry.active or self.__bg_color_entry.active:
+            if self.__level_name_entry.active or self.__music_start_pos_entry.active or \
+                    self.__bg_color_entry.active or self.__ground_color_entry.active:
                 self.__level_name_entry.active = False
                 self.__music_start_pos_entry.active = False
                 self.__bg_color_entry.active = False
+                self.__ground_color_entry.active = False
             else:
                 self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
                 return
-
-        if not self.__level_name_entry.active and not self.__music_start_pos_entry.active and \
-                not self.__bg_color_entry.active:
-            pygame.key.stop_text_input()
 
         self.__level_name_entry.update()
         if self.__level_name_entry.active:
@@ -140,9 +150,14 @@ class DataEditorState(GameState):
                 self.level[1]["music_start_pos"] = float(text)
 
         self.__bg_color_entry.update()
-        if not self.__bg_color_entry.active and self.__bg_color_entry.get_text() != self.level[1].get("bg_color"):
+        if not self.__bg_color_entry.active and self.__bg_color_entry.get_text() != self.level[1].get("bg_color", ""):
             self.__bg_color_entry.set_text(UIConfig.fix_hex_color(self.__bg_color_entry.get_text()))
             self.level[1]["bg_color"] = self.__bg_color_entry.get_text()
+
+        self.__ground_color_entry.update()
+        if not self.__ground_color_entry.active and self.__ground_color_entry.get_text() != self.level[1].get("ground_color", ""):
+            self.__ground_color_entry.set_text(UIConfig.fix_hex_color(self.__ground_color_entry.get_text()))
+            self.level[1]["ground_color"] = self.__ground_color_entry.get_text()
 
         if self.__back_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
@@ -188,7 +203,7 @@ class DataEditorState(GameState):
         self.__back_btn.draw(surface)
         self.__delete_level_btn.draw(surface)
 
-        # music config UI
+        # music name and start position
         surface.blit(self.__music_label, [self.__previous_music_btn.rect.right + 110 - self.__music_label.width / 2, 0])
 
         self.__previous_music_btn.draw(surface)
@@ -201,6 +216,10 @@ class DataEditorState(GameState):
 
         self.__music_start_pos_entry.draw(surface)
 
-        # bg color config UI
+        # bg color
         surface.blit(self.__bg_color_label, [self.__previous_music_btn.rect.right + 110 - self.__bg_color_label.width / 2, 104])
         self.__bg_color_entry.draw(surface)
+
+        # ground color
+        surface.blit(self.__ground_color_label, [self.__previous_music_btn.rect.right + 110 - self.__ground_color_label.width / 2, 176])
+        self.__ground_color_entry.draw(surface)

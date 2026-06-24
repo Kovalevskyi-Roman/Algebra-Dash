@@ -2,6 +2,7 @@ import pygame
 
 from .game_mode import GameMode
 from game_state.settings_state import SettingsState
+from tile.tile import Tile
 
 
 class CubeMode(GameMode):
@@ -16,6 +17,10 @@ class CubeMode(GameMode):
         self.rotation -= 3.5 * (1 if self._player.velocity.x >= 0 else -1)
 
     def update(self):
+        if self._player.rect.y < -Tile.SIZE * 64:
+            self._player.alive = False
+            return
+
         bottom = self._player.collision["bottom"]
         if self._player.gravity_multiplier < 0:
             bottom = self._player.collision["top"]

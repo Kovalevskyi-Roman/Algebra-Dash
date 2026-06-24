@@ -7,10 +7,10 @@
     "player_second_color": "#00afff",
     "player_icons": {
         "cube": 1,
-        "ball": 1,
+        "ball": 2,
         "ship": 1,
         "wave": 1,
         "ufo": 2
     },
-    "music_volume": 50
+    "music_volume": 0
 }

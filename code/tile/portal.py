@@ -29,7 +29,7 @@ class CubePortal(Tile):
     def on_player_collide(self, *args, **kwargs) -> None:
         kwargs.get("player").current_game_mode = kwargs.get("player").CUBE_MODE
         kwargs.get("level").ground_tile.rect.y = Tile.SIZE
-        kwargs.get("level").ceil_tile.rect.y = -Tile.SIZE * 32
+        kwargs.get("level").ceil_tile.rect.y = -Tile.SIZE * 64
 
 
 class ShipPortal(Tile):

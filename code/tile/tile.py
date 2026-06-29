@@ -45,6 +45,7 @@ class Tile:
         self.flip_x: bool = False
         self.flip_y: bool = False
         self.rotation: float = 0
+        self.color: str = "#ffffff"
 
     def set_x_scale(self, scale: float) -> None:
         self.rect = self.rect.scale_by(1 / self.scale_x, 1)
@@ -111,6 +112,9 @@ class Tile:
             return False
 
         if self.rotation != other_tile.rotation:
+            return False
+
+        if self.color != other_tile.color:
             return False
 
         return True

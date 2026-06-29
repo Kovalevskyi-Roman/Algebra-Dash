@@ -2,9 +2,12 @@ import pygame
 
 
 class Button:
-    def __init__(self, rect: pygame.typing.SequenceLike[int], texture: pygame.Surface) -> None:
+    def __init__(self, rect: pygame.typing.SequenceLike[int], texture: pygame.Surface | None = None) -> None:
         self.rect: pygame.Rect = pygame.Rect(rect)
-        self.texture = texture
+        if texture is None:
+            self.texture = pygame.Surface(self.rect.size)
+        else:
+            self.texture = texture
 
     def is_hovered(self) -> bool:
         return self.rect.collidepoint(pygame.mouse.get_pos())

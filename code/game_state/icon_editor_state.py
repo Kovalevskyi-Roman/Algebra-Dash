@@ -17,7 +17,6 @@ class IconEditorState(GameState):
 
         self.__first_color_entry: Entry = Entry(
             pygame.Rect(5, 5, Window.SIZE[0] / 2 - 10, 45),
-            pygame.Surface((Window.SIZE[0] / 2 - 10, 45)),
             UIConfig.fonts.get("jetbrains_20l"),
             "#000000",
             max_text_length=7
@@ -26,7 +25,6 @@ class IconEditorState(GameState):
 
         self.__second_color_entry: Entry = Entry(
             pygame.Rect(Window.SIZE[0] / 2 + 5, 5, Window.SIZE[0] / 2 - 10, 45),
-            pygame.Surface((Window.SIZE[0] / 2 - 10, 45)),
             UIConfig.fonts.get("jetbrains_20l"),
             "#000000",
             max_text_length=7

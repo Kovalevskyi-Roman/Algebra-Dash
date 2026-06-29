@@ -16,7 +16,6 @@ class DataEditorState(GameState):
         self.__x_offset = 100
         self.__level_name_entry: Entry = Entry(
             pygame.Rect(Window.SIZE[0] / 2 - 290 + self.__x_offset, 80, 580, 90),
-            pygame.Surface((580, 90)),
             UIConfig.fonts.get("jetbrains_26m"),
             "#000000",
             max_text_length=28
@@ -55,8 +54,7 @@ class DataEditorState(GameState):
 
         self.__level_was_deleted: bool = False
         self.__delete_level_btn: Button = Button(
-            pygame.Rect(Window.SIZE[0] - 70, Window.SIZE[1] - 70, 60, 60),
-            pygame.Surface((60, 60))
+            pygame.Rect(Window.SIZE[0] - 70, Window.SIZE[1] - 70, 60, 60)
         )
         self.__delete_level_btn.texture.fill("#7A7A7A")
         self.__delete_level_btn.texture.blit(
@@ -67,18 +65,15 @@ class DataEditorState(GameState):
         self.__current_music: int = 0
         self.__music_label = UIConfig.fonts.get("jetbrains_20l").render("Music name and offset", True, "#ffffff")
         self.__previous_music_btn: Button = Button(
-            pygame.Rect(10, 32, 24, 24),
-            pygame.Surface((24, 24))
+            pygame.Rect(10, 32, 24, 24)
         )
         self.__previous_music_btn.texture.fill("#7A7A7A")
         self.__next_music_btn: Button = Button(
-            pygame.Rect(10 + 24 + 220, 32, 24, 24),
-            pygame.Surface((24, 24))
+            pygame.Rect(10 + 24 + 220, 32, 24, 24)
         )
         self.__next_music_btn.texture.fill("#7A7A7A")
         self.__music_start_pos_entry: Entry = Entry(
             pygame.Rect(34, 64, 220, 32),
-            pygame.Surface((220, 32)),
             UIConfig.fonts.get("jetbrains_16l"),
             "#000000",
             type_="int",
@@ -89,7 +84,6 @@ class DataEditorState(GameState):
         self.__bg_color_label = UIConfig.fonts.get("jetbrains_20l").render("BG Color", True, "#ffffff")
         self.__bg_color_entry: Entry = Entry(
             pygame.Rect(34, 136, 220, 32),
-            pygame.Surface((220, 32)),
             UIConfig.fonts.get("jetbrains_16l"),
             "#000000",
             max_text_length=7
@@ -99,7 +93,6 @@ class DataEditorState(GameState):
         self.__ground_color_label = UIConfig.fonts.get("jetbrains_20l").render("Ground Color", True, "#ffffff")
         self.__ground_color_entry: Entry = Entry(
             pygame.Rect(34, 206, 220, 32),
-            pygame.Surface((220, 32)),
             UIConfig.fonts.get("jetbrains_16l"),
             "#000000",
             max_text_length=7

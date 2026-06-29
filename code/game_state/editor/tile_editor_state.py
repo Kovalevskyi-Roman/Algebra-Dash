@@ -2,11 +2,12 @@ import enum
 import pygame
 
 from game_state.game_state import GameState
+from .tile_property_screen import TilePropertyScreen
 from level import Level
 from music_manager import MusicManager
 from tile import Tile, TileManager
 from window import Window
-from ui import Button, Slider
+from ui import Button, Slider, Entry, UIConfig
 
 
 class CursorMode(enum.Enum):
@@ -37,7 +38,6 @@ class TileEditorState(GameState):
         self.__was_redacted: bool = False
         self.__bg_color: str = ""
 
-        # https://icons8.com/icon/DwTO-Bs0fTYD/hammer icon by https://icons8.com Icons8
         self.__hammer_icon: pygame.Surface = pygame.image.load("../resources/textures/hammer_icon.png").convert_alpha()
         self.__hammer_icon = pygame.transform.flip(self.__hammer_icon, True, False)
 
@@ -54,32 +54,34 @@ class TileEditorState(GameState):
                 [Tile.SIZE * i, 0], [Tile.SIZE * i, self.__grid_surface.get_height()]
             )
 
-        # music control
+        self.__x_scroll_slider: Slider = Slider(
+            pygame.Vector2(Window.SIZE[0] / 4, 0), Window.SIZE[0] // 2,
+            -1000, 1000
+        )
+        # music control UI
         self.__play_music_btn: Button = Button(
             pygame.Rect(8, Window.SIZE[1] / 2 - 32, 24, 24),
-            pygame.Surface((24, 24))
+            pygame.image.load("../resources/textures/ui/start_music_btn.png").convert_alpha()
         )
-        self.__play_music_btn.texture.fill("#ffffff")
 
-        self.__remote_music_btn: Button = Button(
+        self.__rewind_music_btn: Button = Button(
             pygame.Rect(8, Window.SIZE[1] / 2, 24, 24),
-            pygame.Surface((24, 24))
+            pygame.image.load("../resources/textures/ui/rewind_music_btn.png").convert_alpha()
         )
-        self.__remote_music_btn.texture.fill("#0000ff")
 
         self.__stop_music_btn: Button = Button(
             pygame.Rect(8, Window.SIZE[1] / 2 + 32, 24, 24),
-            pygame.Surface((24, 24))
+            pygame.image.load("../resources/textures/ui/stop_music_btn.png").convert_alpha()
         )
-        self.__stop_music_btn.texture.fill("#ff0000")
         self.__music_pos: float = 0
         self.__music_speed: float = 4.25
 
+        # tile rotating UI
         self.__tile_rotation_slider: Slider = Slider(
             pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2), 500,
             -180, 180
         )
-
+        # tile scaling UI
         self.__tile_scale_x_slider: Slider = Slider(
             pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2 - 40), 380,
             0.5, 4
@@ -88,10 +90,11 @@ class TileEditorState(GameState):
             pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2 + 40), 380,
             0.5, 4
         )
-
-        self.__x_scroll_slider: Slider = Slider(
-            pygame.Vector2(Window.SIZE[0] / 4, 0), Window.SIZE[0] // 2,
-            -1000, 1000
+        # tile property UI
+        self.__tile_property_screen: TilePropertyScreen = TilePropertyScreen()
+        self.__tile_property_btn: Button = Button(
+            pygame.Rect(Window.SIZE[0] - 32, 300, 24, 24),
+            pygame.image.load("../resources/textures/ui/tile_property_btn.png").convert_alpha()
         )
 
     def on_state_enter(self, *args, **kwargs) -> None:
@@ -105,7 +108,7 @@ class TileEditorState(GameState):
         self.__music_pos = 0
         self.__music_speed = 4.25
 
-    def on_state_exit(self, *args, **kwargs) -> None:
+    def __save_level(self) -> None:
         Level.save_tiles(self.level_path, self.__tiles)
         if self.__was_redacted:
             Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_scroll)
@@ -113,6 +116,8 @@ class TileEditorState(GameState):
         else:
             Level.save_data(self.level_path, editor_scroll=self.__camera_scroll)
 
+    def on_state_exit(self, *args, **kwargs) -> None:
+        self.__save_level()
         self.__tiles.clear()
         self.level_path = ""
         self.__camera_scroll = pygame.Vector2(-500, -300)
@@ -124,6 +129,15 @@ class TileEditorState(GameState):
         self.__draw_hitboxes = False
         MusicManager.stop()
         MusicManager.unload()
+
+    def __change_cursor_mode(self, new_cursor_mode: CursorMode) -> bool:
+        """if cursor mode was changed, return True, otherwise False and sets cursor mode to CursorMode.SELECT"""
+        if self.__cursor_mode == new_cursor_mode:
+            self.__cursor_mode = CursorMode.SELECT
+            return False
+
+        self.__cursor_mode = new_cursor_mode
+        return True
 
     def __update_music_line_pos(self, position: float) -> float:
         position += self.__music_speed
@@ -185,16 +199,19 @@ class TileEditorState(GameState):
                 self.__cursor_mode = CursorMode.SELECT
                 return
 
+            if self.__tile_property_screen.active:
+                self.__tile_property_screen.on_escape_pressed()
+                return
+
             self._game_state_manager.change_state_to_previous()
+
+        if self.__tile_property_screen.active:
+            self.__tile_property_screen.update(list(self.__selected_tiles))
+            return
 
         # level saving
         if (keys_pressed[pygame.K_LCTRL] or keys_pressed[pygame.K_RCTRL]) and keys_just_pressed[pygame.K_s]:
-            Level.save_tiles(self.level_path, self.__tiles)
-            if self.__was_redacted:
-                Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_scroll)
-                self.__was_redacted = False
-            else:
-                Level.save_data(self.level_path, editor_scroll=self.__camera_scroll)
+            self.__save_level()
             self.__x_scroll_slider.max_value = Level.get_finish_pos(self.__tiles).x + 1000
             self.__x_scroll_slider.set_value(self.__camera_scroll.x)
             return
@@ -230,28 +247,17 @@ class TileEditorState(GameState):
 
         # cursor mode
         if keys_just_pressed[pygame.K_m]:
-            if self.__cursor_mode == CursorMode.BUILD:
-                self.__cursor_mode = CursorMode.SELECT
-            else:
-                self.__cursor_mode = CursorMode.BUILD
+            if self.__change_cursor_mode(CursorMode.BUILD):
                 self.__was_redacted = True
 
         # tile rotation mode
         elif keys_just_pressed[pygame.K_r]:
-            if self.__cursor_mode == CursorMode.ROTATE:
-                self.__cursor_mode = CursorMode.SELECT
-
-            elif self.__selected_tiles:
-                self.__cursor_mode = CursorMode.ROTATE
+            if self.__change_cursor_mode(CursorMode.ROTATE) and self.__selected_tiles:
                 self.__tile_rotation_slider.set_value(list(self.__selected_tiles)[0].rotation)
 
         # tile scaling mode
         elif keys_just_pressed[pygame.K_t]:
-            if self.__cursor_mode == CursorMode.SCALE:
-                self.__cursor_mode = CursorMode.SELECT
-
-            elif self.__selected_tiles:
-                self.__cursor_mode = CursorMode.SCALE
+            if self.__change_cursor_mode(CursorMode.SCALE) and self.__selected_tiles:
                 self.__tile_scale_x_slider.set_value(list(self.__selected_tiles)[0].scale_x)
                 self.__tile_scale_y_slider.set_value(list(self.__selected_tiles)[0].scale_y)
 
@@ -296,9 +302,15 @@ class TileEditorState(GameState):
             self.__music_speed = 4.25
             MusicManager.stop()
 
-        elif self.__remote_music_btn.is_just_pressed() and MusicManager.playing:
+        elif self.__rewind_music_btn.is_just_pressed() and MusicManager.playing:
             self.__music_pos = self.__get_music_line_pos()
             MusicManager.rewind_by(1)
+
+        elif self.__tile_property_btn.is_just_pressed() and self.__selected_tiles:
+            self.__tile_property_screen.active = True
+            self.__tile_property_screen.on_enter(list(self.__selected_tiles))
+            self.__cursor_mode = CursorMode.SELECT
+            return
 
         # music line update
         if MusicManager.playing and not MusicManager.paused:
@@ -403,6 +415,10 @@ class TileEditorState(GameState):
                 self.__selected_tiles.add(pressed_tile)
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
+        if self.__tile_property_screen.active:
+            self.__tile_property_screen.draw(surface)
+            return
+
         surface.fill(self.__bg_color)
         # tile grid
         surface.blit(self.__grid_surface, [-self.__camera_scroll.x % Tile.SIZE - Tile.SIZE, -self.__camera_scroll.y % Tile.SIZE - Tile.SIZE])
@@ -460,7 +476,7 @@ class TileEditorState(GameState):
         # hammer icon
         if self.__cursor_mode == CursorMode.BUILD:
             surface.blit(self.__hammer_icon, pygame.Vector2(pygame.mouse.get_pos()) - pygame.Vector2(12, -6))
-
+        # rotation and scale sliders
         elif self.__cursor_mode == CursorMode.ROTATE:
             self.__tile_rotation_slider.draw(surface)
 
@@ -469,12 +485,13 @@ class TileEditorState(GameState):
             self.__tile_scale_y_slider.draw(surface)
 
         self.__x_scroll_slider.draw(surface)
+        self.__tile_property_btn.draw(surface)
 
         # music control buttons
         self.__play_music_btn.draw(surface)
         if MusicManager.playing:
             self.__stop_music_btn.draw(surface)
-            self.__remote_music_btn.draw(surface)
+            self.__rewind_music_btn.draw(surface)
 
         # tile panel
         surface.blit(self.__tile_panel_surface, (0, Window.SIZE[1] - self.__tile_panel_surface.get_height()))

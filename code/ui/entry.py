@@ -5,10 +5,13 @@ from window import Window
 
 
 class Entry:
-    def __init__(self, rect: pygame.Rect, texture: pygame.Surface, font: pygame.Font, f_color: str,
+    def __init__(self, rect: pygame.Rect, font: pygame.Font, f_color: str, texture: pygame.Surface | None = None,
                  text: str = "", antialias: bool = True, max_text_length: int = 999, type_: str = "text") -> None:
         self.rect = rect
-        self.texture = texture
+        if texture is None:
+            self.texture = pygame.Surface(self.rect.size)
+        else:
+            self.texture = texture
         self.font = font
         self.f_color = f_color
         self.text: list[str] = list(text)

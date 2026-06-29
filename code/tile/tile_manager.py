@@ -151,6 +151,7 @@ class TileManager:
         tile.set_y_scale(kwargs.get("scale_y", 1))
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
         cls.set_tile_rotation(tile, kwargs.get("rotation", 0))
+        tile.color = kwargs.get("color", "#ffffff")
 
         return tile
 
@@ -191,9 +192,10 @@ class TileManager:
         flip_x: bool = json_tile.get("fx", json_tile.get("flip_x", False))
         flip_y: bool = json_tile.get("fy", json_tile.get("flip_y", False))
         rotation: int = json_tile.get("rot", json_tile.get("rotation", 0))
+        color: str = json_tile.get("c", "#ffffff")
 
         return cls.create_tile(tile_id, tile_position, scale_x=scale_x, scale_y=scale_y,
-                               flip_x=flip_x, flip_y=flip_y, rotation=rotation)
+                               flip_x=flip_x, flip_y=flip_y, rotation=rotation, color=color)
 
     @classmethod
     def to_json(cls, tile: Tile) -> dict:
@@ -220,6 +222,8 @@ class TileManager:
             json_tile.setdefault("fy", tile.flip_y)
         if tile.rotation:
             json_tile.setdefault("rot", tile.rotation)
+        if tile.color != "#ffffff":
+            json_tile.setdefault("c", tile.color)
 
         return json_tile
 
@@ -246,6 +250,10 @@ class TileManager:
         if tile_pos.x + tile.rect.width < 0 or tile_pos.x > surface.get_width() or \
                 tile_pos.y + tile.rect.height < 0 or tile_pos.y > surface.get_height():
             return False
+
+        if tile.color != "#ffffff":
+            tile_texture = tile_texture.copy()
+            tile_texture.fill(tile.color, special_flags=pygame.BLEND_MULT)
 
         if tile.flip_x or tile.flip_y:
             tile_texture = pygame.transform.flip(tile_texture, tile.flip_x, tile.flip_y)

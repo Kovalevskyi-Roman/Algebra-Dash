@@ -3,90 +3,35 @@ import pygame
 from .tile import Tile
 
 
-class BluePortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
+class Portal(Tile):
+    def __init__(self, id_: str, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.BLUE_PORTAL, position, size, hitbox, *args, **kwargs)
+        super().__init__(id_, position, size, hitbox, *args, **kwargs)
+        self.__was_used: bool = False
 
     def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").gravity_multiplier = abs(kwargs.get("player").gravity_multiplier)
+        if self.__was_used:
+            return
 
-
-class YellowPortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.YELLOW_PORTAL, position, size, hitbox, *args, **kwargs)
-
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").gravity_multiplier = -abs(kwargs.get("player").gravity_multiplier)
-
-
-class CubePortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.CUBE_PORTAL, position, size, hitbox, *args, **kwargs)
-
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").current_game_mode = kwargs.get("player").CUBE_MODE
-        kwargs.get("level").ground_tile.rect.y = Tile.SIZE
-        kwargs.get("level").ceil_tile.rect.y = -Tile.SIZE * 64
-
-
-class ShipPortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.SHIP_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.ground_level = 5
-        self.ceil_level = 6
-
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").current_game_mode = kwargs.get("player").SHIP_MODE
-
+        self.__was_used = True
+        player = kwargs.get("player")
         level = kwargs.get("level")
-        level.ground_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE + Tile.SIZE * self.ground_level
-        level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (self.ceil_level + 1)
+        gravity = Tile.TILE_MANAGER.TILE_DATA.get(self.id, {}).get("properties", {}).get("gravity", None)
+        game_mode = Tile.TILE_MANAGER.TILE_DATA.get(self.id, {}).get("properties", {}).get("game_mode", None)
 
+        if gravity is not None:
+            player.gravity_multiplier = abs(player.gravity_multiplier) * gravity
 
-class UfoPortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.UFO_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.ground_level = 5
-        self.ceil_level = 6
+        if game_mode is not None:
+            player.current_game_mode = player.get_game_mode_type(game_mode)
 
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").current_game_mode = kwargs.get("player").UFO_MODE
+            if game_mode == "cube":
+                level.ground_tile.rect.y = player.current_game_mode.ground_level
+                level.ceil_tile.rect.y = player.current_game_mode.ceil_level
+                return
 
-        level = kwargs.get("level")
-        level.ground_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE + Tile.SIZE * self.ground_level
-        level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (self.ceil_level + 1)
+            level.ground_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE + Tile.SIZE * player.current_game_mode.ground_level
+            level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (player.current_game_mode.ceil_level + 1)
 
-
-class BallPortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.BALL_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.ground_level = 5
-        self.ceil_level = 6
-
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").current_game_mode = kwargs.get("player").BALL_MODE
-
-        level = kwargs.get("level")
-        level.ground_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE + Tile.SIZE * self.ground_level
-        level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (self.ceil_level + 1)
-
-
-class WavePortal(Tile):
-    def __init__(self, position: pygame.typing.SequenceLike[int], size: pygame.typing.SequenceLike[int],
-                 hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
-        super().__init__(Tile.WAVE_PORTAL, position, size, hitbox, *args, **kwargs)
-        self.ground_level = 5
-        self.ceil_level = 6
-
-    def on_player_collide(self, *args, **kwargs) -> None:
-        kwargs.get("player").current_game_mode = kwargs.get("player").WAVE_MODE
-
-        level = kwargs.get("level")
-        level.ground_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE + Tile.SIZE * self.ground_level
-        level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (self.ceil_level + 1)
+    def reset(self) -> None:
+        self.__was_used = False

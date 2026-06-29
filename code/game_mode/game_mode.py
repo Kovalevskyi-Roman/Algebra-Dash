@@ -4,6 +4,9 @@ from tile import Tile
 from game_state.icon_editor_state import IconEditorState
 
 class GameMode:
+    ground_level: int = 6
+    ceil_level: int = 6
+
     def __init__(self, player: "Player") -> None:
         self._player = player
         self.hitbox: pygame.Rect = pygame.Rect(0, 0, Tile.SIZE, Tile.SIZE)

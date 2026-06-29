@@ -38,6 +38,22 @@ class Player:
         self.jump_action: bool = False
         self.just_jump_action: bool = False
 
+    @classmethod
+    def get_game_mode_type(cls, game_mode_name: str) -> type[GameMode]:
+        match game_mode_name:
+            case "cube":
+                return CubeMode
+            case "ship":
+                return ShipMode
+            case "ufo":
+                return UfoMode
+            case "ball":
+                return BallMode
+            case "wave":
+                return WaveMode
+            case _:
+                return GameMode
+
     def update(self) -> None:
         pressed_keys = pygame.key.get_pressed()
         just_pressed_keys = pygame.key.get_just_pressed()

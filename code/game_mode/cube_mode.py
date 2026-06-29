@@ -6,6 +6,9 @@ from tile.tile import Tile
 
 
 class CubeMode(GameMode):
+    ground_level: int = Tile.SIZE
+    ceil_level: int = -Tile.SIZE * 64
+
     def __init__(self, player: "Player") -> None:
         super().__init__(player)
         self.load_texture("cube")

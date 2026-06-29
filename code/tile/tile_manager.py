@@ -2,11 +2,11 @@ import json
 import pygame
 
 from .tile import Tile
-from .spike import Spike
-from .orb import YellowOrb, PurpleOrb, OrangeOrb, BlackOrb, BlueOrb, GreenOrb, DashOrb, ReversedDashOrb
-from .trampoline import YellowTrampoline, PurpleTrampoline, OrangeTrampoline, BlueTrampoline
-from .portal import BluePortal, YellowPortal, CubePortal, ShipPortal, BallPortal, WavePortal, UfoPortal
-from .speed_buster import X1SpeedBuster, X2SpeedBuster, X3SpeedBuster, X4SpeedBuster
+from .hazard import Hazard
+from .orb import Orb
+from .trampoline import Trampoline
+from .portal import Portal
+from .speed_buster import SpeedBuster
 
 
 class TileManager:
@@ -53,14 +53,16 @@ class TileManager:
                     tile.get("id"),
                     {
                         "texture": texture,
+                        "type": tile.get("type", Tile.TILE),
                         "size": size,
                         "hitbox": hitbox,
                         "is_solid": tile.get("is_solid", True),
-                        "free_rotatable": tile.get("free_rotatable", False)
+                        "free_rotatable": tile.get("free_rotatable", False),
+                        "properties": tile.get("properties", {})
                     }
                 )
 
-            # print(*cls.TILE_DATA.items(), sep="\n")
+        Tile.TILE_MANAGER = cls
 
     @classmethod
     def create_tile(cls, tile_id: str, position: pygame.typing.SequenceLike[int] | pygame.Vector2, *args, **kwargs) -> Tile | None:
@@ -68,81 +70,21 @@ class TileManager:
         hitbox = cls.TILE_DATA.get(tile_id, {}).get("hitbox", (0, 0, Tile.SIZE, Tile.SIZE))
 
         tile: Tile
-        match tile_id:
-            case Tile.TILE:
-                tile = Tile(Tile.TILE, position, size, hitbox, *args, **kwargs)
+        match cls.TILE_DATA.get(tile_id, {}).get("type"):
+            case Tile.HAZARD:
+                tile = Hazard(tile_id, position, size, hitbox, *args, **kwargs)
 
-            case Tile.SPIKE:
-                tile = Spike(position, size, hitbox, *args, **kwargs)
+            case Tile.ORB:
+                tile = Orb(tile_id, position, size, hitbox, *args, **kwargs)
 
-            case Tile.YELLOW_ORB:
-                tile = YellowOrb(position, size, hitbox, *args, **kwargs)
+            case Tile.TRAMPOLINE:
+                tile = Trampoline(tile_id, position, size, hitbox, *args, **kwargs)
 
-            case Tile.PURPLE_ORB:
-                tile = PurpleOrb(position, size, hitbox, *args, **kwargs)
+            case Tile.PORTAL:
+                tile = Portal(tile_id, position, size, hitbox, *args, **kwargs)
 
-            case Tile.ORANGE_ORB:
-                tile = OrangeOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.BLACK_ORB:
-                tile = BlackOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.BLUE_ORB:
-                tile = BlueOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.GREEN_ORB:
-                tile = GreenOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.DASH_ORB:
-                tile = DashOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.REVERSED_DASH_ORB:
-                tile = ReversedDashOrb(position, size, hitbox, *args, **kwargs)
-
-            case Tile.YELLOW_TRAMPOLINE:
-                tile = YellowTrampoline(position, size, hitbox, *args, **kwargs)
-
-            case Tile.PURPLE_TRAMPOLINE:
-                tile = PurpleTrampoline(position, size, hitbox, *args, **kwargs)
-
-            case Tile.ORANGE_TRAMPOLINE:
-                tile = OrangeTrampoline(position, size, hitbox, *args, **kwargs)
-
-            case Tile.BLUE_TRAMPOLINE:
-                tile = BlueTrampoline(position, size, hitbox, *args, **kwargs)
-
-            case Tile.BLUE_PORTAL:
-                tile = BluePortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.YELLOW_PORTAL:
-                tile = YellowPortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.CUBE_PORTAL:
-                tile = CubePortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.SHIP_PORTAL:
-                tile = ShipPortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.UFO_PORTAL:
-                tile = UfoPortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.BALL_PORTAL:
-                tile = BallPortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.WAVE_PORTAL:
-                tile = WavePortal(position, size, hitbox, *args, **kwargs)
-
-            case Tile.X1_SPEED_BUSTER:
-                tile = X1SpeedBuster(position, size, hitbox, *args, **kwargs)
-
-            case Tile.X2_SPEED_BUSTER:
-                tile = X2SpeedBuster(position, size, hitbox, *args, **kwargs)
-
-            case Tile.X3_SPEED_BUSTER:
-                tile = X3SpeedBuster(position, size, hitbox, *args, **kwargs)
-
-            case Tile.X4_SPEED_BUSTER:
-                tile = X4SpeedBuster(position, size, hitbox, *args, **kwargs)
+            case Tile.SPEED_BUSTER:
+                tile = SpeedBuster(tile_id, position, size, hitbox, *args, **kwargs)
 
             case _:
                 tile = Tile(tile_id, position, size, hitbox, *args, **kwargs)

@@ -2,6 +2,7 @@ import enum
 import pygame
 
 from game_state.game_state import GameState
+from player import Player
 from .tile_property_screen import TilePropertyScreen
 from level import Level
 from music_manager import MusicManager
@@ -443,19 +444,22 @@ class TileEditorState(GameState):
         for tile in self.__tiles:
             if TileManager.draw_tile(tile, surface, self.__camera_scroll):
                 # if tile is a game mode portal
-                if tile.id in [Tile.SHIP_PORTAL, Tile.BALL_PORTAL, Tile.WAVE_PORTAL]:
+                game_mode: str | None = TileManager.TILE_DATA.get(tile.id).get("properties", {}).get("game_mode", None)
+                if game_mode is not None:
                     # ceil level line
+                    ceil_level = Player.get_game_mode_type(game_mode).ceil_level
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                                 tile.rect.center - self.__camera_scroll - pygame.Vector2(0, tile.ceil_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - tile.ceil_level * Tile.SIZE],
+                                 tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - ceil_level * Tile.SIZE],
                         width=3
                     )
                     # ground level line
+                    ground_level = Player.get_game_mode_type(game_mode).ground_level
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                                 tile.rect.center - self.__camera_scroll + pygame.Vector2(0, tile.ground_level * Tile.SIZE),
-                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + tile.ground_level * Tile.SIZE],
+                                 tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
+                        [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + ground_level * Tile.SIZE],
                         width=3
                     )
 

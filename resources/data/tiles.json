@@ -4,163 +4,268 @@
         "texture": "tile.png"
     },
     {
+        "id": "tile2",
+        "texture": "tile2.png"
+    },
+    {
         "id": "spike",
+        "type": "hazard",
         "texture": "spike.png",
+        "hitbox": [0.29, 0.3, 0.42, 0.48]
+    },
+    {
+        "id": "spike2",
+        "type": "hazard",
+        "texture": "spike2.png",
         "hitbox": [0.29, 0.3, 0.42, 0.48]
     },
 
     {
         "id": "yellow_orb",
+        "type": "orb",
         "texture": "yellow_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -10
+        }
     },
     {
         "id": "purple_orb",
+        "type": "orb",
         "texture": "purple_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -6.75
+        }
     },
     {
         "id": "orange_orb",
+        "type": "orb",
         "texture": "orange_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -14
+        }
     },
     {
         "id": "black_orb",
+        "type": "orb",
         "texture": "black_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": 14
+        }
     },
     {
         "id": "blue_orb",
+        "type": "orb",
         "texture": "blue_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "flip_gravity": true
+        }
     },
     {
         "id": "green_orb",
+        "type": "orb",
         "texture": "green_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": 10,
+            "flip_gravity": true
+        }
     },
     {
         "id": "dash_orb",
+        "type": "orb",
         "texture": "dash_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
         "is_solid": false,
-        "free_rotatable": true
+        "free_rotatable": true,
+        "properties": {
+            "dash": true
+        }
     },
     {
         "id": "reversed_dash_orb",
+        "type": "orb",
         "texture": "reversed_dash_orb.png",
         "hitbox": [-0.1, -0.1, 1.2, 1.2],
         "is_solid": false,
-        "free_rotatable": true
+        "free_rotatable": true,
+        "properties": {
+            "dash": true,
+            "flip_gravity": true
+        }
     },
 
     {
         "id": "yellow_trampoline",
+        "type": "trampoline",
         "texture": "yellow_trampoline.png",
         "hitbox": [0.1, 0.8, 0.8, 0.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -10
+        }
     },
     {
         "id": "purple_trampoline",
+        "type": "trampoline",
         "texture": "purple_trampoline.png",
         "hitbox": [0.1, 0.8, 0.8, 0.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -6.75
+        }
     },
     {
         "id": "orange_trampoline",
+        "type": "trampoline",
         "texture": "orange_trampoline.png",
         "hitbox": [0.1, 0.8, 0.8, 0.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "jump_height": -14
+        }
     },
     {
         "id": "blue_trampoline",
+        "type": "trampoline",
         "texture": "blue_trampoline.png",
         "hitbox": [0.1, 0.8, 0.8, 0.2],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "flip_gravity": true
+        }
     },
 
     {
         "id": "blue_portal",
+        "type": "portal",
         "texture": "blue_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.3, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "gravity": 1
+        }
     },
     {
         "id": "yellow_portal",
+        "type": "portal",
         "texture": "yellow_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.3, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "gravity": -1
+        }
     },
     {
         "id": "cube_portal",
+        "type": "portal",
         "texture": "cube_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.35, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "game_mode": "cube"
+        }
     },
     {
         "id": "ship_portal",
+        "type": "portal",
         "texture": "ship_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.35, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "game_mode": "ship"
+        }
     },
     {
         "id": "ufo_portal",
+        "type": "portal",
         "texture": "ufo_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.35, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "game_mode": "ufo"
+        }
     },
     {
         "id": "ball_portal",
+        "type": "portal",
         "texture": "ball_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.35, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "game_mode": "ball"
+        }
     },
     {
         "id": "wave_portal",
+        "type": "portal",
         "texture": "wave_portal.png",
         "size": [1, 2],
         "hitbox": [0.3, 0.05, 0.35, 0.9],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "game_mode": "wave"
+        }
     },
 
     {
         "id": "x1_speed_buster",
+        "type": "speed_buster",
         "texture": "x1_speed_buster.png",
         "size": [2, 2],
         "hitbox": [0.35, 0.3, 0.25, 0.4],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "speed": 3
+        }
     },
     {
         "id": "x2_speed_buster",
+        "type": "speed_buster",
         "texture": "x2_speed_buster.png",
         "size": [2, 2],
         "hitbox": [0.4, 0.2, 0.2, 0.6],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "speed": 4.25
+        }
     },
     {
         "id": "x3_speed_buster",
+        "type": "speed_buster",
         "texture": "x3_speed_buster.png",
         "size": [2, 2],
         "hitbox": [0.2, 0.2, 0.52, 0.6],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "speed": 5.5
+        }
     },
     {
         "id": "x4_speed_buster",
+        "type": "speed_buster",
         "texture": "x4_speed_buster.png",
         "size": [2, 2],
         "hitbox": [0.2, 0.2, 0.6, 0.6],
-        "is_solid": false
+        "is_solid": false,
+        "properties": {
+            "speed": 6.7
+        }
     }
 ]

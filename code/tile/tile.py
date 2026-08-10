@@ -17,6 +17,7 @@ class Tile:
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
         self.id = id_
         self.rect: pygame.FRect = pygame.FRect(position, size)
+        self.__static_rect = self.rect.copy()
         self.hitbox: pygame.FRect = pygame.FRect(*hitbox)
         self.scale_x: float = 1.0
         self.scale_y: float = 1.0
@@ -24,6 +25,7 @@ class Tile:
         self.flip_y: bool = False
         self.rotation: float = 0
         self.color: str = "#ffffff"
+        self.group_ids: list[int] | None = None
 
     def set_x_scale(self, scale: float) -> None:
         self.rect = self.rect.scale_by(1 / self.scale_x, 1)
@@ -95,14 +97,17 @@ class Tile:
         if self.color != other_tile.color:
             return False
 
+        if self.group_ids != other_tile.group_ids:
+            return False
+
         return True
 
     def update(self, *args, **kwargs) -> None:
         if self.id == self.FOLLOW_TILE:
-            self.rect.x = kwargs.get("player").rect.x
+            self.rect.x = kwargs.get("player").rect.x + kwargs.get("player").velocity.x
 
     def on_player_collide(self, *args, **kwargs) -> None:
         ...
 
     def reset(self) -> None:
-        ...
+        self.rect = self.__static_rect.copy()

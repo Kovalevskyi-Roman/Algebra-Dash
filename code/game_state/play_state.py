@@ -83,7 +83,7 @@ class PlayState(GameState):
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
         self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
-        self.__level.reset_tiles()
+        self.__level.reset_objects()
         MusicManager.stop()
         MusicManager.play(start=self.__level.music_start_pos)
 

@@ -94,6 +94,7 @@ class TileManager:
         tile.flip_by(kwargs.get("flip_x", False), kwargs.get("flip_y", False))
         cls.set_tile_rotation(tile, kwargs.get("rotation", 0))
         tile.color = kwargs.get("color", "#ffffff")
+        tile.group_ids = kwargs.get("group_ids", None)
 
         return tile
 
@@ -106,7 +107,8 @@ class TileManager:
             scale_y=tile.scale_y,
             flip_x=tile.flip_x,
             flip_y=tile.flip_y,
-            rotation=tile.rotation
+            rotation=tile.rotation,
+            group_ids=tile.group_ids
         )
 
     @classmethod
@@ -135,9 +137,10 @@ class TileManager:
         flip_y: bool = json_tile.get("fy", json_tile.get("flip_y", False))
         rotation: int = json_tile.get("rot", json_tile.get("rotation", 0))
         color: str = json_tile.get("c", "#ffffff")
+        group_ids: list[int] | None = json_tile.get("gIds", None)
 
         return cls.create_tile(tile_id, tile_position, scale_x=scale_x, scale_y=scale_y,
-                               flip_x=flip_x, flip_y=flip_y, rotation=rotation, color=color)
+                               flip_x=flip_x, flip_y=flip_y, rotation=rotation, color=color, group_ids=group_ids)
 
     @classmethod
     def to_json(cls, tile: Tile) -> dict:
@@ -166,6 +169,8 @@ class TileManager:
             json_tile.setdefault("rot", tile.rotation)
         if tile.color != "#ffffff":
             json_tile.setdefault("c", tile.color)
+        if tile.group_ids:
+            json_tile.setdefault("gIds", tile.group_ids)
 
         return json_tile
 

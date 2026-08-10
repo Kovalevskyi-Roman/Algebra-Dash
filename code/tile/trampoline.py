@@ -23,4 +23,5 @@ class Trampoline(Tile):
         self.__was_used = True
 
     def reset(self) -> None:
+        super().reset()
         self.__was_used = False

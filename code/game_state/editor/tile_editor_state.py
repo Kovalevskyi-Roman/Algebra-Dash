@@ -7,8 +7,9 @@ from .tile_property_screen import TilePropertyScreen
 from level import Level
 from music_manager import MusicManager
 from tile import Tile, TileManager
+from trigger import Trigger
 from window import Window
-from ui import Button, Slider, Entry, UIConfig
+from ui import Button, Slider
 
 
 class CursorMode(enum.Enum):
@@ -23,6 +24,7 @@ class TileEditorState(GameState):
         super().__init__(game_state_manager, *args, **kwargs)
 
         self.__tiles: list[Tile] = list()
+        self.__triggers: list[Trigger] = list()
         self.level_path: str = ""
 
         self.__camera_scroll: pygame.Vector2 = pygame.Vector2(-500, -300)
@@ -75,7 +77,7 @@ class TileEditorState(GameState):
             pygame.image.load("../resources/textures/ui/stop_music_btn.png").convert_alpha()
         )
         self.__music_pos: float = 0
-        self.__music_speed: float = 4.25
+        self.__music_speed: float = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
 
         # tile rotating UI
         self.__tile_rotation_slider: Slider = Slider(
@@ -100,17 +102,19 @@ class TileEditorState(GameState):
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
+        self.__triggers = Level.get_triggers(self.level_path)
         self.__camera_scroll = pygame.Vector2(Level.levels.get(self.level_path).get("editor_scroll"))
         self.__x_scroll_slider.max_value = Level.get_finish_pos(self.__tiles).x + 1000
         self.__x_scroll_slider.set_value(self.__camera_scroll.x)
         self.__update_tile_panel_surface()
         self.__bg_color = Level.levels.get(self.level_path).get("bg_color", "#171727")
+
         MusicManager.load(Level.levels.get(self.level_path).get("music_name"))
         self.__music_pos = 0
-        self.__music_speed = 4.25
+        self.__music_speed = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
 
     def __save_level(self) -> None:
-        Level.save_tiles(self.level_path, self.__tiles)
+        Level.save_objects(self.level_path, self.__tiles, self.__triggers)
         if self.__was_redacted:
             Level.save_data(self.level_path, max_progress=0, editor_scroll=self.__camera_scroll)
             self.__was_redacted = False
@@ -120,6 +124,7 @@ class TileEditorState(GameState):
     def on_state_exit(self, *args, **kwargs) -> None:
         self.__save_level()
         self.__tiles.clear()
+        self.__triggers.clear()
         self.level_path = ""
         self.__camera_scroll = pygame.Vector2(-500, -300)
         self.__cursor_mode = CursorMode.SELECT
@@ -154,7 +159,7 @@ class TileEditorState(GameState):
     def __get_music_line_pos(self) -> float:
         music_pos: float = 0
         music_time: float = 1
-        self.__music_speed = 4.25
+        self.__music_speed = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
 
         while music_time < MusicManager.position:
             music_time += Window.DELTA
@@ -300,7 +305,7 @@ class TileEditorState(GameState):
 
         elif self.__stop_music_btn.is_pressed() and MusicManager.playing:
             self.__music_pos = 0
-            self.__music_speed = 4.25
+            self.__music_speed = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
             MusicManager.stop()
 
         elif self.__rewind_music_btn.is_just_pressed() and MusicManager.playing:
@@ -450,7 +455,7 @@ class TileEditorState(GameState):
                     ceil_level = Player.get_game_mode_type(game_mode).ceil_level
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                                 tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
+                        tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
                         [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - ceil_level * Tile.SIZE],
                         width=3
                     )
@@ -458,7 +463,7 @@ class TileEditorState(GameState):
                     ground_level = Player.get_game_mode_type(game_mode).ground_level
                     pygame.draw.line(
                         surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                                 tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
+                        tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
                         [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + ground_level * Tile.SIZE],
                         width=3
                     )

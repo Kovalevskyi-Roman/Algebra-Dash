@@ -6,10 +6,12 @@ import random
 import pygame
 
 from music_manager import MusicManager
+from trigger import Trigger, TriggerManager
 from ui import UIConfig
 from collider import Collider
 from player import Player
 from tile import Tile, TileManager
+from window import Window
 
 
 class Level:
@@ -44,6 +46,9 @@ class Level:
         self.ceil_tile: Tile | None = None
         self.__finish_x_pos: float = 0
         self.current_progress: float = 0
+
+        self.triggers: list[Trigger] = list()
+        self.__working_triggers: list[Trigger] = list()
 
         self.collider: Collider | None = None
         self.__player: Player | None = None
@@ -87,14 +92,27 @@ class Level:
         return tiles
 
     @classmethod
-    def get_tiles(cls, path: str) -> list[Tile]:
+    def get_objects(cls, path: pathlib.Path | str) -> dict[str, list]:
         try:
-            with open(path + "/tiles.json", "r") as tiles_file:
-                compressed_tiles: list[dict[str, int | dict[str, ...]]] = json.load(tiles_file)
+            with open(path + "/objects.json", "r") as file:
+                return json.load(file)
 
-            return cls.__decompress_tiles(compressed_tiles)
         except FileNotFoundError:
-            return list()
+            return dict()
+
+    @classmethod
+    def get_tiles(cls, path: pathlib.Path | str) -> list[Tile]:
+        return cls.__decompress_tiles(cls.get_objects(path).get("tiles", list()))
+
+    @classmethod
+    def get_triggers(cls, path: pathlib.Path | str) -> list[Trigger]:
+        triggers: list[Trigger] = list()
+
+        # [TriggerManager.create_trigger(js_trigger) for js_trigger in cls.get_objects(path).get("triggers", [])]
+        for json_trigger in cls.get_objects(path).get("triggers", []):
+            triggers.append(TriggerManager.create_trigger(json_trigger))
+
+        return triggers
 
     def set_player(self, player: Player) -> None:
         self.__player = player
@@ -104,6 +122,8 @@ class Level:
 
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
+        self.triggers.clear()
+        self.__working_triggers.clear()
         self.path = path
         try:
             with open(self.path + "/level_data.json", "r") as level_data_file:
@@ -119,12 +139,14 @@ class Level:
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
 
-        self.tiles.extend(self.get_tiles(self.path))
+        self.tiles = self.get_tiles(self.path)
 
         self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, Tile.SIZE])
         self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, -Tile.SIZE * 64])
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
+
+        self.triggers = self.get_triggers(self.path)
 
         self.__finish_x_pos = self.get_finish_pos(self.tiles).x
 
@@ -209,12 +231,19 @@ class Level:
         return compressed_tiles
 
     @classmethod
-    def save_tiles(cls, path: str, tiles: list[Tile]) -> None:
+    def save_objects(cls, path: str, tiles: list[Tile], triggers: list[Trigger]) -> None:
         sorted_tiles = cls.get_sorted_tiles(tiles)
         compressed_tiles = cls.__compress_tiles(sorted_tiles)
 
-        with open(f"{path}/tiles.json", "w") as file:
-            json.dump(compressed_tiles, file)
+        json_triggers = [trigger.to_json() for trigger in triggers]
+
+        data = {
+            "tiles": compressed_tiles,
+            "triggers": json_triggers
+        }
+
+        with open(f"{path}/objects.json", "w") as file:
+            json.dump(data, file)
 
     @classmethod
     def save_data(cls, path: str, level_name: str = None, is_original: bool = None,
@@ -222,7 +251,7 @@ class Level:
                   music_name: str = None, music_start_pos: float = None, bg_color: str = None,
                   ground_color: str = None) -> None:
 
-        level = list(filter(lambda l: l[0] == path, cls.levels.items()))
+        level = list(filter(lambda lvl: lvl[0] == path, cls.levels.items()))
         if not level:
             raise ValueError(f"Level with path '{path}' does not exist.")
 
@@ -310,15 +339,37 @@ class Level:
         shutil.rmtree(path)
         cls.load_levels()
 
-    def reset_tiles(self) -> None:
+    def reset_objects(self) -> None:
         for tile in self.tiles:
             tile.reset()
+
+        self.__working_triggers.clear()
+        for trigger in self.triggers:
+            trigger.reset()
 
     def update(self, camera_offset: pygame.Vector2) -> None:
         self.__player.update()
 
         for tile in self.tiles:
             tile.update(player=self.__player, level=self)
+
+        for trigger in self.triggers:
+            if self.__player.rect.x >= trigger.position.x and trigger.remaining_time > 0 and trigger not in self.__working_triggers:
+                self.__working_triggers.append(trigger)
+
+        for trigger in self.__working_triggers:
+            trigger.remaining_time -= Window.DELTA
+            if trigger.group_id == -1:
+                trigger.update(level=self)
+                continue
+
+            for tile in self.tiles:
+                if not tile.group_ids:
+                    continue
+
+                if trigger.group_id in tile.group_ids:
+                    trigger.update(tile=tile, level=self)
+        self.__working_triggers = list(filter(lambda t: t.remaining_time > 0, self.__working_triggers))
 
         self.collider.update_collision(camera_offset)
 

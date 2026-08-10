@@ -29,4 +29,5 @@ class Orb(Tile):
                 player.dash_direction = pygame.Vector2(cos(rotation), -sin(rotation))
 
     def reset(self) -> None:
+        super().reset()
         self.__was_used = False

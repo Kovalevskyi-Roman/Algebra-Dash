@@ -34,4 +34,5 @@ class Portal(Tile):
             level.ceil_tile.rect.y = self.rect.centery // Tile.SIZE * Tile.SIZE - Tile.SIZE * (player.current_game_mode.ceil_level + 1)
 
     def reset(self) -> None:
+        super().reset()
         self.__was_used = False

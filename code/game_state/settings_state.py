@@ -21,23 +21,23 @@ class SettingsState(GameState):
         self.player_icons: dict[str, int] = dict()
 
         self.__show_hitboxes_btn: Button = Button(
-            pygame.Rect((8, 8), UIConfig.CHECKBOX_SIZE),
-            UIConfig.CHECKBOX_TEXTURE
+            pygame.Rect((8, 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
+            "Show Hitboxes", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
         self.__pause_on_death_btn: Button = Button(
-            pygame.Rect((8, 8 * 2 + UIConfig.CHECKBOX_SIZE[1]), UIConfig.CHECKBOX_SIZE),
-            UIConfig.CHECKBOX_TEXTURE
+            pygame.Rect((8, self.__show_hitboxes_btn.rect.bottom + 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
+            "Pause after death", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
         self.__is_player_immortal_btn: Button = Button(
-            pygame.Rect((8, 8 * 3 + UIConfig.CHECKBOX_SIZE[1] * 2), UIConfig.CHECKBOX_SIZE),
-            UIConfig.CHECKBOX_TEXTURE
+            pygame.Rect((8, self.__pause_on_death_btn.rect.bottom + 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
+            "Player immortality", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
         self.__platformer_mode_btn: Button = Button(
-            pygame.Rect((8, 8 * 4 + UIConfig.CHECKBOX_SIZE[1] * 3), UIConfig.CHECKBOX_SIZE),
-            UIConfig.CHECKBOX_TEXTURE
+            pygame.Rect((8, self.__is_player_immortal_btn.rect.bottom + 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
+            "Platformer mode", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
         self.__music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Music volume", True, "#ffffff")
@@ -104,28 +104,24 @@ class SettingsState(GameState):
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__show_hitboxes_btn.draw(surface)
-        self.__show_hitboxes_btn.draw_text(surface, "Show hitboxes", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
-                                           offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+        self.__show_hitboxes_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
         if self.show_hitboxes:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__show_hitboxes_btn.rect.topleft)
 
         self.__pause_on_death_btn.draw(surface)
-        self.__pause_on_death_btn.draw_text(surface, "Pause after death", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
-                                            offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+        self.__pause_on_death_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
 
         if self.pause_after_death:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__pause_on_death_btn.rect.topleft)
 
         self.__is_player_immortal_btn.draw(surface)
-        self.__is_player_immortal_btn.draw_text(surface, "Player immortality", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
-                                                offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+        self.__is_player_immortal_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
 
         if self.is_player_immortal:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__is_player_immortal_btn.rect.topleft)
 
         self.__platformer_mode_btn.draw(surface)
-        self.__platformer_mode_btn.draw_text(surface, "Platformer mode", UIConfig.fonts.get("jetbrains_20l"), "#ffffff",
-                                             offset=[UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+        self.__platformer_mode_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
 
         if self.platformer_mode:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__platformer_mode_btn.rect.topleft)

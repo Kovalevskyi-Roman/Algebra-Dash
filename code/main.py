@@ -3,6 +3,7 @@ import pygame
 from window import Window
 from game_loop import GameLoop
 from tile import TileManager
+from trigger import TriggerManager
 from game_state import GameStateManager, IconEditorState
 from ui import UIConfig
 from music_manager import MusicManager
@@ -15,6 +16,7 @@ def main() -> None:
     window: Window = Window()
     UIConfig.init()
     TileManager.load_tile_data()
+    TriggerManager.load_textures()
     MusicManager.init()
     Level.load_levels()
     IconEditorState.load_icons()

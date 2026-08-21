@@ -25,6 +25,7 @@ class CustomLevelsState(GameState):
             pygame.Rect(self.__level_surface_x + self.__level_surface_size.x + self.__level_surfaces_padding, 8,
                         self.__level_surface_size.y, self.__level_surface_size.y),
             pygame.Surface((self.__level_surface_size.y, self.__level_surface_size.y)),
+            "+", UIConfig.fonts.get("jetbrains_20m")
         )
         self.__new_level_btn.texture.fill("#7A7A7A")
 
@@ -112,4 +113,4 @@ class CustomLevelsState(GameState):
             surface.blit(level_surface, [self.__level_surface_x, y])
 
         self.__new_level_btn.draw(surface)
-        self.__new_level_btn.draw_text(surface, "+", UIConfig.fonts.get("jetbrains_20m"), "#000000")
+        self.__new_level_btn.draw_text(surface)

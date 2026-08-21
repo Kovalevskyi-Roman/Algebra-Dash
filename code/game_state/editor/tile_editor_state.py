@@ -7,7 +7,7 @@ from .tile_property_screen import TilePropertyScreen
 from level import Level
 from music_manager import MusicManager
 from tile import Tile, TileManager
-from trigger import Trigger
+from trigger import Trigger, TriggerManager
 from window import Window
 from ui import Button, Slider
 
@@ -475,6 +475,9 @@ class TileEditorState(GameState):
                     selection_surface = pygame.Surface(tile.hitbox.size, flags=pygame.SRCALPHA)
                     selection_surface.fill((0, 255, 0, 127))
                     surface.blit(selection_surface, tile.rect.topleft - self.__camera_scroll + tile.hitbox.topleft)
+
+        for trigger in self.__triggers:
+            TriggerManager.draw(surface, trigger, self.__camera_scroll)
 
         # selection rect
         if self.__selection_rect is not None:

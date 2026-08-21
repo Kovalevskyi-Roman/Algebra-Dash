@@ -354,7 +354,7 @@ class Level:
             tile.update(player=self.__player, level=self)
 
         for trigger in self.triggers:
-            if self.__player.rect.x >= trigger.position.x and trigger.remaining_time > 0 and trigger not in self.__working_triggers:
+            if self.__player.rect.right >= trigger.position.x and trigger.remaining_time > 0 and trigger not in self.__working_triggers:
                 self.__working_triggers.append(trigger)
 
         for trigger in self.__working_triggers:

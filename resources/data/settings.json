@@ -3,8 +3,8 @@
     "pause_after_death": false,
     "is_player_immortal": false,
     "platformer_mode": true,
-    "player_first_color": "#cffffd",
-    "player_second_color": "#00afff",
+    "player_first_color": "#dffffe",
+    "player_second_color": "#00aaff",
     "player_icons": {
         "cube": 1,
         "ball": 2,

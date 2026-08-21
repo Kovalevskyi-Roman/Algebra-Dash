@@ -65,18 +65,18 @@ class DataEditorState(GameState):
         self.__current_music: int = 0
         self.__music_label = UIConfig.fonts.get("jetbrains_20l").render("Music name and offset", True, "#ffffff")
         self.__previous_music_btn: Button = Button(
-            pygame.Rect(10, 32, 24, 24)
+            pygame.Rect(10, 32, 24, 24), text="<", font=UIConfig.fonts.get("jetbrains_16l")
         )
         self.__previous_music_btn.texture.fill("#7A7A7A")
         self.__next_music_btn: Button = Button(
-            pygame.Rect(10 + 24 + 220, 32, 24, 24)
+            pygame.Rect(self.__previous_music_btn.rect.right + 220, 32, 24, 24), text=">", font=UIConfig.fonts.get("jetbrains_16l")
         )
         self.__next_music_btn.texture.fill("#7A7A7A")
         self.__music_start_pos_entry: Entry = Entry(
             pygame.Rect(34, 64, 220, 32),
-            UIConfig.fonts.get("jetbrains_16l"),
+            UIConfig.fonts.get("jetbrains_20l"),
             "#000000",
-            type_="int",
+            type_=Entry.FLOAT,
             max_text_length=8
         )
         self.__music_start_pos_entry.texture.fill("#646464")
@@ -84,7 +84,7 @@ class DataEditorState(GameState):
         self.__bg_color_label = UIConfig.fonts.get("jetbrains_20l").render("BG Color", True, "#ffffff")
         self.__bg_color_entry: Entry = Entry(
             pygame.Rect(34, 136, 220, 32),
-            UIConfig.fonts.get("jetbrains_16l"),
+            UIConfig.fonts.get("jetbrains_20l"),
             "#000000",
             max_text_length=7
         )
@@ -93,7 +93,7 @@ class DataEditorState(GameState):
         self.__ground_color_label = UIConfig.fonts.get("jetbrains_20l").render("Ground Color", True, "#ffffff")
         self.__ground_color_entry: Entry = Entry(
             pygame.Rect(34, 206, 220, 32),
-            UIConfig.fonts.get("jetbrains_16l"),
+            UIConfig.fonts.get("jetbrains_20l"),
             "#000000",
             max_text_length=7
         )
@@ -120,16 +120,12 @@ class DataEditorState(GameState):
         pygame.key.stop_text_input()
 
     def update(self, *args, **kwargs) -> None:
-        if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
-            if self.__level_name_entry.active or self.__music_start_pos_entry.active or \
-                    self.__bg_color_entry.active or self.__ground_color_entry.active:
-                self.__level_name_entry.active = False
-                self.__music_start_pos_entry.active = False
-                self.__bg_color_entry.active = False
-                self.__ground_color_entry.active = False
-            else:
-                self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
-                return
+        if pygame.key.get_just_pressed()[pygame.K_ESCAPE] and not (
+                self.__level_name_entry.active or self.__music_start_pos_entry.active or
+                self.__bg_color_entry.active or self.__ground_color_entry.active
+        ):
+            self._game_state_manager.change_state(self._game_state_manager.CUSTOM_LEVELS_STATE)
+            return
 
         self.__level_name_entry.update()
         if self.__level_name_entry.active:
@@ -200,11 +196,11 @@ class DataEditorState(GameState):
         surface.blit(self.__music_label, [self.__previous_music_btn.rect.right + 110 - self.__music_label.width / 2, 0])
 
         self.__previous_music_btn.draw(surface)
-        self.__previous_music_btn.draw_text(surface, "<", UIConfig.fonts.get("jetbrains_16l"), "#000000")
+        self.__previous_music_btn.draw_text(surface)
         self.__next_music_btn.draw(surface)
-        self.__next_music_btn.draw_text(surface, ">", UIConfig.fonts.get("jetbrains_16l"), "#000000")
+        self.__next_music_btn.draw_text(surface)
 
-        music_name = UIConfig.fonts.get("jetbrains_16l").render(self.level[1].get("music_name"), True, "#ffffff", wraplength=220)
+        music_name = UIConfig.fonts.get("jetbrains_20l").render(self.level[1].get("music_name"), True, "#ffffff", wraplength=228)
         surface.blit(music_name, [self.__previous_music_btn.rect.right + 110 - music_name.width / 2, 32])
 
         self.__music_start_pos_entry.draw(surface)

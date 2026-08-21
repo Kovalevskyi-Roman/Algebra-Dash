@@ -51,12 +51,16 @@ class Collider:
                 tile.hitbox.width, tile.hitbox.height
             )
 
-            if self.player.velocity.x > 0:
+            if tile_hitbox_rect.collidepoint(player_rect.midright + pygame.Vector2(0, player_rect.height / 5)) or \
+                    tile_hitbox_rect.collidepoint(player_rect.midright - pygame.Vector2(0, player_rect.height / 5)):
                 player_rect.right = tile_hitbox_rect.left
+                # player_rect.x -= self.player.velocity.x
                 self.player.collision["right"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
-            elif self.player.velocity.x < 0:
+            elif tile_hitbox_rect.collidepoint(player_rect.midleft + pygame.Vector2(0, player_rect.height / 5)) or \
+                    tile_hitbox_rect.collidepoint(player_rect.midleft - pygame.Vector2(0, player_rect.height / 5)):
                 player_rect.left = tile_hitbox_rect.right
+                # player_rect.x -= self.player.velocity.x
                 self.player.collision["left"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
         # checks collision on Y axis
@@ -72,11 +76,11 @@ class Collider:
                 tile.hitbox.width, tile.hitbox.height
             )
 
-            if self.player.velocity.y > 0:
+            if tile_hitbox_rect.collidepoint(player_rect.bottomleft) or tile_hitbox_rect.collidepoint(player_rect.bottomright):
                 player_rect.bottom = tile_hitbox_rect.top
                 self.player.collision["bottom"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 
-            elif self.player.velocity.y < 0:
+            elif tile_hitbox_rect.collidepoint(player_rect.topleft) or tile_hitbox_rect.collidepoint(player_rect.topright):
                 player_rect.top = tile_hitbox_rect.bottom
                 self.player.collision["top"] = TileManager.TILE_DATA.get(tile.id, {}).get("is_solid", False)
 

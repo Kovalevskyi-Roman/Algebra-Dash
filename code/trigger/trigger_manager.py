@@ -13,6 +13,8 @@ class TriggerManager:
     }
     textures: dict[str, pygame.Surface] = dict()
 
+    __selection_surface: pygame.Surface | None = None
+
     @classmethod
     def get_id_from_type(cls, trigger: Trigger) -> str:
         for trigger_id, trigger_type in cls.TRIGGERS.items():
@@ -32,6 +34,9 @@ class TriggerManager:
                     f"../resources/textures/triggers/{json_trigger.get("texture_path")}"
                 ).convert_alpha()
 
+        cls.__selection_surface = pygame.Surface((Tile.SIZE, Tile.SIZE), flags=pygame.SRCALPHA)
+        cls.__selection_surface.fill((0, 255, 0, 127))
+
     @classmethod
     def create_trigger(cls, json_trigger: dict[str, ...]) -> Trigger:
         trigger_type = cls.TRIGGERS.get(json_trigger.get("id"), None)
@@ -43,7 +48,7 @@ class TriggerManager:
         return trigger
 
     @classmethod
-    def draw(cls, surface: pygame.Surface, trigger: Trigger, camera_offset: pygame.Vector2) -> None:
+    def draw(cls, surface: pygame.Surface, trigger: Trigger, camera_offset: pygame.Vector2, selected: bool = False) -> None:
         if trigger.position.x < camera_offset.x or trigger.position.x > surface.get_width() + camera_offset.x or \
                 trigger.position.y < camera_offset.y or trigger.position.y > surface.get_height() + camera_offset.y:
             return
@@ -54,3 +59,5 @@ class TriggerManager:
                          [trigger.position.x - camera_offset.x, surface.get_height()]
                          )
         surface.blit(texture, trigger.position - camera_offset - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5)
+        if selected:
+            surface.blit(cls.__selection_surface, trigger.position - camera_offset - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5)

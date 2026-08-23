@@ -17,11 +17,11 @@ class Trigger:
         self.remaining_time: float = self.work_time
 
     def from_json(self, json_trigger: dict[str, ...]) -> None:
-        self.__id = json_trigger.get("id")
-        self.position = pygame.Vector2(json_trigger.get("xy"))
-        self.group_id = json_trigger.get("gId")
-        self.work_time = json_trigger.get("wT")
-        self.data = json_trigger.get("data")
+        self.__id = json_trigger.get("id", self.__id)
+        self.position = pygame.Vector2(json_trigger.get("xy", self.position))
+        self.group_id = json_trigger.get("gId", self.group_id)
+        self.work_time = json_trigger.get("wT", self.work_time)
+        self.data = json_trigger.get("data", {})
 
     def to_json(self) -> dict[str, ...]:
         return {

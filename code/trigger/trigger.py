@@ -1,7 +1,6 @@
 import pygame
 
 from window import Window
-from tile.tile import Tile
 
 
 class Trigger:

@@ -24,7 +24,7 @@ class BottomPanel:
                 self.__icon_size
             )
         )
-        self.__change_mode_btn.texture.fill("#7a7a7a")
+        self.__change_mode_btn.texture.fill("#9b9b9b")
 
         self.__update_surface()
 
@@ -92,6 +92,8 @@ class BottomPanel:
 
     def update(self, mouse_pos: pygame.Vector2) -> None:
         if self.__change_mode_btn.is_just_pressed():
+            self.selected_tile = ""
+            self.selected_trigger = ""
             match self.mode:
                 case self.TILE_MODE:
                     self.mode = self.TRIGGER_MODE
@@ -140,4 +142,4 @@ class BottomPanel:
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.blit(self.__surface, (0, Window.SIZE[1] - self.__surface.height))
-        self.__change_mode_btn.draw(self.__surface)
+        self.__change_mode_btn.draw(surface)

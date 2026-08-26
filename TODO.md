@@ -15,10 +15,10 @@
     - [ ] Editor
         - [x] Custom levels state
         - [ ] Editor state
-        - [ ] Editor state UI
-        - [x] Editor music line
+            - [ ] Editor state UI
+            - [x] Editor music line
 
-- [ ] UI
+- [x] UI
     - [x] Config
     - [x] Button
     - [x] Input
@@ -30,7 +30,7 @@
 - [x] Level loading
     - [x] Tiles decompression
 
-- [ ] Tile
+- [x] Tile
     - [x] Tile scaling
     - [x] Tile flipping
     - [x] Tile rotating
@@ -59,9 +59,9 @@
         - [ ] Spider portal
 
 - [ ] Triggers
-    - [ ] Tile groups
+    - [x] Tile groups
     - [ ] Start pos
-    - [ ] Move trigger
+    - [x] Move trigger
     - [ ] Color trigger
     - [ ] Follow trigger
     - [ ] Toggle trigger
@@ -82,10 +82,3 @@
     - [ ] Menu music
     - [x] Level music
     - [ ] SFX
-
-
-# Bugs
-- [x] Tile rotating
-
-
-

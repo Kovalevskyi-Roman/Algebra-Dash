@@ -25,6 +25,15 @@ class UIConfig:
         cls.CHECKBOX_ACTIVE_TEXTURE = pygame.transform.scale(cls.CHECKBOX_ACTIVE_TEXTURE, cls.CHECKBOX_SIZE)
 
     @classmethod
+    def create_label(cls, font_name: str, text: str, f_color: str = "#ffffff",
+                     bg_color: str | None = None, antialias: bool = True) -> pygame.Surface:
+        font = cls.fonts.get(font_name, None)
+        if font is None:
+            raise ValueError(f"Font '{font_name}' does not exist")
+
+        return font.render(text, antialias, f_color, bg_color)
+
+    @classmethod
     def fix_hex_color(cls, color: str) -> str:
         if not color:
             color = "#000000"

@@ -359,6 +359,8 @@ class Level:
 
         for trigger in self.__working_triggers:
             trigger.remaining_time -= Window.DELTA
+            trigger.remaining_time = round(trigger.remaining_time, 4)
+
             if trigger.group_id == -1:
                 trigger.update(level=self)
                 continue
@@ -369,6 +371,7 @@ class Level:
 
                 if trigger.group_id in tile.group_ids:
                     trigger.update(tile=tile, level=self)
+
         self.__working_triggers = list(filter(lambda t: t.remaining_time > 0, self.__working_triggers))
 
         self.collider.update_collision(camera_offset)

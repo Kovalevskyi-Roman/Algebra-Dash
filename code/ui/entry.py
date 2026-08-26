@@ -78,8 +78,9 @@ class Entry:
                     if self.cursor_pos > len(self.text) - 1:
                         self.cursor_pos = len(self.text) - 1
 
-                elif event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                     self.active = False
+                    pygame.key.stop_text_input()
                     return
 
             if event.type == pygame.TEXTINPUT and len(self.text) < self.max_text_length:
@@ -89,10 +90,10 @@ class Entry:
                 if self.type == "text":
                     self.text.insert(self.cursor_pos, char)
 
-                elif self.type == "int" and char.isdigit():
+                elif self.type == "int" and (char.isdigit() or char == "-"):
                     self.text.insert(self.cursor_pos, char)
 
-                elif self.type == "float" and (char.isdigit() or char == "."):
+                elif self.type == "float" and (char.isdigit() or char == "." or char == "-"):
                     self.text.insert(self.cursor_pos, char)
 
                 self.render_text()

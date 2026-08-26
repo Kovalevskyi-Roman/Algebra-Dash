@@ -11,6 +11,7 @@ from tile import Tile, TileManager
 from trigger import Trigger, TriggerManager
 from window import Window
 from ui import Button, Slider
+from .trigger_property_screen import TriggerPropertyScreen
 
 
 class CursorMode(enum.Enum):
@@ -93,12 +94,13 @@ class TileEditorState(GameState):
             pygame.Vector2(Window.SIZE[0] / 2 - 190, Window.SIZE[1] / 2 + 40), 380,
             0.5, 4
         )
-        # tile property UI
-        self.__tile_property_screen: TilePropertyScreen = TilePropertyScreen()
-        self.__tile_property_btn: Button = Button(
+        # object property UI
+        self.__obj_property_btn: Button = Button(
             pygame.Rect(Window.SIZE[0] - 32, 300, 24, 24),
             pygame.image.load("../resources/textures/ui/tile_property_btn.png").convert_alpha()
         )
+        self.__tile_property_screen: TilePropertyScreen = TilePropertyScreen()
+        self.__trigger_property_screen: TriggerPropertyScreen = TriggerPropertyScreen()
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__tiles = Level.get_tiles(self.level_path)
@@ -171,6 +173,7 @@ class TileEditorState(GameState):
         keys_pressed = pygame.key.get_pressed()
         keys_just_pressed = pygame.key.get_just_pressed()
         mouse_pressed = pygame.mouse.get_pressed()
+        mouse_just_pressed = pygame.mouse.get_just_pressed()
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
         if keys_just_pressed[pygame.K_ESCAPE]:
@@ -182,10 +185,18 @@ class TileEditorState(GameState):
                 self.__tile_property_screen.on_escape_pressed()
                 return
 
+            if self.__trigger_property_screen.active:
+                self.__trigger_property_screen.on_escape_pressed()
+                return
+
             self._game_state_manager.change_state_to_previous()
 
         if self.__tile_property_screen.active:
             self.__tile_property_screen.update(list(self.__selected_tiles))
+            return
+
+        if self.__trigger_property_screen.active:
+            self.__trigger_property_screen.update()
             return
 
         # level saving
@@ -208,7 +219,7 @@ class TileEditorState(GameState):
             self.__camera_scroll.y -= 8
 
         # tile movement
-        step: int = 2
+        step: int = 1
         if keys_pressed[pygame.K_LSHIFT] or keys_pressed[pygame.K_RSHIFT]:
             step = Tile.SIZE
         if keys_just_pressed[pygame.K_LEFT]:
@@ -297,11 +308,18 @@ class TileEditorState(GameState):
             self.__music_pos = self.__get_music_line_pos()
             MusicManager.rewind_by(1)
 
-        elif self.__tile_property_btn.is_just_pressed() and self.__selected_tiles:
-            self.__tile_property_screen.active = True
-            self.__tile_property_screen.on_enter(list(self.__selected_tiles))
-            self.__cursor_mode = CursorMode.SELECT
-            return
+        elif self.__obj_property_btn.is_just_pressed():
+            if self.__selected_tiles:
+                self.__tile_property_screen.active = True
+                self.__tile_property_screen.on_enter(list(self.__selected_tiles))
+                self.__cursor_mode = CursorMode.SELECT
+                return
+
+            elif self.__selected_triggers:
+                self.__trigger_property_screen.active = True
+                self.__trigger_property_screen.on_enter([*self.__selected_triggers][0])
+                self.__cursor_mode = CursorMode.SELECT
+                return
 
         # music line update
         if MusicManager.playing and not MusicManager.paused:
@@ -358,7 +376,8 @@ class TileEditorState(GameState):
         # is any trigger pressed
         pressed_trigger: Trigger | None = None
         for trigger in self.__triggers:
-            if pygame.Rect(trigger.position, (Tile.SIZE, Tile.SIZE)).collidepoint(mouse_pos + self.__camera_scroll):
+            if pygame.Rect(trigger.position - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5,
+                           (Tile.SIZE, Tile.SIZE)).collidepoint(mouse_pos + self.__camera_scroll):
                 pressed_trigger = trigger
                 break
 
@@ -370,12 +389,12 @@ class TileEditorState(GameState):
                 new_tile: Tile = TileManager.create_tile(self.__bottom_panel.selected_tile, new_obj_pos)
                 self.__tiles.append(new_tile)
 
-            elif self.__bottom_panel.selected_trigger and pressed_trigger is None:
+            elif self.__bottom_panel.selected_trigger and pressed_trigger is None and mouse_just_pressed[0]:
                 new_trigger: Trigger = TriggerManager.create_trigger(
                     {
                         "id": self.__bottom_panel.selected_trigger,
                         "xy": [new_obj_pos.x, new_obj_pos.y]
-                     }
+                    }
                 )
                 self.__triggers.append(new_trigger)
 
@@ -407,7 +426,9 @@ class TileEditorState(GameState):
 
             # check if trigger in selection rectangle
             for trigger in self.__triggers:
-                if self.__selection_rect.colliderect(pygame.Rect(trigger.position, (Tile.SIZE, Tile.SIZE))):
+                if self.__selection_rect.colliderect(
+                        pygame.Rect(trigger.position - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5, (Tile.SIZE, Tile.SIZE))
+                ):
                     self.__selected_triggers.add(trigger)
 
                 elif trigger in self.__selected_triggers and not keys_pressed[pygame.K_LCTRL]:
@@ -416,9 +437,16 @@ class TileEditorState(GameState):
             if pressed_tile and pressed_tile_hit_box:
                 self.__selected_tiles.add(pressed_tile)
 
+            if pressed_trigger:
+                self.__selected_triggers.add(pressed_trigger)
+
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         if self.__tile_property_screen.active:
             self.__tile_property_screen.draw(surface)
+            return
+
+        if self.__trigger_property_screen.active:
+            self.__trigger_property_screen.draw(surface)
             return
 
         surface.fill(self.__bg_color)
@@ -461,7 +489,7 @@ class TileEditorState(GameState):
                 ceil_level = Player.get_game_mode_type(game_mode).ceil_level
                 pygame.draw.line(
                     surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                    tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
+                             tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
                     [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - ceil_level * Tile.SIZE],
                     width=3
                 )
@@ -469,7 +497,7 @@ class TileEditorState(GameState):
                 ground_level = Player.get_game_mode_type(game_mode).ground_level
                 pygame.draw.line(
                     surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                    tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
+                             tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
                     [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + ground_level * Tile.SIZE],
                     width=3
                 )
@@ -495,7 +523,7 @@ class TileEditorState(GameState):
             self.__tile_scale_y_slider.draw(surface)
 
         self.__x_scroll_slider.draw(surface)
-        self.__tile_property_btn.draw(surface)
+        self.__obj_property_btn.draw(surface)
 
         # music control buttons
         self.__play_music_btn.draw(surface)

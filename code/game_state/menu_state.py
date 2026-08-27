@@ -77,7 +77,7 @@ class MenuState(GameState):
         label = pygame.transform.rotate(label, randint(-45, 45))
 
         position = pygame.Vector2(randint(-50, Window.SIZE[0]), randint(0, Window.SIZE[1] - 60))
-        speed = randint(6, 12) / 10
+        speed = randint(4, 8) / 10
 
         return {
             "label": label,
@@ -98,10 +98,16 @@ class MenuState(GameState):
         elif self.__settings_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.SETTINGS_STATE)
 
+        active_labels = list()
         for label in self.__labels:
             label.get("position").y += label.get("speed")
-            if label.get("position").y > Window.SIZE[1]:
-                label.get("position").y = -label.get("label").height
+            if label.get("position").y < Window.SIZE[1]:
+                active_labels.append(label)
+            else:
+                active_labels.append(self.__create_label())
+                active_labels[-1].get("position").y = -active_labels[-1].get("label").height
+
+        self.__labels = active_labels
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
 

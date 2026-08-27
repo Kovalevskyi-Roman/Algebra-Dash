@@ -7,6 +7,7 @@ from .settings_state import SettingsState
 from .original_levels_state import OriginalLevelsState
 from .editor import TileEditorState, CustomLevelsState, DataEditorState
 from .icon_editor_state import IconEditorState
+from music_manager import MusicManager
 
 
 class GameStateManager:
@@ -18,6 +19,14 @@ class GameStateManager:
     TILE_EDITOR_STATE: type[GameState] = TileEditorState
     CUSTOM_LEVELS_STATE: type[GameState] = CustomLevelsState
     DATA_EDITOR_STATE: type[GameState] = DataEditorState
+
+    PLAY_MENU_MUSIC_IN: tuple[type[GameState], ...] = (
+        MENU_STATE,
+        SETTINGS_STATE,
+        ICON_EDITOR_STATE,
+        ORIGINAL_LEVELS_STATE,
+        CUSTOM_LEVELS_STATE
+    )
 
     def __init__(self) -> None:
         self.game_states: dict[type[GameState], GameState] = {
@@ -46,12 +55,21 @@ class GameStateManager:
 
         self.__current_state = self.game_states.get(self.current_state_type, None)
         if self.__current_state is not None:
+            # stop menu music
+            if not isinstance(self.__current_state, self.PLAY_MENU_MUSIC_IN) and MusicManager.loaded_music == "menu_music.ogg":
+                pygame.mixer.music.set_volume(round(self.game_states.get(self.SETTINGS_STATE).music_volume_slider.value) / 100)
+                MusicManager.stop()
+                MusicManager.unload()
             self.__current_state.on_state_enter()
 
     def change_state_to_previous(self) -> None:
         self.change_state(self.previous_state_type)
 
     def update(self) -> None:
+        # play menu music
+        if isinstance(self.__current_state, self.PLAY_MENU_MUSIC_IN) and not MusicManager.playing:
+            pygame.mixer.music.set_volume(round(self.game_states.get(self.SETTINGS_STATE).menu_music_volume_slider.value) / 100)
+            MusicManager.play("menu_music.ogg", fade_ms=11000)
         self.__current_state.update()
 
     def draw(self, surface: pygame.Surface) -> None:

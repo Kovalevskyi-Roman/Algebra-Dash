@@ -24,11 +24,15 @@ class MusicManager:
                 music.append(obj.name)
 
         cls.music = tuple(music)
+        # pygame.mixer.music.set_endevent(6767)
 
     @classmethod
     def update(cls) -> None:
         if cls.playing and not cls.paused:
             cls.position += Window.DELTA
+
+        if not pygame.mixer.music.get_busy() and not cls.paused and cls.playing:
+            cls.stop()
 
     @classmethod
     def load(cls, music_name: str) -> None:

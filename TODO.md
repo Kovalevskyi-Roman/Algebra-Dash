@@ -39,30 +39,15 @@
     - [x] Spike
     - [x] Speed busters
     - [x] Orbs
-        - [x] Yellow orb
-        - [x] Blue orb
-        - [x] Pink orb
-        - [x] Red orb
-        - [x] Black orb
-        - [x] Green orb
-        - [x] Dash orb
-
     - [ ] Portals
-        - [x] Yellow portal
-        - [x] Blue portal
-        - [x] Cube portal
-        - [x] Ship portal
-        - [x] Ball portal
-        - [x] Wave portal
-        - [x] Ufo portal
-        - [ ] Robot portal
-        - [ ] Spider portal
+        - [x] Gravity portals
+        - [ ] Game mode portals
 
 - [ ] Triggers
     - [x] Tile groups
     - [ ] Start pos
     - [x] Move trigger
-    - [ ] Color trigger
+    - [x] Color trigger
     - [ ] Follow trigger
     - [ ] Toggle trigger
     - [ ] SFX trigger
@@ -79,6 +64,6 @@
     - [ ] Spider
 
 - [ ] Music and sounds
-    - [ ] Menu music
+    - [x] Menu music
     - [x] Level music
     - [ ] SFX

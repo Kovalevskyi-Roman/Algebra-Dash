@@ -48,14 +48,27 @@ class SettingsState(GameState):
 
         self.__music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Music volume", True, "#ffffff")
         self.music_volume_slider: Slider = Slider(
-            pygame.Vector2(Window.SIZE[0] / 2, self.__music_volume_lbl.height + 8), Window.SIZE[0] // 2 - 50,
+            pygame.Vector2(
+                Window.SIZE[0] / 2,
+                self.__music_volume_lbl.height + 8
+            ),
+            Window.SIZE[0] // 2 - 50,
+            0, 100
+        )
+        self.__menu_music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Menu music volume", True, "#ffffff")
+        self.menu_music_volume_slider: Slider = Slider(
+            pygame.Vector2(
+                Window.SIZE[0] / 2,
+                self.music_volume_slider.rect.bottom + self.__menu_music_volume_lbl.height + self.__music_volume_lbl.height
+            ),
+            Window.SIZE[0] // 2 - 50,
             0, 100
         )
 
         self.__load_settings()
 
     def on_state_exit(self, *args, **kwargs) -> None:
-        pygame.mixer.music.set_volume(round(self.music_volume_slider.value) / 100)
+        pygame.mixer.music.set_volume(round(self.menu_music_volume_slider.value) / 100)
         self.save_settings()
 
     def __load_settings(self) -> None:
@@ -71,9 +84,10 @@ class SettingsState(GameState):
             self.player_first_color = content.get("player_first_color", "#ffdd00")
             self.player_second_color = content.get("player_second_color", "#0000ff")
             self.player_icons = content.get("player_icons", dict())
-            self.music_volume_slider.set_value(content.get("music_volume", 25))
+            self.music_volume_slider.set_value(content.get("music_volume", 50))
+            self.menu_music_volume_slider.set_value(content.get("menu_music_volume", 50))
 
-        pygame.mixer.music.set_volume(round(self.music_volume_slider.value) / 100)
+        pygame.mixer.music.set_volume(round(self.menu_music_volume_slider.value) / 100)
 
     def save_settings(self) -> None:
         with open("../resources/data/settings.json", "w") as file:
@@ -87,7 +101,8 @@ class SettingsState(GameState):
                 "player_first_color": self.player_first_color,
                 "player_second_color": self.player_second_color,
                 "player_icons": self.player_icons,
-                "music_volume": round(self.music_volume_slider.value)
+                "music_volume": round(self.music_volume_slider.value),
+                "menu_music_volume": round(self.menu_music_volume_slider.value)
             }
             json.dump(content, file, indent=4)
 
@@ -112,6 +127,7 @@ class SettingsState(GameState):
             self.show_triggers = not self.show_triggers
 
         self.music_volume_slider.update()
+        self.menu_music_volume_slider.update()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__show_hitboxes_btn.draw(surface)
@@ -139,6 +155,16 @@ class SettingsState(GameState):
         if self.show_triggers:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__show_triggers_btn.rect.topleft)
 
-        surface.blit(self.__music_volume_lbl,
-                     [self.music_volume_slider.rect.centerx - self.__music_volume_lbl.width / 2, 0])
+        surface.blit(
+            self.__music_volume_lbl,
+            [self.music_volume_slider.rect.centerx - self.__music_volume_lbl.width / 2,
+             self.music_volume_slider.rect.y - self.__music_volume_lbl.height]
+        )
         self.music_volume_slider.draw(surface)
+
+        surface.blit(
+            self.__menu_music_volume_lbl,
+            [self.menu_music_volume_slider.rect.centerx - self.__menu_music_volume_lbl.width / 2,
+             self.menu_music_volume_slider.rect.y - self.__menu_music_volume_lbl.height]
+        )
+        self.menu_music_volume_slider.draw(surface)

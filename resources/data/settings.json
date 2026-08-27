@@ -3,6 +3,7 @@
     "pause_after_death": false,
     "is_player_immortal": false,
     "platformer_mode": false,
+    "show_triggers": false,
     "player_first_color": "#dffffe",
     "player_second_color": "#00aaff",
     "player_icons": {

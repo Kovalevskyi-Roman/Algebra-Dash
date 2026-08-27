@@ -15,6 +15,7 @@ class SettingsState(GameState):
         self.pause_after_death: bool = False
         self.is_player_immortal: bool = False
         self.platformer_mode: bool = False
+        self.show_triggers: bool = False
 
         self.player_first_color: str = ""
         self.player_second_color: str = ""
@@ -40,6 +41,11 @@ class SettingsState(GameState):
             "Platformer mode", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
+        self.__show_triggers_btn: Button = Button(
+            pygame.Rect((8, self.__platformer_mode_btn.rect.bottom + 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
+            "Show triggers", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
+        )
+
         self.__music_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("Music volume", True, "#ffffff")
         self.music_volume_slider: Slider = Slider(
             pygame.Vector2(Window.SIZE[0] / 2, self.__music_volume_lbl.height + 8), Window.SIZE[0] // 2 - 50,
@@ -60,6 +66,7 @@ class SettingsState(GameState):
             self.pause_after_death = content.get("pause_after_death", False)
             self.is_player_immortal = content.get("is_player_immortal", False)
             self.platformer_mode = content.get("platformer_mode", False)
+            self.show_triggers = content.get("show_triggers", False)
 
             self.player_first_color = content.get("player_first_color", "#ffdd00")
             self.player_second_color = content.get("player_second_color", "#0000ff")
@@ -75,6 +82,7 @@ class SettingsState(GameState):
                 "pause_after_death": self.pause_after_death,
                 "is_player_immortal": self.is_player_immortal,
                 "platformer_mode": self.platformer_mode,
+                "show_triggers": self.show_triggers,
 
                 "player_first_color": self.player_first_color,
                 "player_second_color": self.player_second_color,
@@ -100,6 +108,9 @@ class SettingsState(GameState):
         elif self.__platformer_mode_btn.is_just_pressed():
             self.platformer_mode = not self.platformer_mode
 
+        elif self.__show_triggers_btn.is_just_pressed():
+            self.show_triggers = not self.show_triggers
+
         self.music_volume_slider.update()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
@@ -110,21 +121,23 @@ class SettingsState(GameState):
 
         self.__pause_on_death_btn.draw(surface)
         self.__pause_on_death_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
-
         if self.pause_after_death:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__pause_on_death_btn.rect.topleft)
 
         self.__is_player_immortal_btn.draw(surface)
         self.__is_player_immortal_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
-
         if self.is_player_immortal:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__is_player_immortal_btn.rect.topleft)
 
         self.__platformer_mode_btn.draw(surface)
         self.__platformer_mode_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
-
         if self.platformer_mode:
             surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__platformer_mode_btn.rect.topleft)
+
+        self.__show_triggers_btn.draw(surface)
+        self.__show_triggers_btn.draw_text(surface, [UIConfig.CHECKBOX_SIZE[0] + 8, -1])
+        if self.show_triggers:
+            surface.blit(UIConfig.CHECKBOX_ACTIVE_TEXTURE, self.__show_triggers_btn.rect.topleft)
 
         surface.blit(self.__music_volume_lbl,
                      [self.music_volume_slider.rect.centerx - self.__music_volume_lbl.width / 2, 0])

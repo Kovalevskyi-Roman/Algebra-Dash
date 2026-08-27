@@ -1,11 +1,23 @@
 import pygame
 
+from random import choice, randint
 from window import Window
 from .game_state import GameState
-from ui import Button
+from ui import Button, UIConfig
 
 
 class MenuState(GameState):
+    __LABELS: tuple[str, ...] = (
+        "2+2=4",
+        "y=kx+b",
+        "a(x+y)=ax+ay",
+        "1000-7=993",
+        "g(x)=f(x)",
+        "3x>10",
+        "(fg)'=f'g+fg'",
+        "(f+g)'=f'+g'"
+    )
+
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)
 
@@ -54,6 +66,25 @@ class MenuState(GameState):
             [0, 0]
         )
 
+        self.__labels: list[dict[str, pygame.Surface | pygame.Vector2 | int]] = list()
+        for _ in range(24):
+            self.__labels.append(self.__create_label())
+
+    def __create_label(self) -> dict[str, pygame.Surface | pygame.Vector2 | int]:
+        label = UIConfig.create_label(
+            choice(list(UIConfig.fonts.keys())), choice(self.__LABELS), f_color="#" + choice(("6a", "9a", "b1")) * 3
+        )
+        label = pygame.transform.rotate(label, randint(-45, 45))
+
+        position = pygame.Vector2(randint(-50, Window.SIZE[0]), randint(0, Window.SIZE[1] - 60))
+        speed = randint(6, 12) / 10
+
+        return {
+            "label": label,
+            "position": position,
+            "speed": speed
+        }
+
     def update(self, *args, **kwargs) -> None:
         if self.__play_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.ORIGINAL_LEVELS_STATE)
@@ -67,7 +98,16 @@ class MenuState(GameState):
         elif self.__settings_btn.is_just_pressed():
             self._game_state_manager.change_state(self._game_state_manager.SETTINGS_STATE)
 
+        for label in self.__labels:
+            label.get("position").y += label.get("speed")
+            if label.get("position").y > Window.SIZE[1]:
+                label.get("position").y = -label.get("label").height
+
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
+
+        for label in self.__labels:
+            surface.blit(label.get("label"), label.get("position"))
+
         surface.blit(self.__title, [surface.width / 2 - self.__title.width / 2, -30])
         self.__play_btn.draw(surface)
         self.__editor_btn.draw(surface)

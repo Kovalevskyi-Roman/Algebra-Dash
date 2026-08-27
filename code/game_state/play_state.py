@@ -111,14 +111,14 @@ class PlayState(GameState):
             MusicManager.unpause()
 
         if self.__is_paused:
-            if self.__play_btn.is_pressed():
+            if self.__play_btn.is_just_pressed():
                 self.__is_paused = False
                 pygame.mouse.set_visible(False)
-            elif self.__retry_btn.is_pressed():
+            elif self.__retry_btn.is_just_pressed():
                 self.retry()
                 self.__is_paused = False
                 pygame.mouse.set_visible(False)
-            elif self.__back_btn.is_pressed():
+            elif self.__back_btn.is_just_pressed():
                 self._game_state_manager.change_state_to_previous()
             return
 
@@ -149,13 +149,10 @@ class PlayState(GameState):
             self.retry()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
-        self.__level.draw(surface, self.__camera.offset)
+        self.__level.draw(surface, self.__camera.offset, self.__settings_state.show_triggers, self.__settings_state.show_hitboxes)
 
         if self.__settings_state.show_hitboxes:
             self.__player.draw_hitbox(surface, self.__camera.offset)
-
-            for tile in self.__level.tiles:
-                TileManager.draw_tile_hitbox(tile, surface, self.__camera.offset)
 
         if self.__is_paused:
             surface.blit(self.__pause_surface, [0, 0])

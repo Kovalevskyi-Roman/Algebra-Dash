@@ -1,8 +1,9 @@
 import pygame
 
-from math import ceil
+from typing import Any
 from .trigger import Trigger
 from window import Window
+from tile import Tile
 
 
 class ColorTrigger(Trigger):
@@ -15,7 +16,7 @@ class ColorTrigger(Trigger):
         self.__color = pygame.Color(self.data.get("color", "#000000"))
 
     def update(self, *args, **kwargs) -> None:
-        level = kwargs.get("level", None)
+        level: Any = kwargs.get("level", None)
         if level is None:
             raise AttributeError("Cannot update color trigger because level is None")
 
@@ -26,7 +27,7 @@ class ColorTrigger(Trigger):
             level.ground_color = pygame.Color(level.ground_color).lerp(self.__color, 1 / self.__iterations).hex
 
         else:
-            tile = kwargs.get("tile", None)
+            tile: Tile | None = kwargs.get("tile", None)
             if tile is None:
                 return
 

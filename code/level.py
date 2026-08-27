@@ -393,19 +393,29 @@ class Level:
             self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE
             self.ground_tile.rect.y = Tile.SIZE
 
-    def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2) -> None:
+    def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2,
+             show_triggers: bool = False, show_hitboxes: bool = False) -> None:
         surface.fill(self.bg_color)
+        # player
         self.__player.draw(surface, camera_offset)
 
+        # tiles
         for tile in self.tiles:
             TileManager.draw_tile(tile, surface, camera_offset)
-        # draw ground
+            if show_hitboxes:
+                TileManager.draw_tile_hitbox(tile, surface, camera_offset)
+        # ground
         if self.ground_tile.rect.y - camera_offset.y < surface.height:
             pygame.draw.rect(surface, self.ground_color, [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
-        # draw ceiling
+        # ceiling
         if self.ceil_tile.rect.bottom - camera_offset.y > 0:
             pygame.draw.rect(surface, self.ground_color, [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
 
-        # draw current progress
+        # triggers
+        if show_triggers:
+            for trigger in self.triggers:
+                TriggerManager.draw(surface, trigger, camera_offset)
+
+        # current progress
         render: pygame.Surface = UIConfig.fonts.get("jetbrains_16l").render(f"{self.current_progress}%", True, "#ffffff")
         surface.blit(render, [surface.width / 2 - render.width / 2, 0])

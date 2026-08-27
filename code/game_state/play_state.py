@@ -58,6 +58,9 @@ class PlayState(GameState):
 
         self.__settings_state: GameState | None = None
 
+        self.__WAIT_TIME: float = 0.2
+        self.__wait_timer: float = self.__WAIT_TIME
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
         self.__player = Player(self.__settings_state.player_first_color,
@@ -66,7 +69,7 @@ class PlayState(GameState):
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
         self.__is_paused = False
-        MusicManager.play(start=self.__level.music_start_pos)
+        pygame.mouse.set_visible(False)
 
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_data(self.level_path, death_count=self.__level.death_count)
@@ -75,6 +78,8 @@ class PlayState(GameState):
         self.__level = None
         self.level_path = ""
         self.__is_paused = False
+        self.__wait_timer = self.__WAIT_TIME
+        pygame.mouse.set_visible(True)
         MusicManager.stop()
         MusicManager.unload()
 
@@ -83,13 +88,22 @@ class PlayState(GameState):
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
         self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
-        self.__level.reset_objects()
+        self.__level.reset()
+        pygame.mouse.set_visible(False)
         MusicManager.stop()
         MusicManager.play(start=self.__level.music_start_pos)
 
     def update(self, *args, **kwargs) -> None:
+        if self.__wait_timer > 0:
+            self.__wait_timer -= Window.DELTA
+            return
+
+        if not MusicManager.playing:
+            MusicManager.play(start=self.__level.music_start_pos)
+
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE]:
             self.__is_paused = not self.__is_paused
+            pygame.mouse.set_visible(self.__is_paused)
 
         if self.__is_paused and not MusicManager.paused:
             MusicManager.pause()
@@ -99,9 +113,11 @@ class PlayState(GameState):
         if self.__is_paused:
             if self.__play_btn.is_pressed():
                 self.__is_paused = False
+                pygame.mouse.set_visible(False)
             elif self.__retry_btn.is_pressed():
                 self.retry()
                 self.__is_paused = False
+                pygame.mouse.set_visible(False)
             elif self.__back_btn.is_pressed():
                 self._game_state_manager.change_state_to_previous()
             return

@@ -22,7 +22,7 @@ class SettingsState(GameState):
 
         self.__show_hitboxes_btn: Button = Button(
             pygame.Rect((8, 8), UIConfig.CHECKBOX_SIZE), UIConfig.CHECKBOX_TEXTURE,
-            "Show Hitboxes", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
+            "Show hitboxes", UIConfig.fonts.get("jetbrains_20l"), f_color="#ffffff"
         )
 
         self.__pause_on_death_btn: Button = Button(

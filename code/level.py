@@ -39,6 +39,8 @@ class Level:
         self.death_count: int = 0
         self.bg_color: str = ""
         self.ground_color: str = ""
+        self.__original_bg_color: str = ""
+        self.__original_ground_color: str = ""
 
         self.tiles: list[Tile] = list()
         self.__static_tiles: tuple[Tile, ...] = tuple()
@@ -133,8 +135,10 @@ class Level:
                 self.music_start_pos = content.get("music_start_pos", 0)
                 self.max_progress = content.get("max_progress", 0)
                 self.death_count = content.get("death_count", 0)
-                self.bg_color = content.get("bg_color", "#0000ff")
-                self.ground_color = content.get("ground_color", "#000000")
+                self.__original_bg_color = content.get("bg_color", "#0000ff")
+                self.__original_ground_color = content.get("ground_color", "#000000")
+                self.bg_color = self.__original_bg_color
+                self.ground_color = self.__original_ground_color
 
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
@@ -340,7 +344,10 @@ class Level:
         shutil.rmtree(path)
         cls.load_levels()
 
-    def reset_objects(self) -> None:
+    def reset(self) -> None:
+        self.bg_color = self.__original_bg_color
+        self.ground_color = self.__original_ground_color
+
         self.tiles = [TileManager.clone_tile(tile) for tile in self.__static_tiles]
         self.tiles.append(self.ground_tile)
         self.tiles.append(self.ceil_tile)
@@ -363,7 +370,7 @@ class Level:
             trigger.remaining_time -= Window.DELTA
             trigger.remaining_time = round(trigger.remaining_time, 4)
 
-            if trigger.group_id == -1:
+            if trigger.group_id < 0:
                 trigger.update(level=self)
                 continue
 

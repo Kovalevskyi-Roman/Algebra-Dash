@@ -1,6 +1,5 @@
 import pygame
 
-from window import Window
 from ui import UIConfig, Button, Entry
 from tile import Tile
 

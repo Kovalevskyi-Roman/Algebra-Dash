@@ -109,6 +109,7 @@ class TileManager:
             flip_x=tile.flip_x,
             flip_y=tile.flip_y,
             rotation=tile.rotation,
+            color=tile.color,
             group_ids=tile.group_ids
         )
 

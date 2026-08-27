@@ -2,5 +2,9 @@
     {
         "id": "move_trigger",
         "texture_path": "move_trigger.png"
+    },
+    {
+        "id": "color_trigger",
+        "texture_path": "color_trigger.png"
     }
 ]

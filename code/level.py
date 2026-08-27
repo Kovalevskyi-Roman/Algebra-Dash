@@ -2,7 +2,6 @@ import json
 import pathlib
 import shutil
 import random
-
 import pygame
 
 from music_manager import MusicManager
@@ -42,6 +41,7 @@ class Level:
         self.ground_color: str = ""
 
         self.tiles: list[Tile] = list()
+        self.__static_tiles: tuple[Tile, ...] = tuple()
         self.ground_tile: Tile | None = None
         self.ceil_tile: Tile | None = None
         self.__finish_x_pos: float = 0
@@ -139,7 +139,8 @@ class Level:
         except FileNotFoundError:
             print(f"Could not find file '{self.path}/level_data.json'.")
 
-        self.tiles = self.get_tiles(self.path)
+        self.__static_tiles = tuple(self.get_tiles(self.path))
+        self.tiles = [TileManager.clone_tile(tile) for tile in self.__static_tiles]
 
         self.ground_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, Tile.SIZE])
         self.ceil_tile = TileManager.create_tile(Tile.FOLLOW_TILE, [-Tile.SIZE, -Tile.SIZE * 64])
@@ -340,8 +341,9 @@ class Level:
         cls.load_levels()
 
     def reset_objects(self) -> None:
-        for tile in self.tiles:
-            tile.reset()
+        self.tiles = [TileManager.clone_tile(tile) for tile in self.__static_tiles]
+        self.tiles.append(self.ground_tile)
+        self.tiles.append(self.ceil_tile)
 
         self.__working_triggers.clear()
         for trigger in self.triggers:

@@ -17,6 +17,6 @@ class MoveTrigger(Trigger):
     def update(self, *args, **kwargs) -> None:
         tile: Tile | None = kwargs.get("tile", None)
         if tile is None:
-            return
+            raise AttributeError("Cannot update move trigger because tile is None")
         
         tile.rect.topleft += self.__move_by

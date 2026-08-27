@@ -3,13 +3,15 @@ import pygame
 
 from .trigger import Trigger
 from .move_trigger import MoveTrigger
+from .color_trigger import ColorTrigger
 from tile import Tile
 
 
 class TriggerManager:
     TRIGGERS: dict[str, type[Trigger]] = {
         "trigger": Trigger,
-        "move_trigger": MoveTrigger
+        "move_trigger": MoveTrigger,
+        "color_trigger": ColorTrigger
     }
     textures: dict[str, pygame.Surface] = dict()
 

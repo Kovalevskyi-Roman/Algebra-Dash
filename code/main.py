@@ -4,7 +4,7 @@ from window import Window
 from game_loop import GameLoop
 from tile import TileManager
 from trigger import TriggerManager
-from game_state import GameStateManager, IconEditorState
+from game_state import GameStateManager
 from ui import UIConfig
 from music_manager import MusicManager
 from sfx_manager import SFXManager

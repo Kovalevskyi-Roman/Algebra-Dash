@@ -2,6 +2,7 @@ import pathlib
 import pygame
 
 from window import Window
+from tile import TileManager
 
 
 class MusicManager:
@@ -10,6 +11,7 @@ class MusicManager:
     playing: bool = False
     paused: bool = False
     position: float = 0  # in seconds
+    music_line_speed: float = 0.0  # pixels per frame
 
     @classmethod
     def init(cls) -> None:
@@ -24,12 +26,13 @@ class MusicManager:
                 music.append(obj.name)
 
         cls.music = tuple(music)
-        # pygame.mixer.music.set_endevent(6767)
+        cls.music_line_speed = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
 
     @classmethod
     def update(cls) -> None:
         if cls.playing and not cls.paused:
             cls.position += Window.DELTA
+            cls.position = round(cls.position, 3)
 
         if not pygame.mixer.music.get_busy() and not cls.paused and cls.playing:
             cls.stop()
@@ -93,6 +96,7 @@ class MusicManager:
     @classmethod
     def rewind_by(cls, time: float) -> None:
         cls.position -= time
+        cls.position = round(cls.position, 3)
         if cls.position < 0:
             cls.position = 0
 
@@ -100,3 +104,36 @@ class MusicManager:
         cls.play(start=cls.position)
         if was_paused:
             cls.pause()
+
+    @classmethod
+    def step_music_line(cls, position: float, tiles: list) -> float:
+        position += cls.music_line_speed
+        for tile in tiles:
+            if not hasattr(tile, "speed"):
+                continue
+
+            if position > tile.rect.x:
+                cls.music_line_speed = tile.speed
+
+        return position
+
+    @classmethod
+    def get_position_from_time(cls, time: float, tiles: list) -> float:
+        music_line_pos: float = 0
+
+        while time > 0:
+            time -= Window.DELTA
+            time = round(time, 2)
+            music_line_pos = cls.step_music_line(music_line_pos, tiles)
+
+        return music_line_pos
+
+    @classmethod
+    def get_time_from_position(cls, position: float, tiles: list) -> float:
+        time: float = 0
+        current_position: float = 0
+        while current_position < position:
+            time += Window.DELTA
+            current_position = cls.step_music_line(current_position, tiles)
+
+        return round(time, 3)

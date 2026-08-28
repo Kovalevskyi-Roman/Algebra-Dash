@@ -8,7 +8,7 @@ from level import Level
 from player import Player
 from music_manager import MusicManager
 from tile import Tile, TileManager
-from trigger import Trigger, TriggerManager
+from trigger import Trigger, TriggerManager, StartPosTrigger
 from window import Window
 from ui import Button, Slider
 from .trigger_property_screen import TriggerPropertyScreen
@@ -147,28 +147,6 @@ class TileEditorState(GameState):
         self.__cursor_mode = new_cursor_mode
         return True
 
-    def __update_music_line_pos(self, position: float) -> float:
-        position += self.__music_speed
-        for tile in self.__tiles:
-            if tile.__dict__.get("speed", None) is None:
-                continue
-
-            if self.__music_pos > tile.rect.x:
-                self.__music_speed = tile.__dict__.get("speed")
-
-        return position
-
-    def __get_music_line_pos(self) -> float:
-        music_pos: float = 0
-        music_time: float = 1
-        self.__music_speed = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
-
-        while music_time < MusicManager.position:
-            music_time += Window.DELTA
-            music_pos = self.__update_music_line_pos(music_pos)
-
-        return music_pos
-
     def update(self, *args, **kwargs) -> None:
         keys_pressed = pygame.key.get_pressed()
         keys_just_pressed = pygame.key.get_just_pressed()
@@ -305,8 +283,8 @@ class TileEditorState(GameState):
             MusicManager.stop()
 
         elif self.__rewind_music_btn.is_just_pressed() and MusicManager.playing:
-            self.__music_pos = self.__get_music_line_pos()
             MusicManager.rewind_by(1)
+            self.__music_pos = MusicManager.get_position_from_time(MusicManager.position, self.__tiles)
 
         elif self.__obj_property_btn.is_just_pressed():
             if self.__selected_tiles:
@@ -323,7 +301,7 @@ class TileEditorState(GameState):
 
         # music line update
         if MusicManager.playing and not MusicManager.paused:
-            self.__music_pos = self.__update_music_line_pos(self.__music_pos)
+            self.__music_pos = MusicManager.step_music_line(self.__music_pos, self.__tiles)
 
         if not mouse_pressed[0]:
             self.__mouse_pressed_pos = None
@@ -503,7 +481,8 @@ class TileEditorState(GameState):
                 )
 
         for trigger in self.__triggers:
-            TriggerManager.draw(surface, trigger, self.__camera_scroll, trigger in self.__selected_triggers)
+            TriggerManager.draw(surface, trigger, self.__camera_scroll,
+                                trigger in self.__selected_triggers, isinstance(trigger, StartPosTrigger))
 
         # selection rect
         if self.__selection_rect is not None:

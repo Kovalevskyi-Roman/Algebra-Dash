@@ -4,6 +4,7 @@ import pygame
 from .trigger import Trigger
 from .move_trigger import MoveTrigger
 from .color_trigger import ColorTrigger
+from .start_pos_trigger import StartPosTrigger
 from tile import Tile
 
 
@@ -11,7 +12,8 @@ class TriggerManager:
     TRIGGERS: dict[str, type[Trigger]] = {
         "trigger": Trigger,
         "move_trigger": MoveTrigger,
-        "color_trigger": ColorTrigger
+        "color_trigger": ColorTrigger,
+        "start_pos_trigger": StartPosTrigger
     }
     textures: dict[str, pygame.Surface] = dict()
 
@@ -50,16 +52,18 @@ class TriggerManager:
         return trigger
 
     @classmethod
-    def draw(cls, surface: pygame.Surface, trigger: Trigger, camera_offset: pygame.Vector2, selected: bool = False) -> None:
+    def draw(cls, surface: pygame.Surface, trigger: Trigger, camera_offset: pygame.Vector2,
+             selected: bool = False, hide_line: bool = False) -> None:
         if trigger.position.x < camera_offset.x or trigger.position.x > surface.get_width() + camera_offset.x or \
                 trigger.position.y < camera_offset.y or trigger.position.y > surface.get_height() + camera_offset.y:
             return
 
         texture: pygame.Surface = cls.textures.get(cls.get_id_from_type(trigger))
-        pygame.draw.line(surface, "#ffffff",
-                         [trigger.position.x - camera_offset.x, 0],
-                         [trigger.position.x - camera_offset.x, surface.get_height()]
-                         )
+        if not hide_line:
+            pygame.draw.line(surface, "#ffffff",
+                             [trigger.position.x - camera_offset.x, 0],
+                             [trigger.position.x - camera_offset.x, surface.get_height()]
+                             )
         surface.blit(texture, trigger.position - camera_offset - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5)
         if selected:
             surface.blit(cls.__selection_surface, trigger.position - camera_offset - pygame.Vector2(Tile.SIZE, Tile.SIZE) * 0.5)

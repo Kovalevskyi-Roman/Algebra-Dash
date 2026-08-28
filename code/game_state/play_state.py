@@ -16,8 +16,8 @@ class PlayState(GameState):
         super().__init__(game_state_manager, *args, **kwargs)
 
         self.__player: Player | None = None
-        self.__camera: Camera | None = None
         self.__level: Level | None = None
+        self.__camera: Camera | None = None
         self.level_path: str = ""
         self.__is_paused: bool = False
         self.__pause_surface: pygame.Surface = pygame.Surface(Window.SIZE, flags=pygame.SRCALPHA)
@@ -66,17 +66,17 @@ class PlayState(GameState):
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
         self.__player = Player(self.__settings_state.player_first_color,
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
-        self.__camera = Camera(self.__player.rect.center)
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
+        self.__camera = Camera(self.__player.rect.center)
         self.__is_paused = False
         pygame.mouse.set_visible(False)
 
     def on_state_exit(self, *args, **kwargs) -> None:
         Level.save_data(self.level_path, death_count=self.__level.death_count)
         self.__player = None
-        self.__camera = None
         self.__level = None
+        self.__camera = None
         self.level_path = ""
         self.__is_paused = False
         pygame.mouse.set_visible(True)
@@ -86,9 +86,9 @@ class PlayState(GameState):
     def retry(self) -> None:
         self.__player = Player(self.__settings_state.player_first_color,
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
-        self.__camera = Camera(self.__player.rect.center)
         self.__level.set_player(self.__player)
         self.__level.reset()
+        self.__camera = Camera(self.__player.rect.center)
         pygame.mouse.set_visible(False)
         MusicManager.stop()
         MusicManager.play(start=self.__level.music_start_pos)
@@ -114,10 +114,12 @@ class PlayState(GameState):
         if self.__is_paused:
             if self.__play_btn.is_just_pressed():
                 self.__is_paused = False
+                pygame.time.delay(100)
 
             elif self.__retry_btn.is_just_pressed():
                 self.retry()
                 self.__is_paused = False
+                pygame.time.delay(100)
 
             elif self.__back_btn.is_just_pressed():
                 self._game_state_manager.change_state_to_previous()

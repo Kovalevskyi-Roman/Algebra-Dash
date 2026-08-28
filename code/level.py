@@ -5,7 +5,7 @@ import random
 import pygame
 
 from music_manager import MusicManager
-from trigger import Trigger, TriggerManager
+from trigger import Trigger, TriggerManager, StartPosTrigger
 from ui import UIConfig
 from collider import Collider
 from player import Player
@@ -46,6 +46,7 @@ class Level:
         self.__static_tiles: tuple[Tile, ...] = tuple()
         self.ground_tile: Tile | None = None
         self.ceil_tile: Tile | None = None
+        self.__start_pos: pygame.Vector2 = pygame.Vector2(-Tile.SIZE, 0)
         self.__finish_x_pos: float = 0
         self.current_progress: float = 0
 
@@ -118,6 +119,7 @@ class Level:
 
     def set_player(self, player: Player) -> None:
         self.__player = player
+        self.__player.rect.topleft = self.__start_pos
         self.collider.player = self.__player
         self.ground_tile.rect.y = Tile.SIZE
         self.ceil_tile.rect.y = -Tile.SIZE * 64
@@ -153,10 +155,13 @@ class Level:
 
         self.triggers = self.get_triggers(self.path)
 
+        self.__start_pos = self.find_start_pos(self.triggers)
         self.__finish_x_pos = self.get_finish_pos(self.tiles).x
 
-        self.__player = player
         self.collider = Collider(self.__player, self)
+        self.set_player(player)
+
+        self.music_start_pos += MusicManager.get_time_from_position(self.__start_pos.x, self.tiles)
         MusicManager.load(self.music_name)
 
     @classmethod
@@ -165,6 +170,14 @@ class Level:
             return pygame.Vector2(Tile.SIZE * 8, 0)
 
         return pygame.Vector2(max(tiles, key=lambda tile: tile.rect.x).rect.topleft) + (Tile.SIZE * 8, 0)
+
+    @classmethod
+    def find_start_pos(cls, triggers: list[Trigger]) -> pygame.Vector2:
+        start_pos_triggers = list(sorted(triggers, key=lambda trigger: isinstance(trigger, StartPosTrigger)))
+        if not start_pos_triggers:
+            return pygame.Vector2(-Tile.SIZE, 0)
+
+        return max(start_pos_triggers, key=lambda trigger: trigger.position.x).position
 
     @classmethod
     def get_sorted_tiles(cls, tiles: list[Tile]) -> list[Tile]:
@@ -414,7 +427,7 @@ class Level:
         # triggers
         if show_triggers:
             for trigger in self.triggers:
-                TriggerManager.draw(surface, trigger, camera_offset)
+                TriggerManager.draw(surface, trigger, camera_offset, hide_line=isinstance(trigger, StartPosTrigger))
 
         # current progress
         render: pygame.Surface = UIConfig.fonts.get("jetbrains_16l").render(f"{self.current_progress}%", True, "#ffffff")

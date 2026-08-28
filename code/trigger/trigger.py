@@ -1,11 +1,9 @@
 import pygame
 
-from window import Window
-
 
 class Trigger:
     def __init__(self, json_trigger: dict[str, ...]) -> None:
-        self.__id: str = ""
+        self.id: str = ""
         self.position: pygame.Vector2 | None = None
         self.group_id: int = -1
         self.work_time: float = 0
@@ -16,7 +14,7 @@ class Trigger:
         self.remaining_time: float = self.work_time
 
     def from_json(self, json_trigger: dict[str, ...]) -> None:
-        self.__id = json_trigger.get("id", self.__id)
+        self.id = json_trigger.get("id", self.id)
         self.position = pygame.Vector2(json_trigger.get("xy", self.position))
         self.group_id = json_trigger.get("gId", self.group_id)
         self.work_time = json_trigger.get("wT", self.work_time)
@@ -24,7 +22,7 @@ class Trigger:
 
     def to_json(self) -> dict[str, ...]:
         return {
-            "id": self.__id,
+            "id": self.id,
             "xy": [self.position.x, self.position.y],
             "gId": self.group_id,
             "wT": self.work_time,

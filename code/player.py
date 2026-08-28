@@ -1,6 +1,6 @@
 import pygame
 
-from tile import Tile
+from tile import Tile, TileManager
 from game_mode import GameMode, CubeMode, ShipMode, BallMode, WaveMode, UfoMode
 
 
@@ -12,9 +12,9 @@ class Player:
     WAVE_MODE: type[WaveMode] = WaveMode
 
     def __init__(self, first_color: str, second_color: str, icons: dict[str, int]) -> None:
-        self.rect: pygame.FRect = pygame.FRect(-Tile.SIZE, 0, Tile.SIZE, Tile.SIZE)
+        self.rect: pygame.FRect = pygame.FRect(0, 0, Tile.SIZE, Tile.SIZE)
         self.velocity: pygame.Vector2 = pygame.Vector2(0, 0)
-        self.move_speed: float = 4.25
+        self.move_speed: float = TileManager.TILE_DATA.get("x2_speed_buster").get("properties").get("speed")
         self.collision: dict[str, bool] = {
             "top": False, "left": False, "bottom": False, "right": False
         }

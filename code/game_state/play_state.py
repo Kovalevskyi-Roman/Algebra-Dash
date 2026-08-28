@@ -2,12 +2,13 @@ import pygame
 
 from level import Level
 from music_manager import MusicManager
-from tile import TileManager
+from sfx_manager import SFXManager
 from ui import Button
 from window import Window
 from .game_state import GameState
 from camera import Camera
 from player import Player
+from timer import Timer
 
 
 class PlayState(GameState):
@@ -58,8 +59,8 @@ class PlayState(GameState):
 
         self.__settings_state: GameState | None = None
 
-        self.__WAIT_TIME: float = 0.2
-        self.__wait_timer: float = self.__WAIT_TIME
+        self.__death_timer: Timer = Timer(SFXManager.get_length("death_sound") / 1750)
+        self.__level_complete_timer: Timer = Timer(SFXManager.get_length("level_complete") / 1000)
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
@@ -78,7 +79,6 @@ class PlayState(GameState):
         self.__level = None
         self.level_path = ""
         self.__is_paused = False
-        self.__wait_timer = self.__WAIT_TIME
         pygame.mouse.set_visible(True)
         MusicManager.stop()
         MusicManager.unload()
@@ -94,8 +94,9 @@ class PlayState(GameState):
         MusicManager.play(start=self.__level.music_start_pos)
 
     def update(self, *args, **kwargs) -> None:
-        if self.__wait_timer > 0:
-            self.__wait_timer -= Window.DELTA
+        self.__death_timer.update(self.retry)
+        self.__level_complete_timer.update(self._game_state_manager.change_state_to_previous)
+        if self.__death_timer.started or self.__level_complete_timer.started or self.__level is None:
             return
 
         if not MusicManager.playing:
@@ -113,13 +114,16 @@ class PlayState(GameState):
         if self.__is_paused:
             if self.__play_btn.is_just_pressed():
                 self.__is_paused = False
-                pygame.mouse.set_visible(False)
+
             elif self.__retry_btn.is_just_pressed():
                 self.retry()
                 self.__is_paused = False
-                pygame.mouse.set_visible(False)
+
             elif self.__back_btn.is_just_pressed():
                 self._game_state_manager.change_state_to_previous()
+                self.__is_paused = True
+
+            pygame.mouse.set_visible(self.__is_paused)
             return
 
         self.__player.platformer_mode = self.__settings_state.platformer_mode
@@ -128,25 +132,33 @@ class PlayState(GameState):
         self.__level.update(self.__camera.offset)
 
         if self.__level.current_progress >= 100:
+            MusicManager.fade_out(1000)
+            SFXManager.play("level_complete")
+            self.__level_complete_timer.start()
+
             Level.save_data(self.level_path, max_progress=100, death_count=self.__level.death_count)
-            self._game_state_manager.change_state_to_previous()
             return
 
         if self.__settings_state.is_player_immortal:
             self.__player.alive = True
 
         if not self.__player.alive:
+            MusicManager.fade_out(100)
+            SFXManager.play("death_sound")
+            self.__death_timer.start()
+
             self.__level.death_count += 1
             if self.__level.current_progress > self.__level.max_progress:
-                self.__level.save_data(self.level_path,
-                                       max_progress=self.__level.current_progress,
-                                       death_count=self.__level.death_count
-                                       )
+
+                self.__level.max_progress = self.__level.current_progress
+                self.__level.save_data(
+                    self.level_path,
+                    max_progress=self.__level.current_progress,
+                    death_count=self.__level.death_count
+                )
 
             if self.__settings_state.pause_after_death:
                 self.__is_paused = True
-
-            self.retry()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__level.draw(surface, self.__camera.offset, self.__settings_state.show_triggers, self.__settings_state.show_hitboxes)
@@ -154,5 +166,5 @@ class PlayState(GameState):
         if self.__settings_state.show_hitboxes:
             self.__player.draw_hitbox(surface, self.__camera.offset)
 
-        if self.__is_paused:
+        if self.__is_paused and not self.__death_timer.started:
             surface.blit(self.__pause_surface, [0, 0])

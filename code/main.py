@@ -7,6 +7,7 @@ from trigger import TriggerManager
 from game_state import GameStateManager, IconEditorState
 from ui import UIConfig
 from music_manager import MusicManager
+from sfx_manager import SFXManager
 from level import Level
 
 def main() -> None:
@@ -14,12 +15,14 @@ def main() -> None:
     pygame.init()
 
     window: Window = Window()
+
     UIConfig.init()
     TileManager.load_tile_data()
     TriggerManager.load_textures()
     MusicManager.init()
+    SFXManager.init()
     Level.load_levels()
-    IconEditorState.load_icons()
+
     game_state_manager: GameStateManager = GameStateManager()
     game_loop: GameLoop = GameLoop(window, game_state_manager)
     game_loop.run()

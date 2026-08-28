@@ -1,9 +1,12 @@
 import pygame
 
+from music_manager import MusicManager
 from ui import Button, UIConfig, ProgressBar
 from window import Window
 from .game_state import GameState
 from level import Level
+from sfx_manager import SFXManager
+from timer import Timer
 
 
 class OriginalLevelsState(GameState):
@@ -20,6 +23,7 @@ class OriginalLevelsState(GameState):
         self.__level_btn.texture.fill("#6a6a6a")
 
         self.__progress: ProgressBar = ProgressBar(pygame.Rect(0, 300, 650, 25), 0, 100, border_radius=8)
+        self.__timer = Timer(SFXManager.get_length("level_start") / 1250)
 
     def __update_ui(self) -> None:
         self.__level_btn.text = self.__levels[self.__selected_level][1].get("level_name")
@@ -36,6 +40,11 @@ class OriginalLevelsState(GameState):
         self.__update_ui()
 
     def update(self, *args, **kwargs) -> None:
+
+        self.__timer.update(lambda: self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE))
+        if self.__timer.started:
+            return
+
         keys_just_pressed = pygame.key.get_just_pressed()
 
         if keys_just_pressed[pygame.K_ESCAPE]:
@@ -62,7 +71,9 @@ class OriginalLevelsState(GameState):
                 raise AttributeError("State 'PLAY_STATE' not found")
 
             play_state.level_path = self.__levels[self.__selected_level][0]
-            self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE)
+            MusicManager.fade_out(100)
+            SFXManager.play("level_start")
+            self.__timer.start()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         if not self.__levels:

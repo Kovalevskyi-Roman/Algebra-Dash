@@ -3,8 +3,10 @@ import pygame
 from game_state.game_state import GameState
 from level import Level
 from music_manager import MusicManager
+from sfx_manager import SFXManager
 from ui import Entry, Button, UIConfig
 from window import Window
+from timer import Timer
 
 
 class DataEditorState(GameState):
@@ -99,6 +101,8 @@ class DataEditorState(GameState):
         )
         self.__ground_color_entry.texture.fill("#646464")
 
+        self.__timer = Timer(SFXManager.get_length("level_start") / 1250)
+
     def on_state_enter(self, *args, **kwargs) -> None:
         self.level = (self.level[0], Level.levels.get(self.level[0]))
         self.__level_name_entry.set_text(self.level[1].get("level_name"))
@@ -120,6 +124,10 @@ class DataEditorState(GameState):
         pygame.key.stop_text_input()
 
     def update(self, *args, **kwargs) -> None:
+        self.__timer.update(lambda: self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE))
+        if self.__timer.started:
+            return
+
         if pygame.key.get_just_pressed()[pygame.K_ESCAPE] and not (
                 self.__level_name_entry.active or self.__music_start_pos_entry.active or
                 self.__bg_color_entry.active or self.__ground_color_entry.active
@@ -165,7 +173,9 @@ class DataEditorState(GameState):
                 raise AttributeError("State 'PLAY_STATE' not found.")
 
             play_state.level_path = self.level[0]
-            self._game_state_manager.change_state(self._game_state_manager.PLAY_STATE)
+            MusicManager.fade_out(100)
+            SFXManager.play("level_start")
+            self.__timer.start()
 
         elif self.__delete_level_btn.is_just_pressed():
             self.__level_was_deleted = True

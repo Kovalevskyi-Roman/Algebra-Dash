@@ -63,7 +63,7 @@
     - [ ] Robot
     - [ ] Spider
 
-- [ ] Music and sounds
+- [x] Music and sounds
     - [x] Menu music
     - [x] Level music
-    - [ ] SFX
+    - [x] SFX

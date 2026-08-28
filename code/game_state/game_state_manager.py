@@ -55,21 +55,23 @@ class GameStateManager:
 
         self.__current_state = self.game_states.get(self.current_state_type, None)
         if self.__current_state is not None:
-            # stop menu music
+            # stops menu music
             if not isinstance(self.__current_state, self.PLAY_MENU_MUSIC_IN) and MusicManager.loaded_music == "menu_music.ogg":
                 pygame.mixer.music.set_volume(round(self.game_states.get(self.SETTINGS_STATE).music_volume_slider.value) / 100)
                 MusicManager.stop()
                 MusicManager.unload()
+
             self.__current_state.on_state_enter()
 
     def change_state_to_previous(self) -> None:
         self.change_state(self.previous_state_type)
 
     def update(self) -> None:
-        # play menu music
+        # plays menu music
         if isinstance(self.__current_state, self.PLAY_MENU_MUSIC_IN) and not MusicManager.playing:
             pygame.mixer.music.set_volume(round(self.game_states.get(self.SETTINGS_STATE).menu_music_volume_slider.value) / 100)
-            MusicManager.play("menu_music.ogg", fade_ms=11000)
+            MusicManager.play("menu_music.ogg", fade_ms=9000)
+
         self.__current_state.update()
 
     def draw(self, surface: pygame.Surface) -> None:

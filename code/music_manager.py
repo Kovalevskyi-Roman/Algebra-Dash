@@ -74,6 +74,13 @@ class MusicManager:
         cls.position = 0
 
     @classmethod
+    def fade_out(cls, time_ms: int) -> None:
+        pygame.mixer.music.fadeout(time_ms)
+        cls.playing = False
+        cls.paused = False
+        cls.position = 0
+
+    @classmethod
     def pause(cls) -> None:
         pygame.mixer.music.pause()
         cls.paused = True

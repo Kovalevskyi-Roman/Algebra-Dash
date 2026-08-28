@@ -32,6 +32,7 @@ class IconEditorState(GameState):
         self.__second_color_entry.texture.fill("#646464")
 
         self.__colored_icons: dict[str, list[pygame.Surface]] = dict()
+        self.load_icons()
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)

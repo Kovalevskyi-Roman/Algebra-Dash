@@ -4,6 +4,7 @@ import pygame
 from ui import UIConfig, Button, Slider
 from window import Window
 from .game_state import GameState
+from sfx_manager import SFXManager
 
 
 class SettingsState(GameState):
@@ -65,10 +66,21 @@ class SettingsState(GameState):
             0, 100
         )
 
+        self.__sfx_volume_lbl = UIConfig.fonts.get("jetbrains_20l").render("SFX volume", True, "#ffffff")
+        self.sfx_volume_slider: Slider = Slider(
+            pygame.Vector2(
+                Window.SIZE[0] / 2,
+                self.menu_music_volume_slider.rect.bottom + self.__sfx_volume_lbl.height + self.__sfx_volume_lbl.height
+            ),
+            Window.SIZE[0] // 2 - 50,
+            0, 100
+        )
+
         self.__load_settings()
 
     def on_state_exit(self, *args, **kwargs) -> None:
         pygame.mixer.music.set_volume(round(self.menu_music_volume_slider.value) / 100)
+        SFXManager.set_volume(round(self.sfx_volume_slider.value) / 100)
         self.save_settings()
 
     def __load_settings(self) -> None:
@@ -86,8 +98,10 @@ class SettingsState(GameState):
             self.player_icons = content.get("player_icons", dict())
             self.music_volume_slider.set_value(content.get("music_volume", 50))
             self.menu_music_volume_slider.set_value(content.get("menu_music_volume", 50))
+            self.sfx_volume_slider.set_value(content.get("sfx_volume", 50))
 
         pygame.mixer.music.set_volume(round(self.menu_music_volume_slider.value) / 100)
+        SFXManager.set_volume(round(self.sfx_volume_slider.value) / 100)
 
     def save_settings(self) -> None:
         with open("../resources/data/settings.json", "w") as file:
@@ -102,7 +116,8 @@ class SettingsState(GameState):
                 "player_second_color": self.player_second_color,
                 "player_icons": self.player_icons,
                 "music_volume": round(self.music_volume_slider.value),
-                "menu_music_volume": round(self.menu_music_volume_slider.value)
+                "menu_music_volume": round(self.menu_music_volume_slider.value),
+                "sfx_volume": round(self.sfx_volume_slider.value)
             }
             json.dump(content, file, indent=4)
 
@@ -128,6 +143,7 @@ class SettingsState(GameState):
 
         self.music_volume_slider.update()
         self.menu_music_volume_slider.update()
+        self.sfx_volume_slider.update()
 
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__show_hitboxes_btn.draw(surface)
@@ -168,3 +184,10 @@ class SettingsState(GameState):
              self.menu_music_volume_slider.rect.y - self.__menu_music_volume_lbl.height]
         )
         self.menu_music_volume_slider.draw(surface)
+
+        surface.blit(
+            self.__sfx_volume_lbl,
+            [self.sfx_volume_slider.rect.centerx - self.__sfx_volume_lbl.width / 2,
+             self.sfx_volume_slider.rect.y - self.__sfx_volume_lbl.height]
+        )
+        self.sfx_volume_slider.draw(surface)

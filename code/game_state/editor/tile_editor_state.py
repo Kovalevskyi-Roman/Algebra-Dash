@@ -467,7 +467,7 @@ class TileEditorState(GameState):
                 ceil_level = Player.get_game_mode_type(game_mode).ceil_level
                 pygame.draw.line(
                     surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                             tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
+                    tile.rect.center - self.__camera_scroll - pygame.Vector2(0, ceil_level * Tile.SIZE),
                     [surface.get_width(), tile.rect.centery - self.__camera_scroll.y - ceil_level * Tile.SIZE],
                     width=3
                 )
@@ -475,7 +475,7 @@ class TileEditorState(GameState):
                 ground_level = Player.get_game_mode_type(game_mode).ground_level
                 pygame.draw.line(
                     surface, pygame.Color("#ffffff") - pygame.Color(self.__bg_color),
-                             tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
+                    tile.rect.center - self.__camera_scroll + pygame.Vector2(0, ground_level * Tile.SIZE),
                     [surface.get_width(), tile.rect.centery - self.__camera_scroll.y + ground_level * Tile.SIZE],
                     width=3
                 )

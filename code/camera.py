@@ -7,9 +7,10 @@ from tile import Tile
 class Camera:
     def __init__(self, target: pygame.Vector2 | pygame.typing.SequenceLike[int | float]) -> None:
         self.target = pygame.Vector2(target)
+        self.zoom: float = 1.5
         self.offset: pygame.Vector2 = pygame.Vector2(0, 0)
         self.smoothness: float = 0.085
-        # then value closer to 0 then smoother camera will be
+        # the closer value to 0 than smoother camera will be
 
         self.set_offset()
 
@@ -30,3 +31,13 @@ class Camera:
         )
 
         self.offset += distance * self.smoothness
+
+    def draw(self, window: pygame.Surface) -> None:
+        viewport = window
+        if self.zoom != 1:
+            viewport = pygame.transform.scale_by(window, self.zoom)
+
+        window.blit(
+            viewport,
+            [Window.SIZE[0] / 2 - viewport.width / 2, Window.SIZE[1] / 2 - viewport.height / 2]
+        )

@@ -95,7 +95,6 @@ class TileManager:
         cls.set_tile_rotation(tile, kwargs.get("rotation", 0))
         tile.color = kwargs.get("color", "#ffffff")
         tile.group_ids = set(kwargs.get("group_ids", set()))
-        tile.static_rect = tile.rect.copy()
 
         return tile
 
@@ -103,7 +102,7 @@ class TileManager:
     def clone_tile(cls, tile: Tile) -> Tile:
         return cls.create_tile(
             tile.id,
-            tile.rect.topleft,
+            tile.rect.scale_by(round(1 / tile.scale_x, 2), round(1 / tile.scale_y, 2)).topleft,
             scale_x=tile.scale_x,
             scale_y=tile.scale_y,
             flip_x=tile.flip_x,
@@ -181,8 +180,8 @@ class TileManager:
         # rect = pygame.Rect(tile.rect.topleft - camera_offset, tile.rect.size)
         hitbox_rect = pygame.FRect(tile.rect.topleft + (tile.hitbox.topleft - camera_offset), tile.hitbox.size)
 
-        if hitbox_rect.right < 0 or hitbox_rect.x > surface.get_width() or \
-                hitbox_rect.bottom < 0 or hitbox_rect.y > surface.get_height():
+        if hitbox_rect.right < 0 or hitbox_rect.x > surface.width or \
+                hitbox_rect.bottom < 0 or hitbox_rect.y > surface.height:
             return
 
         # pygame.draw.rect(surface, "#0000ff", rect, width=1)
@@ -196,8 +195,8 @@ class TileManager:
             return False
 
         tile_pos: pygame.Vector2 = pygame.Vector2(tile.rect.topleft - camera_offset)
-        if tile_pos.x + tile.rect.width < 0 or tile_pos.x > surface.get_width() or \
-                tile_pos.y + tile.rect.height < 0 or tile_pos.y > surface.get_height():
+        if tile_pos.x + tile.rect.width < 0 or tile_pos.x > surface.width or \
+                tile_pos.y + tile.rect.height < 0 or tile_pos.y > surface.height:
             return False
 
         if tile.color != "#ffffff":

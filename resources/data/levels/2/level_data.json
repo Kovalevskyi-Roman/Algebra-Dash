@@ -1,0 +1,14 @@
+{
+    "level_name": "Float Play",
+    "music_name": "Float Play.ogg",
+    "music_start_pos": 0.0,
+    "is_original": true,
+    "max_progress": 43.2,
+    "death_count": 1054,
+    "editor_scroll": [
+        234.0,
+        -744.0
+    ],
+    "bg_color": "#b2b2b2",
+    "ground_color": "#323232"
+}

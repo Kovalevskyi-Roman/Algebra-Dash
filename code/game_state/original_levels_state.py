@@ -23,7 +23,7 @@ class OriginalLevelsState(GameState):
         self.__level_btn.texture.fill("#6a6a6a")
 
         self.__progress: ProgressBar = ProgressBar(pygame.Rect(0, 300, 650, 25), 0, 100, border_radius=8)
-        self.__timer = Timer(SFXManager.get_length("level_start") / 1250)
+        self.__timer = Timer(SFXManager.get_length("level_start") / 2250)
 
     def __update_ui(self) -> None:
         self.__level_btn.text = self.__levels[self.__selected_level][1].get("level_name")

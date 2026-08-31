@@ -1,14 +1,14 @@
 {
-    "level_name": "Tick Tock",
-    "music_name": "Tick Tock.ogg",
-    "music_start_pos": 7.0,
+    "level_name": "Stereo Madness",
+    "music_name": "Stereo Madness.ogg",
+    "music_start_pos": 0.2,
     "is_original": true,
-    "max_progress": 0,
-    "death_count": 748,
+    "max_progress": 38.8,
+    "death_count": 145,
     "editor_scroll": [
-        2266.0,
-        -432.0
+        6172.0,
+        -392.0
     ],
-    "bg_color": "#707aff",
-    "ground_color": "#101499"
+    "bg_color": "#2b2b2b",
+    "ground_color": "#000000"
 }

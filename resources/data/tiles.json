@@ -8,6 +8,32 @@
         "texture": "tile2.png"
     },
     {
+        "id": "tile3",
+        "texture": "tile3.png"
+    },
+    {
+        "id": "tile4",
+        "texture": "tile4.png"
+    },
+    {
+        "id": "tile5",
+        "texture": "tile5.png"
+    },
+    {
+        "id": "tile6",
+        "texture": "tile6.png"
+    },
+    {
+        "id": "tile7",
+        "texture": "tile7.png"
+    },
+    {
+        "id": "tile8",
+        "texture": "tile8.png",
+        "is_solid": false,
+        "free_rotatable": true
+    },
+    {
         "id": "spike",
         "type": "hazard",
         "texture": "spike.png",
@@ -18,6 +44,18 @@
         "type": "hazard",
         "texture": "spike2.png",
         "hitbox": [0.29, 0.3, 0.42, 0.48]
+    },
+    {
+        "id": "spike3",
+        "type": "hazard",
+        "texture": "spike3.png",
+        "hitbox": [0.29, 0.7, 0.42, 0.25]
+    },
+    {
+        "id": "spike4",
+        "type": "hazard",
+        "texture": "spike4.png",
+        "hitbox": [0.29, 0.7, 0.42, 0.25]
     },
 
     {
@@ -232,7 +270,7 @@
         "hitbox": [0.35, 0.3, 0.25, 0.4],
         "is_solid": false,
         "properties": {
-            "speed": 3
+            "speed": 3.3
         }
     },
     {
@@ -243,7 +281,7 @@
         "hitbox": [0.4, 0.2, 0.2, 0.6],
         "is_solid": false,
         "properties": {
-            "speed": 4.25
+            "speed": 4.5
         }
     },
     {
@@ -254,7 +292,7 @@
         "hitbox": [0.2, 0.2, 0.52, 0.6],
         "is_solid": false,
         "properties": {
-            "speed": 5.5
+            "speed": 5.8
         }
     },
     {
@@ -265,7 +303,7 @@
         "hitbox": [0.2, 0.2, 0.6, 0.6],
         "is_solid": false,
         "properties": {
-            "speed": 6.7
+            "speed": 6.95
         }
     }
 ]

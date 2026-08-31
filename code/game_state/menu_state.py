@@ -67,7 +67,7 @@ class MenuState(GameState):
         )
 
         self.__labels: list[dict[str, pygame.Surface | pygame.Vector2 | int]] = list()
-        for _ in range(24):
+        for _ in range(28):
             self.__labels.append(self.__create_label())
 
     def __create_label(self) -> dict[str, pygame.Surface | pygame.Vector2 | int]:

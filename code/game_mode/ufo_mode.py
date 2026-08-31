@@ -30,7 +30,8 @@ class UfoMode(GameMode):
             self._player.velocity.y = self.jump_height * self._player.gravity_multiplier
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
-        self.rotation = self._player.velocity.y * -self._player.gravity_multiplier * 1.25
+        if self._player.velocity.x:
+            self.rotation = self._player.velocity.y * -self._player.gravity_multiplier * 1.25
 
         texture = pygame.transform.rotate(self.texture, self.rotation)
         padding = pygame.Vector2(0, 0)

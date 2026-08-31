@@ -1,11 +1,12 @@
 import pygame
 
+from .game_state import GameState
+from ui import Button, UIConfig
+from window import Window
 from level import Level
+from tile import Tile
 from music_manager import MusicManager
 from sfx_manager import SFXManager
-from ui import Button
-from window import Window
-from .game_state import GameState
 from camera import Camera
 from player import Player
 from timer import Timer
@@ -59,8 +60,12 @@ class PlayState(GameState):
 
         self.__settings_state: GameState | None = None
 
-        self.__death_timer: Timer = Timer(SFXManager.get_length("death_sound") / 1750)
-        self.__level_complete_timer: Timer = Timer(SFXManager.get_length("level_complete") / 1000)
+        self.__death_timer: Timer = Timer(SFXManager.get_length("death_sound") / 1800)
+        self.__level_complete_timer: Timer = Timer(SFXManager.get_length("level_complete") / 1800)
+
+        self.__player_offset: pygame.Vector2 = pygame.Vector2(100, 0)
+        self.__finish_direction: pygame.Vector2 = pygame.Vector2(0, 0)
+        self.__animation_velocity: pygame.Vector2 = pygame.Vector2(0, 0)
 
     def on_state_enter(self, *args, **kwargs) -> None:
         self.__settings_state = self._game_state_manager.game_states.get(self._game_state_manager.SETTINGS_STATE)
@@ -68,7 +73,8 @@ class PlayState(GameState):
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
         self.__level = Level()
         self.__level.load(self.level_path, self.__player)
-        self.__camera = Camera(self.__player.rect.center)
+        self.__level.set_player(self.__player)
+        self.__camera = Camera(self.__player.rect.center + self.__player_offset)
         self.__is_paused = False
         pygame.mouse.set_visible(False)
 
@@ -79,6 +85,9 @@ class PlayState(GameState):
         self.__camera = None
         self.level_path = ""
         self.__is_paused = False
+        self.__finish_direction = pygame.Vector2(0, 0)
+        self.__animation_velocity = pygame.Vector2(0, 0)
+        self.__player_offset = pygame.Vector2(100, 0)
         pygame.mouse.set_visible(True)
         MusicManager.stop()
         MusicManager.unload()
@@ -86,17 +95,34 @@ class PlayState(GameState):
     def retry(self) -> None:
         self.__player = Player(self.__settings_state.player_first_color,
                                self.__settings_state.player_second_color, self.__settings_state.player_icons)
-        self.__level.set_player(self.__player)
         self.__level.reset()
-        self.__camera = Camera(self.__player.rect.center)
+        self.__level.set_player(self.__player)
+        self.__camera = Camera(self.__player.rect.center + self.__player_offset)
         pygame.mouse.set_visible(False)
         MusicManager.stop()
-        MusicManager.play(start=self.__level.music_start_pos)
+
+    def play_finish_animation(self) -> None:
+        if round(self.__player.velocity):  # slows player down
+            self.__player.velocity = self.__player.velocity.lerp(pygame.Vector2(0, 0), 0.05)
+            self.__player.rect.topleft += self.__player.velocity
+        else:  # if player has stopped, plays animation
+            self.__player.velocity = pygame.Vector2(0, 0)
+
+            self.__animation_velocity += self.__finish_direction * 0.1
+            self.__player.rect.topleft += self.__animation_velocity
+            self.__player.game_modes.get(self.__player.current_game_mode).rotation -= self.__animation_velocity.x * 2
+
+        self.__player_offset = self.__player_offset.lerp(pygame.Vector2(-50, Tile.SIZE), self.__animation_velocity.x / 90)
+        self.__camera.update(self.__player.rect.center + self.__player_offset)
 
     def update(self, *args, **kwargs) -> None:
         self.__death_timer.update(self.retry)
         self.__level_complete_timer.update(self._game_state_manager.change_state_to_previous)
-        if self.__death_timer.started or self.__level_complete_timer.started or self.__level is None:
+        if self.__death_timer.started or self.__level is None:
+            return
+
+        if self.__level_complete_timer.started:
+            self.play_finish_animation()
             return
 
         if not MusicManager.playing:
@@ -130,13 +156,20 @@ class PlayState(GameState):
 
         self.__player.platformer_mode = self.__settings_state.platformer_mode
 
-        self.__camera.update(self.__player.rect.center)
+        self.__camera.update(self.__player.rect.center + self.__player_offset)
         self.__level.update(self.__camera.offset)
 
         if self.__level.current_progress >= 100:
             MusicManager.fade_out(1000)
             SFXManager.play("level_complete")
             self.__level_complete_timer.start()
+            # find's finish direction for animation
+            finish_screen_pos = pygame.Vector2(
+                self.__level.get_finish_screen_x(Window.SIZE[0], self.__camera.offset),
+                (self.__level.ground_tile.rect.y - Tile.SIZE * 6.5 - self.__camera.offset.y)
+            )
+            self.__finish_direction = finish_screen_pos - (self.__player.rect.center - self.__camera.offset)
+            self.__finish_direction = self.__finish_direction.normalize()
 
             Level.save_data(self.level_path, max_progress=100, death_count=self.__level.death_count)
             return
@@ -165,8 +198,14 @@ class PlayState(GameState):
     def draw(self, surface: pygame.Surface, *args, **kwargs) -> None:
         self.__level.draw(surface, self.__camera.offset, self.__settings_state.show_triggers, self.__settings_state.show_hitboxes)
 
-        if self.__settings_state.show_hitboxes:
+        if self.__settings_state.show_hitboxes and not self.__level_complete_timer.started:
             self.__player.draw_hitbox(surface, self.__camera.offset)
+
+        self.__camera.draw(surface)
 
         if self.__is_paused and not self.__death_timer.started:
             surface.blit(self.__pause_surface, [0, 0])
+
+        # current progress
+        render: pygame.Surface = UIConfig.create_label("jetbrains_16l", f"{self.__level.current_progress}%")
+        surface.blit(render, [surface.width / 2 - render.width / 2, 0])

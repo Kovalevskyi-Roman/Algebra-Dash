@@ -30,12 +30,12 @@ class MusicManager:
 
     @classmethod
     def update(cls) -> None:
-        if cls.playing and not cls.paused:
-            cls.position += Window.DELTA
-            cls.position = round(cls.position, 3)
-
         if not pygame.mixer.music.get_busy() and not cls.paused and cls.playing:
             cls.stop()
+
+        elif cls.playing and not cls.paused:
+            cls.position += Window.DELTA
+            cls.position = round(cls.position, 3)
 
     @classmethod
     def load(cls, music_name: str) -> None:
@@ -112,7 +112,7 @@ class MusicManager:
             if not hasattr(tile, "speed"):
                 continue
 
-            if position > tile.rect.x:
+            if position >= tile.rect.x:
                 cls.music_line_speed = tile.speed
 
         return position
@@ -121,9 +121,8 @@ class MusicManager:
     def get_position_from_time(cls, time: float, tiles: list) -> float:
         music_line_pos: float = 0
 
-        while time > 0:
+        while round(time, 3) > 0:
             time -= Window.DELTA
-            time = round(time, 2)
             music_line_pos = cls.step_music_line(music_line_pos, tiles)
 
         return music_line_pos
@@ -134,6 +133,7 @@ class MusicManager:
         current_position: float = 0
         while current_position < position:
             time += Window.DELTA
+            time = round(time, 3)
             current_position = cls.step_music_line(current_position, tiles)
 
-        return round(time, 3)
+        return time

@@ -8,7 +8,7 @@ from sfx_manager import SFXManager
 
 
 class SettingsState(GameState):
-    GRAVITY: float = 0.55
+    GRAVITY: float = 0.57
 
     def __init__(self, game_state_manager, *args, **kwargs) -> None:
         super().__init__(game_state_manager, *args, **kwargs)

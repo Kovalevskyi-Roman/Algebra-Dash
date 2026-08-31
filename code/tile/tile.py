@@ -17,7 +17,6 @@ class Tile:
                  hitbox: pygame.typing.SequenceLike[int], *args, **kwargs) -> None:
         self.id = id_
         self.rect: pygame.FRect = pygame.FRect(position, size)
-        self.static_rect = self.rect.copy()
         self.hitbox: pygame.FRect = pygame.FRect(*hitbox)
         self.scale_x: float = 1.0
         self.scale_y: float = 1.0
@@ -110,4 +109,4 @@ class Tile:
         ...
 
     def reset(self) -> None:
-        self.rect = self.static_rect.copy()
+        ...

@@ -31,7 +31,8 @@ class ShipMode(GameMode):
         self._player.velocity.y += self.__gravity * self._player.gravity_multiplier
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.math.Vector2) -> None:
-        self.rotation = self._player.velocity.y * -self._player.gravity_multiplier * 3.5
+        if self._player.velocity.x:
+            self.rotation = self._player.velocity.y * -self._player.gravity_multiplier * 3.5
 
         texture = pygame.transform.rotate(self.texture, self.rotation)
         padding = pygame.Vector2(0, 0)

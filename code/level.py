@@ -6,7 +6,6 @@ import pygame
 
 from music_manager import MusicManager
 from trigger import Trigger, TriggerManager, StartPosTrigger
-from ui import UIConfig
 from collider import Collider
 from player import Player
 from tile import Tile, TileManager
@@ -30,6 +29,7 @@ class Level:
             editor scroll             (tuple[int, int])
             bg color                  (string)
     """
+
     def __init__(self) -> None:
         self.path: str = ""
         self.name: str = ""
@@ -124,6 +124,12 @@ class Level:
         self.ground_tile.rect.y = Tile.SIZE
         self.ceil_tile.rect.y = -Tile.SIZE * 64
 
+        # updates all triggers before start pos
+        player_right = 0
+        while player_right < self.__player.rect.right:
+            player_right = MusicManager.step_music_line(player_right, self.tiles)
+            self.update_triggers(player_right)
+
     def load(self, path: str, player: Player) -> None:
         self.tiles.clear()
         self.triggers.clear()
@@ -158,22 +164,23 @@ class Level:
         self.__start_pos = self.find_start_pos(self.triggers)
         self.__finish_x_pos = self.get_finish_pos(self.tiles).x
 
+        self.__player = player
         self.collider = Collider(self.__player, self)
-        self.set_player(player)
 
         self.music_start_pos += MusicManager.get_time_from_position(self.__start_pos.x, self.tiles)
         MusicManager.load(self.music_name)
 
     @classmethod
     def get_finish_pos(cls, tiles: list[Tile]) -> pygame.Vector2:
+        extra_tiles: float = 12
         if not tiles:
-            return pygame.Vector2(Tile.SIZE * 8, 0)
+            return pygame.Vector2(Tile.SIZE * extra_tiles, 0)
 
-        return pygame.Vector2(max(tiles, key=lambda tile: tile.rect.x).rect.topleft) + (Tile.SIZE * 8, 0)
+        return pygame.Vector2(max(tiles, key=lambda tile: tile.rect.x).rect.topleft) + (Tile.SIZE * extra_tiles, 0)
 
     @classmethod
     def find_start_pos(cls, triggers: list[Trigger]) -> pygame.Vector2:
-        start_pos_triggers = list(sorted(triggers, key=lambda trigger: isinstance(trigger, StartPosTrigger)))
+        start_pos_triggers = list(filter(lambda trigger: isinstance(trigger, StartPosTrigger), triggers))
         if not start_pos_triggers:
             return pygame.Vector2(-Tile.SIZE, 0)
 
@@ -369,14 +376,9 @@ class Level:
         for trigger in self.triggers:
             trigger.reset()
 
-    def update(self, camera_offset: pygame.Vector2) -> None:
-        self.__player.update()
-
-        for tile in self.tiles:
-            tile.update(player=self.__player, level=self)
-
+    def update_triggers(self, player_right: float) -> None:
         for trigger in self.triggers:
-            if self.__player.rect.right >= trigger.position.x and trigger.remaining_time > 0 and trigger not in self.__working_triggers:
+            if player_right >= trigger.position.x and trigger.remaining_time > 0 and trigger not in self.__working_triggers:
                 self.__working_triggers.append(trigger)
 
         for trigger in self.__working_triggers:
@@ -396,6 +398,14 @@ class Level:
 
         self.__working_triggers = list(filter(lambda t: t.remaining_time > 0, self.__working_triggers))
 
+    def update(self, camera_offset: pygame.Vector2) -> None:
+        self.__player.update()
+
+        for tile in self.tiles:
+            tile.update(player=self.__player, level=self)
+
+        self.update_triggers(self.__player.rect.right)
+
         self.collider.update_collision(camera_offset)
 
         self.current_progress = round((self.__player.rect.x / self.__finish_x_pos) * 100, 1)
@@ -405,6 +415,9 @@ class Level:
         if self.ground_tile.rect.y >= Tile.SIZE:
             self.ceil_tile.rect.y -= self.ground_tile.rect.y - Tile.SIZE
             self.ground_tile.rect.y = Tile.SIZE
+
+    def get_finish_screen_x(self, surface_width: int, camera_offset: pygame.Vector2) -> float:
+        return self.__finish_x_pos + surface_width / 2.5 - camera_offset.x
 
     def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2,
              show_triggers: bool = False, show_hitboxes: bool = False) -> None:
@@ -417,9 +430,20 @@ class Level:
             TileManager.draw_tile(tile, surface, camera_offset)
             if show_hitboxes:
                 TileManager.draw_tile_hitbox(tile, surface, camera_offset)
+
+        # finish
+        finish_screen_x = self.get_finish_screen_x(surface.width, camera_offset)
+        if finish_screen_x < surface.width:
+            pygame.draw.rect(surface, "#ffffff", [finish_screen_x, 0, finish_screen_x * 2, surface.height])
+
         # ground
         if self.ground_tile.rect.y - camera_offset.y < surface.height:
-            pygame.draw.rect(surface, self.ground_color, [[0, self.ground_tile.rect.y - camera_offset.y], surface.size])
+            pygame.draw.rect(surface,
+                             self.ground_color,
+                             [
+                                 [0, self.ground_tile.rect.y - camera_offset.y],
+                                 [surface.width, self.ground_tile.rect.y - camera_offset.y]
+                             ])
         # ceiling
         if self.ceil_tile.rect.bottom - camera_offset.y > 0:
             pygame.draw.rect(surface, self.ground_color, [0, 0, surface.width, self.ceil_tile.rect.bottom - camera_offset.y])
@@ -428,7 +452,3 @@ class Level:
         if show_triggers:
             for trigger in self.triggers:
                 TriggerManager.draw(surface, trigger, camera_offset, hide_line=isinstance(trigger, StartPosTrigger))
-
-        # current progress
-        render: pygame.Surface = UIConfig.fonts.get("jetbrains_16l").render(f"{self.current_progress}%", True, "#ffffff")
-        surface.blit(render, [surface.width / 2 - render.width / 2, 0])

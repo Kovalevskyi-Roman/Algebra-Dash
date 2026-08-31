@@ -1,14 +1,14 @@
 {
-    "level_name": "Float Play",
-    "music_name": "Float Play.ogg",
-    "music_start_pos": 0.0,
+    "level_name": "Tick Tock",
+    "music_name": "Tick Tock.ogg",
+    "music_start_pos": 7.0,
     "is_original": true,
     "max_progress": 100,
-    "death_count": 1009,
+    "death_count": 760,
     "editor_scroll": [
-        130.0,
-        -536.0
+        2450.0,
+        -464.0
     ],
-    "bg_color": "#b2b2b2",
-    "ground_color": "#323232"
+    "bg_color": "#707aff",
+    "ground_color": "#101499"
 }

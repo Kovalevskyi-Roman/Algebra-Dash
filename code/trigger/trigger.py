@@ -1,5 +1,7 @@
 import pygame
 
+from window import Window
+
 
 class Trigger:
     def __init__(self, json_trigger: dict[str, ...]) -> None:
@@ -8,6 +10,7 @@ class Trigger:
         self.group_id: int = -1
         self.work_time: float = 0
         self.data: dict[str, ...] | None = None
+        self.iterations: int = 0
 
         self.from_json(json_trigger)
 
@@ -19,6 +22,9 @@ class Trigger:
         self.group_id = json_trigger.get("gId", self.group_id)
         self.work_time = json_trigger.get("wT", self.work_time)
         self.data = json_trigger.get("data", {})
+        self.iterations = round(self.work_time / Window.DELTA)
+        if self.iterations <= 0:
+            self.iterations = 1
 
     def to_json(self) -> dict[str, ...]:
         return {
@@ -34,3 +40,6 @@ class Trigger:
 
     def reset(self) -> None:
         self.remaining_time = self.work_time
+        self.iterations = round(self.work_time / Window.DELTA)
+        if self.iterations <= 0:
+            self.iterations = 1
